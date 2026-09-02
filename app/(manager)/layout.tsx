@@ -30,7 +30,7 @@ export default async function ManagerLayout({
 
   return (
     <>
-      <AppHeader isManager />
+      <AppHeader roles={roles} />
       <div className="container">{children}</div>
     </>
   );

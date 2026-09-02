@@ -2,21 +2,31 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { isManager, type Role } from "@/lib/roles";
 
-const MANAGER_LINKS = [
-  { href: "/dashboard", label: "Dashboard" },
+type NavLink = { href: string; label: string };
+
+const DASHBOARD: NavLink = { href: "/dashboard", label: "Dashboard" };
+
+const MANAGER_LINKS: NavLink[] = [
+  DASHBOARD,
   { href: "/vehicles", label: "Vehicles" },
   { href: "/plant", label: "Plant" },
   { href: "/trailers", label: "Trailers" },
+  { href: "/checklists", label: "Checklists" },
+  { href: "/faults", label: "Faults" },
 ];
 
-const BASIC_LINKS = [{ href: "/dashboard", label: "Dashboard" }];
+const FIELD_LINKS: NavLink[] = [
+  DASHBOARD,
+  { href: "/check", label: "Daily Check" },
+  { href: "/inspections", label: "Inspections" },
+  { href: "/faults", label: "Faults" },
+];
 
-export function AppNav({ isManager }: { isManager: boolean }) {
+export function AppNav({ roles }: { roles: Role[] }) {
   const pathname = usePathname();
-  const links = isManager ? MANAGER_LINKS : BASIC_LINKS;
-
-  if (links.length < 2) return null;
+  const links = isManager(roles) ? MANAGER_LINKS : FIELD_LINKS;
 
   return (
     <nav className="nav">

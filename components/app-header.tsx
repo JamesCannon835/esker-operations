@@ -1,6 +1,7 @@
 import { AppNav } from "./app-nav";
+import type { Role } from "@/lib/roles";
 
-export function AppHeader({ isManager }: { isManager: boolean }) {
+export function AppHeader({ roles }: { roles: Role[] }) {
   return (
     <>
       <div className="topbar">
@@ -13,7 +14,7 @@ export function AppHeader({ isManager }: { isManager: boolean }) {
           </form>
         </div>
       </div>
-      <AppNav isManager={isManager} />
+      <AppNav roles={roles} />
     </>
   );
 }

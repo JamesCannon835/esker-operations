@@ -33,8 +33,8 @@ export async function AssetQr({ code }: { code: string }) {
           </div>
         </div>
         <p className="field-hint" style={{ marginTop: 8 }}>
-          Print and fix to the asset. Scanning opens this record; from Phase 3 it
-          will open the daily check.
+          Print and fix to the asset. Scanning it (signed in) opens the daily
+          check for this asset.
         </p>
       </div>
     </div>

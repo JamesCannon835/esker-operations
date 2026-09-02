@@ -44,22 +44,22 @@ export async function RolePanels({
           <p className="hint">No vehicle assigned to you yet.</p>
         )}
         <div className="grid">
-          <div className="tile">
+          <Link className="tile" href="/check">
             <div className="label">Daily check</div>
-            <div className="value">Phase 3</div>
-          </div>
-          <div className="tile">
+            <div className="value">Start</div>
+          </Link>
+          <Link className="tile" href="/faults/new">
             <div className="label">Report fault</div>
-            <div className="value">Phase 3</div>
-          </div>
+            <div className="value">Report</div>
+          </Link>
           <div className="tile">
             <div className="label">Breakdown</div>
             <div className="value">Phase 7</div>
           </div>
-          <div className="tile">
+          <Link className="tile" href="/inspections">
             <div className="label">My inspection history</div>
-            <div className="value">Phase 3</div>
-          </div>
+            <div className="value">View</div>
+          </Link>
         </div>
       </div>,
     );
@@ -93,14 +93,18 @@ export async function RolePanels({
           <p className="hint">No plant assigned to you yet.</p>
         )}
         <div className="grid">
-          <div className="tile">
+          <Link className="tile" href="/check">
             <div className="label">Daily check</div>
-            <div className="value">Phase 3</div>
-          </div>
-          <div className="tile">
+            <div className="value">Start</div>
+          </Link>
+          <Link className="tile" href="/faults/new">
             <div className="label">Report fault</div>
-            <div className="value">Phase 3</div>
-          </div>
+            <div className="value">Report</div>
+          </Link>
+          <Link className="tile" href="/inspections">
+            <div className="label">My inspection history</div>
+            <div className="value">View</div>
+          </Link>
         </div>
       </div>,
     );
@@ -125,20 +129,20 @@ export async function RolePanels({
         <h2>Mechanic — Workshop</h2>
         <p className="hint">Tablet / workshop PC.</p>
         <div className="grid">
-          <div className="tile">
+          <Link className="tile" href="/faults">
             <div className="label">My open jobs</div>
             <div className="value">{myJobs ?? 0}</div>
-          </div>
-          <div className="tile">
+          </Link>
+          <Link className="tile" href="/faults">
             <div className="label">Unassigned faults</div>
             <div className="value">{unassigned ?? 0}</div>
-          </div>
+          </Link>
+          <Link className="tile" href="/check">
+            <div className="label">Daily check</div>
+            <div className="value">Start</div>
+          </Link>
           <div className="tile">
             <div className="label">13-week / pre-test</div>
-            <div className="value">Phase 5</div>
-          </div>
-          <div className="tile">
-            <div className="label">Service log</div>
             <div className="value">Phase 5</div>
           </div>
         </div>
@@ -180,10 +184,12 @@ export async function RolePanels({
           Fleet Overview
         </h2>
         <p className="hint">
-          Full fleet visibility. Manage master data:{" "}
+          Full fleet visibility. Manage:{" "}
           <Link href="/vehicles">Vehicles</Link> ·{" "}
           <Link href="/plant">Plant</Link> ·{" "}
-          <Link href="/trailers">Trailers</Link>
+          <Link href="/trailers">Trailers</Link> ·{" "}
+          <Link href="/checklists">Checklists</Link> ·{" "}
+          <Link href="/faults">Faults</Link>
         </p>
         <div className="grid">
           <div className="tile">

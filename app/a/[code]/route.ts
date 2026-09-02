@@ -19,10 +19,11 @@ export async function GET(
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  for (const [table, path] of [
-    ["vehicles", "vehicles"],
-    ["plant", "plant"],
-    ["trailers", "trailers"],
+  // vehicle / plant -> straight into the daily check; trailer -> its record
+  for (const [table, dest] of [
+    ["vehicles", (id: string) => `/check/vehicle/${id}`],
+    ["plant", (id: string) => `/check/plant/${id}`],
+    ["trailers", (id: string) => `/trailers/${id}`],
   ] as const) {
     const { data } = await supabase
       .from(table)
@@ -30,7 +31,7 @@ export async function GET(
       .eq("qr_code", code)
       .maybeSingle();
     if (data) {
-      return NextResponse.redirect(new URL(`/${path}/${data.id}`, request.url));
+      return NextResponse.redirect(new URL(dest(data.id), request.url));
     }
   }
 

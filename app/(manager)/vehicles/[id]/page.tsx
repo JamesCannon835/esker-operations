@@ -53,9 +53,20 @@ export default async function VehicleDetailPage({
         <h1>
           {vehicle.fleet_number} · {vehicle.registration}
         </h1>
-        <Link className="btn small" href={`/vehicles/${id}/edit`}>
-          Edit
-        </Link>
+        <div style={{ display: "flex", gap: 8 }}>
+          <Link className="btn small ghost" href={`/check/vehicle/${id}`}>
+            Daily check
+          </Link>
+          <Link
+            className="btn small ghost"
+            href={`/faults/new?type=vehicle&id=${id}`}
+          >
+            Report fault
+          </Link>
+          <Link className="btn small" href={`/vehicles/${id}/edit`}>
+            Edit
+          </Link>
+        </div>
       </div>
 
       {vehicle.voided && (

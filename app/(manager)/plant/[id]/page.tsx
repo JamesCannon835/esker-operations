@@ -54,9 +54,20 @@ export default async function PlantDetailPage({
           {plant.asset_number}
           {plant.plant_type ? ` · ${plant.plant_type}` : ""}
         </h1>
-        <Link className="btn small" href={`/plant/${id}/edit`}>
-          Edit
-        </Link>
+        <div style={{ display: "flex", gap: 8 }}>
+          <Link className="btn small ghost" href={`/check/plant/${id}`}>
+            Daily check
+          </Link>
+          <Link
+            className="btn small ghost"
+            href={`/faults/new?type=plant&id=${id}`}
+          >
+            Report fault
+          </Link>
+          <Link className="btn small" href={`/plant/${id}/edit`}>
+            Edit
+          </Link>
+        </div>
       </div>
 
       {plant.voided && (

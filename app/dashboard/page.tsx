@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { ROLE_LABELS, ROLES, isManager, type Role } from "@/lib/roles";
+import { ROLE_LABELS, ROLES, type Role } from "@/lib/roles";
 import { AppHeader } from "@/components/app-header";
 import { AccessCheck } from "./access-check";
 import { RolePanels } from "./role-panels";
@@ -31,7 +31,7 @@ export default async function DashboardPage() {
 
   return (
     <>
-      <AppHeader isManager={isManager(roles)} />
+      <AppHeader roles={roles} />
 
       <div className="container">
         <div className="card">
