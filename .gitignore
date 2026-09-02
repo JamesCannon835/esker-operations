@@ -18,6 +18,9 @@ build/
 next-env.d.ts
 *.tsbuildinfo
 
+# Vercel
+.vercel
+
 # Env / secrets
 .env
 .env*.local

@@ -145,6 +145,19 @@ or ignore them — they don't show in the active lists.
 - Test inspection / fault rows can be cleared with
   [`supabase/phase3_testdata_teardown.sql`](supabase/phase3_testdata_teardown.sql).
 
+## Deploying (Vercel)
+
+1. Push to GitHub.
+2. vercel.com → sign in with GitHub → **Add New… → Project** → import
+   `JamesCannon835/esker-operations`.
+3. Framework preset: **Next.js** (auto-detected). Leave build settings default.
+4. **Environment Variables** — add both:
+   - `NEXT_PUBLIC_SUPABASE_URL`
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+5. **Deploy**. Every later `git push` to `main` redeploys automatically.
+6. In Supabase → Authentication → URL Configuration, set **Site URL** to the
+   Vercel URL (needed later for password-reset emails).
+
 ## Not yet built
 
 Mechanic workflow (accept job, timer, parts, labour, close), 13-week / pre-test
