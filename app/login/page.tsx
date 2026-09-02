@@ -35,6 +35,14 @@ export default function LoginPage() {
   return (
     <div className="auth-wrap">
       <form className="auth-card" onSubmit={onSubmit}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          className="auth-logo"
+          src="/esker-logo.png"
+          alt="Esker Readymix"
+          width={72}
+          height={72}
+        />
         <h1>Esker Operations</h1>
         <p className="sub">Sign in to continue</p>
 

@@ -6,7 +6,11 @@ export function AppHeader({ roles }: { roles: Role[] }) {
     <>
       <div className="topbar">
         <div className="topbar-inner">
-          <strong>Esker Operations</strong>
+          <span className="brand-lockup">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/esker-logo.png" alt="Esker Readymix" width={34} height={34} />
+            <strong>Esker Operations</strong>
+          </span>
           <form action="/auth/signout" method="post">
             <button className="btn secondary" type="submit">
               Sign out
