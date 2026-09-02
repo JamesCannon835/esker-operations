@@ -10,10 +10,11 @@
   --border: #ddd8d0;
   --text: #201d1a;
   --muted: #6b635b;
-  /* Esker Readymix brand: black ring, orange centre, yellow lettering */
+  /* Esker Readymix brand: orange centre, black ring, yellow lettering */
   --brand: #b8410e; /* deep orange — passes contrast for white button text */
   --brand-fg: #ffffff;
-  --accent: #ea8c3b; /* logo orange — non-text accents, hovers */
+  --accent: #ec8b2e; /* logo orange — top bar, hovers, highlights */
+  --yellow: #ffce1f; /* logo lettering yellow — active markers */
   --ink: #1b1a18; /* near-black from the logo ring */
   --ink-2: #0e0d0c;
   --green: #15803d;
@@ -45,9 +46,14 @@ a {
 }
 
 .topbar {
-  background: var(--ink);
-  color: #fff;
-  border-bottom: 3px solid var(--accent);
+  background: var(--accent);
+  color: var(--ink);
+  border-bottom: 3px solid var(--ink);
+}
+
+.topbar .btn.secondary {
+  color: var(--ink);
+  border-color: rgba(0, 0, 0, 0.4);
 }
 
 .topbar-inner {
@@ -268,7 +274,7 @@ th {
 
 /* App navigation */
 .nav {
-  background: var(--ink-2);
+  background: var(--brand);
 }
 
 .nav-inner {
@@ -296,7 +302,7 @@ th {
 
 .nav-inner a.active {
   color: #fff;
-  border-bottom-color: var(--accent);
+  border-bottom-color: var(--yellow);
 }
 
 /* Page heading + actions row */
