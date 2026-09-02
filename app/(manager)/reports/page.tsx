@@ -158,7 +158,9 @@ export default async function ReportsPage({
         </div>
         <div className="tile">
           <div className="label">Total downtime</div>
-          <div className="value">{formatDowntime(totals.downtime || null)}</div>
+          <div className="value">
+            {totals.downtime > 0 ? formatDowntime(totals.downtime) : "—"}
+          </div>
         </div>
       </div>
 
