@@ -4,21 +4,23 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { friendlyDbError } from "@/lib/assets";
-import {
-  dailyInspectionType,
-  type AssetTypeT,
-  type ItemResult,
-} from "@/lib/inspections";
+import { INSPECTION_TYPE_LABELS, type ItemResult } from "@/lib/inspections";
 
 export type FormState = { error?: string };
 
-export async function submitDailyCheck(
-  assetType: AssetTypeT,
-  assetId: string,
-  templateId: string,
+export type InspectionTarget = {
+  assetType: string;
+  assetId: string;
+  templateId: string;
+  inspectionType: string;
+};
+
+export async function submitInspection(
+  target: InspectionTarget,
   _prev: FormState,
   formData: FormData,
 ): Promise<FormState> {
+  const { assetType, assetId, templateId, inspectionType } = target;
   const supabase = await createClient();
   const {
     data: { user },
@@ -30,11 +32,10 @@ export async function submitDailyCheck(
   }
 
   const readingRaw = formData.get("reading");
-  const reading =
-    readingRaw != null && String(readingRaw).trim() !== ""
-      ? Number(readingRaw)
-      : null;
-  if (readingRaw != null && String(readingRaw).trim() !== "" && Number.isNaN(reading)) {
+  const hasReading =
+    readingRaw != null && String(readingRaw).trim() !== "";
+  const reading = hasReading ? Number(readingRaw) : null;
+  if (hasReading && Number.isNaN(reading)) {
     return { error: "Mileage / hours must be a number." };
   }
 
@@ -62,7 +63,7 @@ export async function submitDailyCheck(
   const { data: inspection, error: insErr } = await supabase
     .from("inspections")
     .insert({
-      inspection_type: dailyInspectionType(assetType),
+      inspection_type: inspectionType,
       asset_type: assetType,
       asset_id: assetId,
       template_id: templateId,
@@ -76,24 +77,27 @@ export async function submitDailyCheck(
 
   if (insErr) return { error: friendlyDbError(insErr.message) };
 
-  const { error: resErr } = await supabase.from("inspection_item_results").insert(
-    results.map((r) => ({
-      inspection_id: inspection.id,
-      template_item_id: r.item.id,
-      result: r.result,
-      comment: r.comment,
-    })),
-  );
+  const { error: resErr } = await supabase
+    .from("inspection_item_results")
+    .insert(
+      results.map((r) => ({
+        inspection_id: inspection.id,
+        template_item_id: r.item.id,
+        result: r.result,
+        comment: r.comment,
+      })),
+    );
   if (resErr) return { error: friendlyDbError(resErr.message) };
 
   const failed = results.filter((r) => r.result === "fail");
   if (failed.length > 0) {
+    const prefix = INSPECTION_TYPE_LABELS[inspectionType] ?? "Inspection";
     const { error: faultErr } = await supabase.from("faults").insert(
       failed.map((r) => ({
         asset_type: assetType,
         asset_id: assetId,
         reported_by: user.id,
-        description: `Daily check: ${r.item.item_name}${
+        description: `${prefix}: ${r.item.item_name}${
           r.comment ? ` — ${r.comment}` : ""
         }`,
         severity: "normal",

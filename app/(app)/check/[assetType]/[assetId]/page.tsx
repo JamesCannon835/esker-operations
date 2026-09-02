@@ -4,10 +4,12 @@ import { createClient } from "@/lib/supabase/server";
 import {
   ASSET_TYPE_LABELS,
   readingLabel,
+  dailyInspectionType,
+  pickDailyTemplate,
   type AssetTypeT,
 } from "@/lib/inspections";
-import { submitDailyCheck } from "./actions";
-import { DailyCheckForm } from "./daily-check-form";
+import { submitInspection } from "@/app/(app)/inspections/actions";
+import { InspectionForm } from "@/components/inspection-form";
 
 export const dynamic = "force-dynamic";
 
@@ -36,13 +38,13 @@ export default async function DailyCheckPage({
       ? `${asset.asset_number}${asset.plant_type ? ` · ${asset.plant_type}` : ""}`
       : `${asset.fleet_number} · ${asset.registration}`;
 
-  const { data: template } = await supabase
+  const { data: templates } = await supabase
     .from("inspection_templates")
     .select("id, name")
     .eq("asset_type", type)
-    .order("name")
-    .limit(1)
-    .maybeSingle();
+    .order("name");
+
+  const template = pickDailyTemplate(templates ?? []);
 
   let items: { id: string; item_name: string }[] = [];
   if (template) {
@@ -73,10 +75,16 @@ export default async function DailyCheckPage({
           </p>
         </div>
       ) : (
-        <DailyCheckForm
-          action={submitDailyCheck.bind(null, type, assetId, template.id)}
+        <InspectionForm
+          action={submitInspection.bind(null, {
+            assetType: type,
+            assetId,
+            templateId: template.id,
+            inspectionType: dailyInspectionType(type),
+          })}
           items={items}
           readingLabel={readingLabel(type)}
+          submitLabel="Submit check"
           cancelHref="/check"
         />
       )}

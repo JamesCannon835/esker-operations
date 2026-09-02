@@ -2,20 +2,24 @@
 
 import { useActionState } from "react";
 import Link from "next/link";
-import type { FormState } from "./actions";
+import type { FormState } from "@/app/(app)/inspections/actions";
 
 type Item = { id: string; item_name: string };
 
-export function DailyCheckForm({
+export function InspectionForm({
   action,
   items,
   readingLabel,
   cancelHref,
+  submitLabel = "Submit",
+  intro = "Everything starts as Pass. Mark anything wrong as Fail (add a note) — each Fail raises a fault automatically.",
 }: {
   action: (prev: FormState, fd: FormData) => Promise<FormState>;
   items: Item[];
   readingLabel: string;
   cancelHref: string;
+  submitLabel?: string;
+  intro?: string;
 }) {
   const [state, formAction, pending] = useActionState<FormState, FormData>(
     action,
@@ -28,10 +32,7 @@ export function DailyCheckForm({
 
       <div className="card">
         <h2>Checks</h2>
-        <p className="hint">
-          Everything starts as Pass. Mark anything wrong as Fail (add a note) —
-          each Fail raises a fault automatically.
-        </p>
+        <p className="hint">{intro}</p>
         {items.map((item) => (
           <div className="check-item" key={item.id}>
             <div className="name">{item.item_name}</div>
@@ -93,15 +94,15 @@ export function DailyCheckForm({
           <label style={{ fontWeight: 400, display: "flex", gap: 8 }}>
             <input type="checkbox" name="signature" style={{ width: "auto" }} />
             <span>
-              I confirm I have carried out this check and the information above is
-              correct.
+              I confirm I have carried out this inspection and the information
+              above is correct.
             </span>
           </label>
         </div>
 
         <div className="btn-row">
           <button className="btn" type="submit" disabled={pending}>
-            {pending ? "Submitting…" : "Submit check"}
+            {pending ? "Submitting…" : submitLabel}
           </button>
           <Link className="btn ghost" href={cancelHref}>
             Cancel

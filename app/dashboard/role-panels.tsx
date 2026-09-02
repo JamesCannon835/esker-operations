@@ -156,6 +156,8 @@ export async function RolePanels({
       { count: plant },
       { count: openFaults },
       { data: compliance },
+      { data: svcVehicles },
+      { data: svcPlant },
     ] = await Promise.all([
       supabase.from("vehicles").select("*", { count: "exact", head: true }),
       supabase.from("plant").select("*", { count: "exact", head: true }),
@@ -164,6 +166,14 @@ export async function RolePanels({
         .select("*", { count: "exact", head: true })
         .not("status", "in", "(closed,completed)"),
       supabase.from("compliance_items").select("due_date").eq("voided", false),
+      supabase
+        .from("vehicles")
+        .select("next_service_date, next_service_mileage, current_mileage")
+        .eq("voided", false),
+      supabase
+        .from("plant")
+        .select("next_service_date, next_service_hours, current_hours")
+        .eq("voided", false),
     ]);
 
     const today = new Date();
@@ -175,6 +185,24 @@ export async function RolePanels({
       const due = new Date(row.due_date as string);
       if (due < today) red++;
       else if (due <= in14) amber++;
+    }
+
+    let serviceDue = 0;
+    for (const v of svcVehicles ?? []) {
+      const overDate = v.next_service_date && new Date(v.next_service_date) < today;
+      const overKm =
+        v.next_service_mileage != null &&
+        v.current_mileage != null &&
+        v.current_mileage >= v.next_service_mileage;
+      if (overDate || overKm) serviceDue++;
+    }
+    for (const p of svcPlant ?? []) {
+      const overDate = p.next_service_date && new Date(p.next_service_date) < today;
+      const overHrs =
+        p.next_service_hours != null &&
+        p.current_hours != null &&
+        p.current_hours >= p.next_service_hours;
+      if (overDate || overHrs) serviceDue++;
     }
 
     panels.push(
@@ -190,7 +218,8 @@ export async function RolePanels({
           <Link href="/trailers">Trailers</Link> ·{" "}
           <Link href="/checklists">Checklists</Link> ·{" "}
           <Link href="/faults">Faults</Link> ·{" "}
-          <Link href="/inspections">Inspections</Link>
+          <Link href="/inspections">Inspections</Link> ·{" "}
+          <Link href="/services">Services</Link>
         </p>
         <div className="grid">
           <div className="tile">
@@ -215,6 +244,15 @@ export async function RolePanels({
             <div className="label">Compliance due &le; 14d</div>
             <div className="value" style={{ color: "var(--amber)" }}>
               {amber}
+            </div>
+          </div>
+          <div className="tile">
+            <div className="label">Service due / overdue</div>
+            <div
+              className="value"
+              style={{ color: serviceDue > 0 ? "var(--danger)" : undefined }}
+            >
+              {serviceDue}
             </div>
           </div>
         </div>

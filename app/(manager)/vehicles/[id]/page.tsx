@@ -4,7 +4,8 @@ import { createClient } from "@/lib/supabase/server";
 import { STATUS_LABELS, type AssetStatus } from "@/lib/assets";
 import { AssetQr } from "@/components/qr-code";
 import { VoidControl } from "@/components/void-control";
-import { fmtDate, fmtNumber as fmtNum } from "@/lib/format";
+import { AssetServicePanel } from "@/components/asset-service-panel";
+import { fmtNumber as fmtNum } from "@/lib/format";
 import { setVehicleVoided } from "../actions";
 
 export const dynamic = "force-dynamic";
@@ -53,6 +54,12 @@ export default async function VehicleDetailPage({
           </Link>
           <Link
             className="btn small ghost"
+            href={`/inspections/new?asset=vehicle:${id}&type=thirteen_week`}
+          >
+            13-week
+          </Link>
+          <Link
+            className="btn small ghost"
             href={`/faults/new?type=vehicle&id=${id}`}
           >
             Report fault
@@ -94,23 +101,14 @@ export default async function VehicleDetailPage({
         </div>
       </div>
 
-      <div className="card">
-        <h2>Service schedule</h2>
-        <div className="detail-grid">
-          <Row
-            label="Service interval"
-            value={fmtNum(vehicle.service_interval_km, " km")}
-          />
-          <Row
-            label="Next service at"
-            value={fmtNum(vehicle.next_service_mileage, " km")}
-          />
-          <Row
-            label="Next service date"
-            value={fmtDate(vehicle.next_service_date)}
-          />
-        </div>
-      </div>
+      <AssetServicePanel
+        assetType="vehicle"
+        assetId={id}
+        currentReading={vehicle.current_mileage}
+        nextServiceReading={vehicle.next_service_mileage}
+        nextServiceDate={vehicle.next_service_date}
+        canLog
+      />
 
       {vehicle.notes && (
         <div className="card">

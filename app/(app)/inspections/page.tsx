@@ -1,22 +1,17 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { requireUser } from "@/lib/auth";
-import { isManager } from "@/lib/roles";
+import { isManager, hasRole } from "@/lib/roles";
 import { resolveAssetLabels } from "@/lib/asset-labels";
 import { fmtDate } from "@/lib/format";
+import { INSPECTION_TYPE_LABELS } from "@/lib/inspections";
 
 export const dynamic = "force-dynamic";
-
-const TYPE_LABELS: Record<string, string> = {
-  daily_vehicle: "Daily — vehicle",
-  daily_plant: "Daily — plant",
-  thirteen_week: "13-week",
-  pre_test: "Pre-test",
-};
 
 export default async function InspectionsPage() {
   const { user, roles } = await requireUser();
   const showAll = isManager(roles);
+  const canRunScheduled = showAll || hasRole(roles, "mechanic");
   const supabase = await createClient();
 
   let query = supabase
@@ -48,9 +43,16 @@ export default async function InspectionsPage() {
     <>
       <div className="page-head">
         <h1>{showAll ? "Inspections" : "My inspections"}</h1>
-        <Link className="btn small" href="/check">
-          Start a daily check
-        </Link>
+        <div style={{ display: "flex", gap: 8 }}>
+          {canRunScheduled && (
+            <Link className="btn small ghost" href="/inspections/new">
+              + 13-week / pre-test
+            </Link>
+          )}
+          <Link className="btn small" href="/check">
+            Daily check
+          </Link>
+        </div>
       </div>
 
       {error && <div className="error">{error.message}</div>}
@@ -78,7 +80,8 @@ export default async function InspectionsPage() {
                     </Link>
                   </td>
                   <td className="muted">
-                    {TYPE_LABELS[r.inspection_type] ?? r.inspection_type}
+                    {INSPECTION_TYPE_LABELS[r.inspection_type] ??
+                      r.inspection_type}
                   </td>
                   <td className="muted">
                     {labels.get(`${r.asset_type}:${r.asset_id}`) ?? "—"}

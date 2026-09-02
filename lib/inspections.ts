@@ -21,6 +21,26 @@ export function dailyInspectionType(assetType: AssetTypeT): string {
   return assetType === "plant" ? "daily_plant" : "daily_vehicle";
 }
 
+export const INSPECTION_TYPE_LABELS: Record<string, string> = {
+  daily_vehicle: "Daily check — vehicle",
+  daily_plant: "Daily check — plant",
+  thirteen_week: "13-week inspection",
+  pre_test: "Pre-test inspection",
+};
+
+/** Scheduled inspection types a mechanic can run (not the daily checks). */
+export const SCHEDULED_INSPECTION_TYPES = [
+  { value: "thirteen_week", label: "13-week inspection" },
+  { value: "pre_test", label: "Pre-test inspection" },
+] as const;
+
+/** Picks the best template for a daily check from a list for one asset type. */
+export function pickDailyTemplate<T extends { name: string }>(
+  templates: T[],
+): T | undefined {
+  return templates.find((t) => /daily/i.test(t.name)) ?? templates[0];
+}
+
 /** "mileage" for vehicles/trailers, "hours" for plant. */
 export function readingLabel(assetType: AssetTypeT): string {
   return assetType === "plant" ? "Current hours" : "Current mileage (km)";

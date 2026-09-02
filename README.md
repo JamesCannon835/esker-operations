@@ -14,6 +14,13 @@ Next.js (App Router) + Supabase.
   failed item; inspection history; standalone fault reporting; fault list +
   detail. Scanning an asset QR opens its daily check.
   Run once: `supabase/phase3_policies.sql`, `supabase/phase3_seed_templates.sql`.
+- **Phase 4 — done.** Mechanic workflow on the fault: accept / assign, diagnosis,
+  live job timer (labour_entries), parts logging + costs, status + close/reopen.
+  Run once: `supabase/phase4_policies.sql`.
+- **Phase 5 — done.** 13-week & pre-test inspections (mechanic-run, `/inspections/new`);
+  service logging (`/services`); service-due indicators on the dashboard and
+  asset pages.
+  Run once: `supabase/phase5_policies.sql`, `supabase/phase5_seed_templates.sql`.
 
 - Architecture blueprint: [`docs/architecture-v1.md`](docs/architecture-v1.md)
 - Database schema (already applied in Supabase): [`supabase/schema.sql`](supabase/schema.sql)

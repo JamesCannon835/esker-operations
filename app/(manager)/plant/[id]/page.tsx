@@ -4,7 +4,8 @@ import { createClient } from "@/lib/supabase/server";
 import { STATUS_LABELS, type AssetStatus } from "@/lib/assets";
 import { AssetQr } from "@/components/qr-code";
 import { VoidControl } from "@/components/void-control";
-import { fmtDate, fmtNumber as fmtNum } from "@/lib/format";
+import { AssetServicePanel } from "@/components/asset-service-panel";
+import { fmtNumber as fmtNum } from "@/lib/format";
 import { setPlantVoided } from "../actions";
 
 export const dynamic = "force-dynamic";
@@ -54,6 +55,12 @@ export default async function PlantDetailPage({
           </Link>
           <Link
             className="btn small ghost"
+            href={`/inspections/new?asset=plant:${id}&type=thirteen_week`}
+          >
+            13-week
+          </Link>
+          <Link
+            className="btn small ghost"
             href={`/faults/new?type=plant&id=${id}`}
           >
             Report fault
@@ -90,23 +97,14 @@ export default async function PlantDetailPage({
         </div>
       </div>
 
-      <div className="card">
-        <h2>Service schedule</h2>
-        <div className="detail-grid">
-          <Row
-            label="Service interval"
-            value={fmtNum(plant.service_interval_hours, " h")}
-          />
-          <Row
-            label="Next service at"
-            value={fmtNum(plant.next_service_hours, " h")}
-          />
-          <Row
-            label="Next service date"
-            value={fmtDate(plant.next_service_date)}
-          />
-        </div>
-      </div>
+      <AssetServicePanel
+        assetType="plant"
+        assetId={id}
+        currentReading={plant.current_hours}
+        nextServiceReading={plant.next_service_hours}
+        nextServiceDate={plant.next_service_date}
+        canLog
+      />
 
       {plant.notes && (
         <div className="card">
