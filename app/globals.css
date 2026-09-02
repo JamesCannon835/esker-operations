@@ -1,0 +1,239 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+:root {
+  --bg: #f4f6f8;
+  --card: #ffffff;
+  --border: #d9dfe4;
+  --text: #1a2b3c;
+  --muted: #5b6b7a;
+  --brand: #14532d;
+  --brand-fg: #ffffff;
+  --green: #15803d;
+  --amber: #b45309;
+  --red: #b91c1c;
+  --radius: 10px;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+a {
+  color: var(--brand);
+}
+
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 24px 20px 64px;
+}
+
+.topbar {
+  background: var(--brand);
+  color: var(--brand-fg);
+}
+
+.topbar-inner {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.topbar-inner strong {
+  font-size: 16px;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  margin-bottom: 16px;
+}
+
+.card h2 {
+  margin: 0 0 4px;
+  font-size: 16px;
+}
+
+.card p.hint {
+  margin: 0 0 14px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.tile {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 14px;
+  background: #fbfcfd;
+}
+
+.tile .label {
+  font-size: 12px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.tile .value {
+  font-size: 20px;
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  background: #e6edf2;
+  color: var(--text);
+  margin: 0 4px 4px 0;
+}
+
+.badge.role {
+  background: var(--brand);
+  color: var(--brand-fg);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+th {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+
+.ok {
+  color: var(--green);
+  font-weight: 600;
+}
+
+.blocked {
+  color: var(--red);
+  font-weight: 600;
+}
+
+.btn {
+  display: inline-block;
+  border: 1px solid var(--brand);
+  background: var(--brand);
+  color: var(--brand-fg);
+  padding: 9px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.btn.secondary {
+  background: transparent;
+  color: var(--brand-fg);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* Login */
+.auth-wrap {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.auth-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px;
+  width: 100%;
+  max-width: 380px;
+}
+
+.auth-card h1 {
+  margin: 0 0 4px;
+  font-size: 20px;
+}
+
+.auth-card .sub {
+  margin: 0 0 20px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.field {
+  margin-bottom: 14px;
+}
+
+.field label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.field input {
+  width: 100%;
+  padding: 9px 11px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.auth-card .btn {
+  width: 100%;
+  text-align: center;
+  border: none;
+}
+
+.error {
+  background: #fdecec;
+  border: 1px solid #f5c2c2;
+  color: var(--red);
+  padding: 9px 11px;
+  border-radius: 8px;
+  font-size: 13px;
+  margin-bottom: 14px;
+}

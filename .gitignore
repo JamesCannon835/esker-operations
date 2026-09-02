@@ -10,10 +10,19 @@ desktop.ini
 # Claude Code local settings
 .claude/settings.local.json
 
+# Node / Next.js
+node_modules/
+.next/
+out/
+build/
+*.tsbuildinfo
+
 # Env / secrets
 .env
+.env*.local
 .env.local
 *.key
 
 # Logs
 *.log
+npm-debug.log*
