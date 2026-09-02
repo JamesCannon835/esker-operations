@@ -1,9 +1,14 @@
 # Esker Operations
 
 Fleet, plant and compliance operations for Esker Readymix.
-Next.js (App Router) + Supabase. This is **Version 1, Phase 1**: authentication
-and a role-aware dashboard, built to verify that each of the 5 roles sees only
-what Row Level Security allows — before any further features are built.
+Next.js (App Router) + Supabase.
+
+**Progress**
+- **Phase 1 — done.** Authentication + role-aware dashboard; verified each of the
+  5 roles sees only what Row Level Security allows.
+- **Phase 2 — done.** Asset management: add / edit / void screens for vehicles,
+  plant and trailers (Transport Manager / Admin only), driver & operator
+  assignment, and a scannable QR code per asset that resolves to its record.
 
 - Architecture blueprint: [`docs/architecture-v1.md`](docs/architecture-v1.md)
 - Database schema (already applied in Supabase): [`supabase/schema.sql`](supabase/schema.sql)
@@ -91,18 +96,40 @@ Sign in as each test user in turn. On the dashboard:
 
 ```
 app/
-  login/            email + password sign-in (client)
-  auth/signout/     POST route that clears the session
-  dashboard/        role-aware home; access-check + role panels (server components)
+  login/               email + password sign-in (client)
+  auth/signout/        POST route that clears the session
+  dashboard/           role-aware home; access-check + role panels
+  a/[code]/            QR-code landing -> redirects to the matching asset
+  (manager)/           Transport Manager / Admin only (layout enforces it)
+    vehicles/          list · new · [id] detail (+QR, void) · [id]/edit
+    plant/             same shape
+    trailers/          same shape
+components/
+  app-header, app-nav, form-fields, qr-code, void-control
 lib/
-  supabase/         browser / server / middleware clients (@supabase/ssr)
-  roles.ts          Role type, labels, isManager()
-middleware.ts       session refresh + redirect (no session -> /login)
-supabase/           schema.sql (reference), seed.sql, seed_teardown.sql
+  supabase/            browser / server / proxy clients (@supabase/ssr)
+  roles.ts             Role type, labels, isManager()
+  assets.ts            status enums, form parsers (client-safe)
+  assets-server.ts     assignable-people / vehicle lookups (server only)
+proxy.ts               session refresh + redirect (no session -> /login)
+supabase/              schema.sql (reference), seed.sql, seed_teardown.sql,
+                       phase2_testdata_teardown.sql
 ```
 
-## Not in this phase
+## Testing Phase 2
 
-Asset management screens, inspections, fault workflow, compliance dashboard,
-reminders, offline support, Vercel deploy, and self-signup (would need a
-`handle_new_user` trigger in the database). See `docs/architecture-v1.md` §14.
+Sign in as `manager@esker.test` or `admin@esker.test`. The nav bar gains
+**Vehicles / Plant / Trailers**. Add a record, edit it, open its QR code,
+scan-test by visiting `/a/<code>`, and try **Void** / **Restore**. Sign in as a
+non-manager and confirm `/vehicles` bounces you to the dashboard.
+
+Two throwaway assets (vehicle `T03`, plant `P02`) were created during testing and
+left **voided**. Remove them with
+[`supabase/phase2_testdata_teardown.sql`](supabase/phase2_testdata_teardown.sql),
+or ignore them — they don't show in the active lists.
+
+## Not yet built
+
+Inspections, fault/mechanic workflow, compliance dashboard, reminders, offline
+support, Vercel deploy, and self-signup (would need a `handle_new_user` trigger
+in the database). See `docs/architecture-v1.md` §14.

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { isManager, hasRole, type Role } from "@/lib/roles";
 
@@ -17,25 +18,28 @@ export async function RolePanels({
   const panels: React.ReactNode[] = [];
 
   if (hasRole(roles, "driver")) {
-    const { data: vehicle } = await supabase
+    const { data: myVehicles } = await supabase
       .from("vehicles")
       .select("fleet_number, registration, make, model, status")
       .eq("assigned_driver_id", userId)
-      .maybeSingle();
+      .eq("voided", false)
+      .order("fleet_number");
 
     panels.push(
       <div className="card" key="driver">
         <h2>Driver — My Vehicle</h2>
         <p className="hint">Phone-first daily workflow.</p>
-        {vehicle ? (
-          <p>
-            <strong>
-              {vehicle.fleet_number} · {vehicle.registration}
-            </strong>
-            <br />
-            {[vehicle.make, vehicle.model].filter(Boolean).join(" ")} —{" "}
-            <span className="badge">{vehicle.status}</span>
-          </p>
+        {myVehicles && myVehicles.length > 0 ? (
+          myVehicles.map((vehicle) => (
+            <p key={vehicle.fleet_number}>
+              <strong>
+                {vehicle.fleet_number} · {vehicle.registration}
+              </strong>
+              <br />
+              {[vehicle.make, vehicle.model].filter(Boolean).join(" ")} —{" "}
+              <span className="badge">{vehicle.status}</span>
+            </p>
+          ))
         ) : (
           <p className="hint">No vehicle assigned to you yet.</p>
         )}
@@ -62,26 +66,29 @@ export async function RolePanels({
   }
 
   if (hasRole(roles, "plant_operator")) {
-    const { data: plant } = await supabase
+    const { data: myPlant } = await supabase
       .from("plant")
       .select("asset_number, plant_type, make, model, status")
       .eq("assigned_operator_id", userId)
-      .maybeSingle();
+      .eq("voided", false)
+      .order("asset_number");
 
     panels.push(
       <div className="card" key="plant_operator">
         <h2>Plant Operator — My Plant</h2>
         <p className="hint">Same shape as Driver, hours instead of mileage.</p>
-        {plant ? (
-          <p>
-            <strong>
-              {plant.asset_number}
-              {plant.plant_type ? ` · ${plant.plant_type}` : ""}
-            </strong>
-            <br />
-            {[plant.make, plant.model].filter(Boolean).join(" ")} —{" "}
-            <span className="badge">{plant.status}</span>
-          </p>
+        {myPlant && myPlant.length > 0 ? (
+          myPlant.map((plant) => (
+            <p key={plant.asset_number}>
+              <strong>
+                {plant.asset_number}
+                {plant.plant_type ? ` · ${plant.plant_type}` : ""}
+              </strong>
+              <br />
+              {[plant.make, plant.model].filter(Boolean).join(" ")} —{" "}
+              <span className="badge">{plant.status}</span>
+            </p>
+          ))
         ) : (
           <p className="hint">No plant assigned to you yet.</p>
         )}
@@ -172,7 +179,12 @@ export async function RolePanels({
           {hasRole(roles, "admin") ? "Admin / Management" : "Transport Manager"} —
           Fleet Overview
         </h2>
-        <p className="hint">Full fleet visibility.</p>
+        <p className="hint">
+          Full fleet visibility. Manage master data:{" "}
+          <Link href="/vehicles">Vehicles</Link> ·{" "}
+          <Link href="/plant">Plant</Link> ·{" "}
+          <Link href="/trailers">Trailers</Link>
+        </p>
         <div className="grid">
           <div className="tile">
             <div className="label">Vehicles</div>

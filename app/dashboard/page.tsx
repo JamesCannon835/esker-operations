@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { ROLE_LABELS, ROLES, type Role } from "@/lib/roles";
-import { SignOutButton } from "./sign-out-button";
+import { ROLE_LABELS, ROLES, isManager, type Role } from "@/lib/roles";
+import { AppHeader } from "@/components/app-header";
 import { AccessCheck } from "./access-check";
 import { RolePanels } from "./role-panels";
 
@@ -31,12 +31,7 @@ export default async function DashboardPage() {
 
   return (
     <>
-      <div className="topbar">
-        <div className="topbar-inner">
-          <strong>Esker Operations</strong>
-          <SignOutButton />
-        </div>
-      </div>
+      <AppHeader isManager={isManager(roles)} />
 
       <div className="container">
         <div className="card">
