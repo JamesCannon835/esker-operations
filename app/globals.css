@@ -5,13 +5,17 @@
 }
 
 :root {
-  --bg: #f4f6f8;
+  --bg: #f5f4f2;
   --card: #ffffff;
-  --border: #d9dfe4;
-  --text: #1a2b3c;
-  --muted: #5b6b7a;
-  --brand: #14532d;
+  --border: #ddd8d0;
+  --text: #201d1a;
+  --muted: #6b635b;
+  /* Esker Readymix brand: black ring, orange centre, yellow lettering */
+  --brand: #b8410e; /* deep orange — passes contrast for white button text */
   --brand-fg: #ffffff;
+  --accent: #ea8c3b; /* logo orange — non-text accents, hovers */
+  --ink: #1b1a18; /* near-black from the logo ring */
+  --ink-2: #0e0d0c;
   --green: #15803d;
   --amber: #b45309;
   --red: #b91c1c;
@@ -41,8 +45,9 @@ a {
 }
 
 .topbar {
-  background: var(--brand);
-  color: var(--brand-fg);
+  background: var(--ink);
+  color: #fff;
+  border-bottom: 3px solid var(--accent);
 }
 
 .topbar-inner {
@@ -263,7 +268,7 @@ th {
 
 /* App navigation */
 .nav {
-  background: #0f3d21;
+  background: var(--ink-2);
 }
 
 .nav-inner {
@@ -291,7 +296,7 @@ th {
 
 .nav-inner a.active {
   color: #fff;
-  border-bottom-color: #fff;
+  border-bottom-color: var(--accent);
 }
 
 /* Page heading + actions row */
@@ -534,6 +539,31 @@ th {
 .result-banner.fail {
   background: #fee2e2;
   color: #991b1b;
+}
+
+.timer-box {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #fbfaf8;
+}
+
+.timer-clock {
+  font-variant-numeric: tabular-nums;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.timer-box select {
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 14px;
 }
 
 .severity-pill {

@@ -49,3 +49,28 @@ export const FAULT_STATUS_LABELS: Record<string, string> = {
   completed: "Completed",
   closed: "Closed",
 };
+
+export const FAULT_OPEN_STATUSES = [
+  "reported",
+  "accepted",
+  "in_progress",
+  "awaiting_parts",
+];
+
+export const LABOUR_TYPES = ["diagnosis", "repair", "waiting"] as const;
+export type LabourType = (typeof LABOUR_TYPES)[number];
+
+export const LABOUR_TYPE_LABELS: Record<LabourType, string> = {
+  diagnosis: "Diagnosis",
+  repair: "Repair",
+  waiting: "Waiting",
+};
+
+/** Formats a duration in ms as "1h 23m" / "45m" / "2m". */
+export function formatDuration(ms: number): string {
+  const totalMin = Math.max(0, Math.round(ms / 60000));
+  const h = Math.floor(totalMin / 60);
+  const m = totalMin % 60;
+  if (h === 0) return `${m}m`;
+  return `${h}h ${m}m`;
+}

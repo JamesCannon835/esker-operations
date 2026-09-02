@@ -4,9 +4,7 @@ import type { Role } from "@/lib/roles";
 /** People who can be assigned to an asset, for the assignment dropdowns. */
 export type AssignablePerson = { id: string; full_name: string };
 
-export async function getAssignablePeople(
-  role: Extract<Role, "driver" | "plant_operator">,
-): Promise<AssignablePerson[]> {
+export async function getPeopleByRole(role: Role): Promise<AssignablePerson[]> {
   const supabase = await createClient();
   const { data } = await supabase
     .from("users")
@@ -16,6 +14,16 @@ export async function getAssignablePeople(
     .order("full_name");
 
   return (data ?? []).map((u) => ({ id: u.id, full_name: u.full_name }));
+}
+
+export function getAssignablePeople(
+  role: Extract<Role, "driver" | "plant_operator">,
+): Promise<AssignablePerson[]> {
+  return getPeopleByRole(role);
+}
+
+export function getMechanics(): Promise<AssignablePerson[]> {
+  return getPeopleByRole("mechanic");
 }
 
 /** Vehicles available to tow a trailer. */
