@@ -6,6 +6,7 @@ import {
   type FaultSeverity,
 } from "@/lib/inspections";
 import { resolveAssetLabels } from "@/lib/asset-labels";
+import { fmtDate } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
@@ -66,7 +67,7 @@ export default async function FaultsPage({
                 <tr key={f.id}>
                   <td>
                     <Link href={`/faults/${f.id}`}>
-                      {new Date(f.reported_at).toLocaleDateString()}
+                      {fmtDate(f.reported_at)}
                     </Link>
                   </td>
                   <td className="muted">

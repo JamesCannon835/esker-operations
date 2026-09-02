@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { STATUS_LABELS, type AssetStatus } from "@/lib/assets";
 import { AssetQr } from "@/components/qr-code";
 import { VoidControl } from "@/components/void-control";
+import { fmtDate, fmtNumber as fmtNum } from "@/lib/format";
 import { setVehicleVoided } from "../actions";
 
 export const dynamic = "force-dynamic";
@@ -15,13 +16,6 @@ function Row({ label, value }: { label: string; value: React.ReactNode }) {
       <div className="value">{value ?? "—"}</div>
     </div>
   );
-}
-
-function fmtDate(d: string | null) {
-  return d ? new Date(d).toLocaleDateString() : "—";
-}
-function fmtNum(n: number | null, suffix = "") {
-  return n != null ? `${Number(n).toLocaleString()}${suffix}` : "—";
 }
 
 export default async function VehicleDetailPage({

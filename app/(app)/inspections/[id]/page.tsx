@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { ITEM_RESULT_LABELS, type ItemResult } from "@/lib/inspections";
 import { resolveAssetLabels, assetHref } from "@/lib/asset-labels";
+import { fmtDateTime } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
@@ -97,7 +98,7 @@ export default async function InspectionDetailPage({
           <div>
             <div className="label">Completed</div>
             <div className="value">
-              {new Date(inspection.completed_at).toLocaleString()}
+              {fmtDateTime(inspection.completed_at)}
             </div>
           </div>
           <div>

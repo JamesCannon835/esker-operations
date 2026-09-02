@@ -13,6 +13,7 @@ import {
   type LabourType,
 } from "@/lib/inspections";
 import { resolveAssetLabels, assetHref } from "@/lib/asset-labels";
+import { fmtDateTime } from "@/lib/format";
 import { ConfirmButton } from "@/components/confirm-button";
 import { JobTimer } from "./job-timer";
 import { DiagnosisForm } from "./diagnosis-form";
@@ -156,7 +157,7 @@ export default async function FaultDetailPage({
           <div>
             <div className="label">Reported</div>
             <div className="value">
-              {new Date(fault.reported_at).toLocaleString()} ·{" "}
+              {fmtDateTime(fault.reported_at)} ·{" "}
               {(reporter as { full_name?: string } | null)?.full_name ?? "—"}
             </div>
           </div>
@@ -187,11 +188,7 @@ export default async function FaultDetailPage({
           {isClosed && (
             <div>
               <div className="label">Closed</div>
-              <div className="value">
-                {fault.closed_at
-                  ? new Date(fault.closed_at).toLocaleString()
-                  : "—"}
-              </div>
+              <div className="value">{fmtDateTime(fault.closed_at)}</div>
             </div>
           )}
         </div>
@@ -305,7 +302,7 @@ export default async function FaultDetailPage({
                           </td>
                         )}
                         <td className="muted">
-                          {new Date(l.start_time).toLocaleString()}
+                          {fmtDateTime(l.start_time)}
                         </td>
                         <td>{dur}</td>
                         <td>

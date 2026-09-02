@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { requireUser } from "@/lib/auth";
 import { isManager } from "@/lib/roles";
 import { resolveAssetLabels } from "@/lib/asset-labels";
+import { fmtDate } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
@@ -73,7 +74,7 @@ export default async function InspectionsPage() {
                 <tr key={r.id}>
                   <td>
                     <Link href={`/inspections/${r.id}`}>
-                      {new Date(r.completed_at).toLocaleDateString()}
+                      {fmtDate(r.completed_at)}
                     </Link>
                   </td>
                   <td className="muted">
