@@ -207,7 +207,7 @@ export async function RolePanels({
           </div>
           <div className="tile">
             <div className="label">Compliance overdue</div>
-            <div className="value" style={{ color: "var(--red)" }}>
+            <div className="value" style={{ color: "var(--danger)" }}>
               {red}
             </div>
           </div>
