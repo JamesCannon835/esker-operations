@@ -6,6 +6,7 @@ import { AssetQr } from "@/components/qr-code";
 import { VoidControl } from "@/components/void-control";
 import { AssetServicePanel } from "@/components/asset-service-panel";
 import { AssetCompliancePanel } from "@/components/asset-compliance-panel";
+import { AssetTimeline } from "@/components/asset-timeline";
 import { fmtNumber as fmtNum } from "@/lib/format";
 import { setPlantVoided } from "../actions";
 
@@ -108,6 +109,8 @@ export default async function PlantDetailPage({
       />
 
       <AssetCompliancePanel assetType="plant" assetId={id} />
+
+      <AssetTimeline assetType="plant" assetId={id} />
 
       {plant.notes && (
         <div className="card">

@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { AssetQr } from "@/components/qr-code";
 import { VoidControl } from "@/components/void-control";
 import { AssetCompliancePanel } from "@/components/asset-compliance-panel";
+import { AssetTimeline } from "@/components/asset-timeline";
 import { setTrailerVoided } from "../actions";
 
 export const dynamic = "force-dynamic";
@@ -89,6 +90,8 @@ export default async function TrailerDetailPage({
       )}
 
       <AssetCompliancePanel assetType="trailer" assetId={id} />
+
+      <AssetTimeline assetType="trailer" assetId={id} />
 
       <div className="card">
         <h2>QR code</h2>

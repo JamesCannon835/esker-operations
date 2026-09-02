@@ -122,6 +122,30 @@ a.tile:hover {
   background: #f2f7f4;
 }
 
+.tile-alert {
+  background: var(--ink);
+  border-color: var(--ink);
+  text-align: center;
+  padding: 18px 14px;
+  margin-bottom: 12px;
+}
+
+.tile-alert .value {
+  color: var(--yellow);
+  font-size: 22px;
+  letter-spacing: 0.03em;
+}
+
+.tile-alert .label {
+  color: rgba(255, 255, 255, 0.8);
+  margin-top: 4px;
+}
+
+a.tile-alert:hover {
+  background: #000;
+  border-color: #000;
+}
+
 .tile .label {
   font-size: 12px;
   color: var(--muted);

@@ -43,6 +43,10 @@ export async function RolePanels({
         ) : (
           <p className="hint">No vehicle assigned to you yet.</p>
         )}
+        <Link className="tile tile-alert" href="/breakdowns/new">
+          <div className="value">🔴 BREAKDOWN</div>
+          <div className="label">Report a roadside breakdown now</div>
+        </Link>
         <div className="grid">
           <Link className="tile" href="/check">
             <div className="label">Daily check</div>
@@ -52,10 +56,6 @@ export async function RolePanels({
             <div className="label">Report fault</div>
             <div className="value">Report</div>
           </Link>
-          <div className="tile">
-            <div className="label">Breakdown</div>
-            <div className="value">Phase 7</div>
-          </div>
           <Link className="tile" href="/inspections">
             <div className="label">My inspection history</div>
             <div className="value">View</div>
@@ -111,18 +111,23 @@ export async function RolePanels({
   }
 
   if (hasRole(roles, "mechanic")) {
-    const [{ count: myJobs }, { count: unassigned }] = await Promise.all([
-      supabase
-        .from("faults")
-        .select("*", { count: "exact", head: true })
-        .eq("assigned_mechanic_id", userId)
-        .not("status", "in", "(closed,completed)"),
-      supabase
-        .from("faults")
-        .select("*", { count: "exact", head: true })
-        .is("assigned_mechanic_id", null)
-        .eq("status", "reported"),
-    ]);
+    const [{ count: myJobs }, { count: unassigned }, { count: openBreakdowns }] =
+      await Promise.all([
+        supabase
+          .from("faults")
+          .select("*", { count: "exact", head: true })
+          .eq("assigned_mechanic_id", userId)
+          .not("status", "in", "(closed,completed)"),
+        supabase
+          .from("faults")
+          .select("*", { count: "exact", head: true })
+          .is("assigned_mechanic_id", null)
+          .eq("status", "reported"),
+        supabase
+          .from("breakdowns")
+          .select("*", { count: "exact", head: true })
+          .is("returned_to_service_at", null),
+      ]);
 
     panels.push(
       <div className="card" key="mechanic">
@@ -149,6 +154,17 @@ export async function RolePanels({
             <div className="label">Log a service</div>
             <div className="value">Add</div>
           </Link>
+          <Link className="tile" href="/breakdowns">
+            <div className="label">Open breakdowns</div>
+            <div
+              className="value"
+              style={{
+                color: (openBreakdowns ?? 0) > 0 ? "var(--danger)" : undefined,
+              }}
+            >
+              {openBreakdowns ?? 0}
+            </div>
+          </Link>
         </div>
       </div>,
     );
@@ -159,6 +175,7 @@ export async function RolePanels({
       { count: vehicles },
       { count: plant },
       { count: openFaults },
+      { count: openBreakdowns },
       { data: compliance },
       { data: svcVehicles },
       { data: svcPlant },
@@ -169,6 +186,10 @@ export async function RolePanels({
         .from("faults")
         .select("*", { count: "exact", head: true })
         .not("status", "in", "(closed,completed)"),
+      supabase
+        .from("breakdowns")
+        .select("*", { count: "exact", head: true })
+        .is("returned_to_service_at", null),
       supabase.from("compliance_items").select("due_date").eq("voided", false),
       supabase
         .from("vehicles")
@@ -225,7 +246,9 @@ export async function RolePanels({
           <Link href="/faults">Faults</Link> ·{" "}
           <Link href="/inspections">Inspections</Link> ·{" "}
           <Link href="/services">Services</Link> ·{" "}
-          <Link href="/documents">Documents</Link>
+          <Link href="/documents">Documents</Link> ·{" "}
+          <Link href="/breakdowns">Breakdowns</Link> ·{" "}
+          <Link href="/reports">Reports</Link>
         </p>
         <div className="grid">
           <div className="tile">
@@ -236,10 +259,21 @@ export async function RolePanels({
             <div className="label">Plant</div>
             <div className="value">{plant ?? 0}</div>
           </div>
-          <div className="tile">
+          <Link className="tile" href="/faults">
             <div className="label">Open faults</div>
             <div className="value">{openFaults ?? 0}</div>
-          </div>
+          </Link>
+          <Link className="tile" href="/breakdowns">
+            <div className="label">Open breakdowns</div>
+            <div
+              className="value"
+              style={{
+                color: (openBreakdowns ?? 0) > 0 ? "var(--danger)" : undefined,
+              }}
+            >
+              {openBreakdowns ?? 0}
+            </div>
+          </Link>
           <Link className="tile" href="/compliance?status=red">
             <div className="label">Compliance overdue</div>
             <div className="value" style={{ color: "var(--danger)" }}>

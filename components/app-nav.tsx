@@ -15,7 +15,7 @@ const MANAGER_LINKS: NavLink[] = [
   { href: "/trailers", label: "Trailers" },
   { href: "/compliance", label: "Compliance" },
   { href: "/faults", label: "Faults" },
-  { href: "/documents", label: "Documents" },
+  { href: "/reports", label: "Reports" },
 ];
 
 const FIELD_LINKS: NavLink[] = [
@@ -23,8 +23,8 @@ const FIELD_LINKS: NavLink[] = [
   { href: "/check", label: "Daily Check" },
   { href: "/inspections", label: "Inspections" },
   { href: "/faults", label: "Faults" },
+  { href: "/breakdowns", label: "Breakdowns" },
   { href: "/services", label: "Services" },
-  { href: "/documents", label: "Documents" },
 ];
 
 export function AppNav({ roles }: { roles: Role[] }) {
