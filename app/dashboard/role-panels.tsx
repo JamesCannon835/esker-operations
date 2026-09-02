@@ -189,7 +189,8 @@ export async function RolePanels({
           <Link href="/plant">Plant</Link> ·{" "}
           <Link href="/trailers">Trailers</Link> ·{" "}
           <Link href="/checklists">Checklists</Link> ·{" "}
-          <Link href="/faults">Faults</Link>
+          <Link href="/faults">Faults</Link> ·{" "}
+          <Link href="/inspections">Inspections</Link>
         </p>
         <div className="grid">
           <div className="tile">

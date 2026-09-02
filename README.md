@@ -8,7 +8,12 @@ Next.js (App Router) + Supabase.
   5 roles sees only what Row Level Security allows.
 - **Phase 2 — done.** Asset management: add / edit / void screens for vehicles,
   plant and trailers (Transport Manager / Admin only), driver & operator
-  assignment, and a scannable QR code per asset that resolves to its record.
+  assignment, and a scannable QR code per asset.
+- **Phase 3 — done.** Configurable checklist builder (manager); driver / operator
+  daily check flow that records an inspection and auto-raises a fault for each
+  failed item; inspection history; standalone fault reporting; fault list +
+  detail. Scanning an asset QR opens its daily check.
+  Run once: `supabase/phase3_policies.sql`, `supabase/phase3_seed_templates.sql`.
 
 - Architecture blueprint: [`docs/architecture-v1.md`](docs/architecture-v1.md)
 - Database schema (already applied in Supabase): [`supabase/schema.sql`](supabase/schema.sql)
@@ -128,8 +133,20 @@ left **voided**. Remove them with
 [`supabase/phase2_testdata_teardown.sql`](supabase/phase2_testdata_teardown.sql),
 or ignore them — they don't show in the active lists.
 
+## Testing Phase 3
+
+- **Manager** → **Checklists**: two default templates are seeded. Add / rename /
+  reorder / delete items.
+- **Driver / operator** → **Daily Check**: pick your assigned asset, work the
+  list, mark something **Fail**, add a note, submit. You land on the inspection,
+  which links the fault it raised.
+- **Faults**: the failed item shows up here; **+ Report fault** files one
+  directly.
+- Test inspection / fault rows can be cleared with
+  [`supabase/phase3_testdata_teardown.sql`](supabase/phase3_testdata_teardown.sql).
+
 ## Not yet built
 
-Inspections, fault/mechanic workflow, compliance dashboard, reminders, offline
-support, Vercel deploy, and self-signup (would need a `handle_new_user` trigger
-in the database). See `docs/architecture-v1.md` §14.
+Mechanic workflow (accept job, timer, parts, labour, close), 13-week / pre-test
+inspections, services, compliance dashboard, reminders, breakdowns, offline
+support, Vercel deploy, self-signup. See `docs/architecture-v1.md` §14.
