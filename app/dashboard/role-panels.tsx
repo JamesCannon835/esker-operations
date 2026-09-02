@@ -141,10 +141,14 @@ export async function RolePanels({
             <div className="label">Daily check</div>
             <div className="value">Start</div>
           </Link>
-          <div className="tile">
+          <Link className="tile" href="/inspections/new">
             <div className="label">13-week / pre-test</div>
-            <div className="value">Phase 5</div>
-          </div>
+            <div className="value">Start</div>
+          </Link>
+          <Link className="tile" href="/services/new">
+            <div className="label">Log a service</div>
+            <div className="value">Add</div>
+          </Link>
         </div>
       </div>,
     );
