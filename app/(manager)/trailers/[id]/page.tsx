@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AssetQr } from "@/components/qr-code";
 import { VoidControl } from "@/components/void-control";
+import { AssetCompliancePanel } from "@/components/asset-compliance-panel";
 import { setTrailerVoided } from "../actions";
 
 export const dynamic = "force-dynamic";
@@ -86,6 +87,8 @@ export default async function TrailerDetailPage({
           <p style={{ whiteSpace: "pre-wrap", margin: 0 }}>{trailer.notes}</p>
         </div>
       )}
+
+      <AssetCompliancePanel assetType="trailer" assetId={id} />
 
       <div className="card">
         <h2>QR code</h2>

@@ -21,6 +21,12 @@ Next.js (App Router) + Supabase.
   service logging (`/services`); service-due indicators on the dashboard and
   asset pages.
   Run once: `supabase/phase5_policies.sql`, `supabase/phase5_seed_templates.sql`.
+- **Phase 6 — done.** Central compliance dashboard (`/compliance`, green/amber/red
+  for tax, CVRT, insurance, tacho…); document uploads to Supabase Storage
+  (`/documents`); per-asset compliance + document panel; daily reminder email
+  edge function (`supabase/functions/send-reminders`).
+  Setup: create a private `documents` bucket, then run `supabase/phase6_storage.sql`.
+  Reminders are optional — see below.
 
 - Architecture blueprint: [`docs/architecture-v1.md`](docs/architecture-v1.md)
 - Database schema (already applied in Supabase): [`supabase/schema.sql`](supabase/schema.sql)
@@ -165,8 +171,18 @@ or ignore them — they don't show in the active lists.
 6. In Supabase → Authentication → URL Configuration, set **Site URL** to the
    Vercel URL (needed later for password-reset emails).
 
+## Email reminders (optional)
+
+`supabase/functions/send-reminders/index.ts` emails a list of anything due in
+14 days (or overdue) once a day. To turn it on:
+
+1. Sign up at resend.com, verify a sending domain, get an API key.
+2. `supabase functions deploy send-reminders --no-verify-jwt`
+3. `supabase secrets set RESEND_API_KEY=... REMINDER_FROM="Esker Ops <ops@yourdomain.ie>" REMINDER_TO="you@x.ie,other@x.ie"`
+4. Schedule it: Supabase dashboard → Edge Functions → send-reminders → Schedules
+   → `0 7 * * *`, or run `supabase/phase6_reminders_cron.sql`.
+
 ## Not yet built
 
-Mechanic workflow (accept job, timer, parts, labour, close), 13-week / pre-test
-inspections, services, compliance dashboard, reminders, breakdowns, offline
-support, Vercel deploy, self-signup. See `docs/architecture-v1.md` §14.
+Breakdown workflow (the big red button), asset history timeline, cost reporting
+(Phase 7); offline support; self-signup. See `docs/architecture-v1.md` §14.

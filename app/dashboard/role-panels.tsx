@@ -220,10 +220,12 @@ export async function RolePanels({
           <Link href="/vehicles">Vehicles</Link> ·{" "}
           <Link href="/plant">Plant</Link> ·{" "}
           <Link href="/trailers">Trailers</Link> ·{" "}
+          <Link href="/compliance">Compliance</Link> ·{" "}
           <Link href="/checklists">Checklists</Link> ·{" "}
           <Link href="/faults">Faults</Link> ·{" "}
           <Link href="/inspections">Inspections</Link> ·{" "}
-          <Link href="/services">Services</Link>
+          <Link href="/services">Services</Link> ·{" "}
+          <Link href="/documents">Documents</Link>
         </p>
         <div className="grid">
           <div className="tile">
@@ -238,18 +240,18 @@ export async function RolePanels({
             <div className="label">Open faults</div>
             <div className="value">{openFaults ?? 0}</div>
           </div>
-          <div className="tile">
+          <Link className="tile" href="/compliance?status=red">
             <div className="label">Compliance overdue</div>
             <div className="value" style={{ color: "var(--danger)" }}>
               {red}
             </div>
-          </div>
-          <div className="tile">
+          </Link>
+          <Link className="tile" href="/compliance?status=amber">
             <div className="label">Compliance due &le; 14d</div>
             <div className="value" style={{ color: "var(--amber)" }}>
               {amber}
             </div>
-          </div>
+          </Link>
           <div className="tile">
             <div className="label">Service due / overdue</div>
             <div

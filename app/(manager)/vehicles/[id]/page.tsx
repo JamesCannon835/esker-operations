@@ -5,6 +5,7 @@ import { STATUS_LABELS, type AssetStatus } from "@/lib/assets";
 import { AssetQr } from "@/components/qr-code";
 import { VoidControl } from "@/components/void-control";
 import { AssetServicePanel } from "@/components/asset-service-panel";
+import { AssetCompliancePanel } from "@/components/asset-compliance-panel";
 import { fmtNumber as fmtNum } from "@/lib/format";
 import { setVehicleVoided } from "../actions";
 
@@ -109,6 +110,8 @@ export default async function VehicleDetailPage({
         nextServiceDate={vehicle.next_service_date}
         canLog
       />
+
+      <AssetCompliancePanel assetType="vehicle" assetId={id} />
 
       {vehicle.notes && (
         <div className="card">
