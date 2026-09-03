@@ -36,18 +36,24 @@ alter table public.training_courses enable row level security;
 alter table public.training_records enable row level security;
 
 -- Courses: any signed-in user can read; managers (admin / transport manager) manage.
+drop policy if exists "signed in reads training courses" on public.training_courses;
 create policy "signed in reads training courses" on public.training_courses
   for select using (auth.uid() is not null);
+drop policy if exists "managers manage training courses" on public.training_courses;
 create policy "managers manage training courses" on public.training_courses
   for all using (public.is_manager()) with check (public.is_manager());
 
 -- Records: a person can read their own; managers read and write everyone's.
+drop policy if exists "read own or manager reads all training" on public.training_records;
 create policy "read own or manager reads all training" on public.training_records
   for select using (user_id = auth.uid() or public.is_manager());
+drop policy if exists "managers insert training" on public.training_records;
 create policy "managers insert training" on public.training_records
   for insert with check (public.is_manager());
+drop policy if exists "managers update training" on public.training_records;
 create policy "managers update training" on public.training_records
   for update using (public.is_manager()) with check (public.is_manager());
+drop policy if exists "managers delete training" on public.training_records;
 create policy "managers delete training" on public.training_records
   for delete using (public.is_manager());
 
