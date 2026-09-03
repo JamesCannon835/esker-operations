@@ -27,10 +27,9 @@ Next.js (App Router) + Supabase.
   edge function (`supabase/functions/send-reminders`).
   Setup: create a private `documents` bucket, then run `supabase/phase6_storage.sql`.
   Reminders are optional — see below.
-- **Phase 7 — done.** Breakdown workflow (`/breakdowns` — big red button, photo,
-  location, notified → on site → repaired → back-in-service timeline, downtime);
-  unified asset History timeline on every asset page; cost / downtime report
-  (`/reports`, managers). No new SQL.
+- **Phase 7 — done.** Unified asset History timeline on every asset page
+  (inspections + faults + services); cost report (`/reports`, managers).
+  No new SQL. (Breakdowns were dropped — a broken-down vehicle is just a fault.)
 
 - Architecture blueprint: [`docs/architecture-v1.md`](docs/architecture-v1.md)
 - Database schema (already applied in Supabase): [`supabase/schema.sql`](supabase/schema.sql)

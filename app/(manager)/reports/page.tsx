@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { resolveAssetLabels, assetHref } from "@/lib/asset-labels";
-import { formatDowntime } from "@/lib/breakdowns";
 
 export const dynamic = "force-dynamic";
 
@@ -40,21 +39,15 @@ export default async function ReportsPage({
     .select("asset_type, asset_id, cost, service_date");
   if (sinceDate) servicesQ = servicesQ.gte("service_date", sinceDate);
 
-  let breakdownsQ = supabase
-    .from("breakdowns")
-    .select("vehicle_id, reported_at, returned_to_service_at");
-  if (since) breakdownsQ = breakdownsQ.gte("reported_at", since);
-
-  const [{ data: faults }, { data: parts }, { data: services }, { data: breakdowns }] =
+  const [{ data: faults }, { data: parts }, { data: services }] =
     await Promise.all([
       faultsQ,
       supabase.from("parts_used").select("fault_id, total_cost"),
       servicesQ,
-      breakdownsQ,
     ]);
 
   const faultRows = faults ?? [];
-  const faultAsset = new Map<string, string>(); // fault id -> asset key
+  const faultAsset = new Map<string, string>();
   const agg = new Map<
     string,
     {
@@ -62,8 +55,6 @@ export default async function ReportsPage({
       faultsTotal: number;
       partsCost: number;
       serviceCost: number;
-      breakdowns: number;
-      downtime: number;
     }
   >();
 
@@ -74,8 +65,6 @@ export default async function ReportsPage({
         faultsTotal: 0,
         partsCost: 0,
         serviceCost: 0,
-        breakdowns: 0,
-        downtime: 0,
       });
     return agg.get(k)!;
   };
@@ -93,16 +82,6 @@ export default async function ReportsPage({
   }
   for (const s of services ?? []) {
     get(`${s.asset_type}:${s.asset_id}`).serviceCost += Number(s.cost ?? 0);
-  }
-  for (const b of breakdowns ?? []) {
-    if (!b.vehicle_id) continue;
-    const a = get(`vehicle:${b.vehicle_id}`);
-    a.breakdowns++;
-    if (b.returned_to_service_at) {
-      a.downtime +=
-        new Date(b.returned_to_service_at).getTime() -
-        new Date(b.reported_at).getTime();
-    }
   }
 
   const refs = [...agg.keys()].map((k) => {
@@ -125,9 +104,8 @@ export default async function ReportsPage({
     (acc, r) => ({
       parts: acc.parts + r.partsCost,
       service: acc.service + r.serviceCost,
-      downtime: acc.downtime + r.downtime,
     }),
-    { parts: 0, service: 0, downtime: 0 },
+    { parts: 0, service: 0 },
   );
 
   return (
@@ -157,10 +135,8 @@ export default async function ReportsPage({
           <div className="value">{euro(totals.service)}</div>
         </div>
         <div className="tile">
-          <div className="label">Total downtime</div>
-          <div className="value">
-            {totals.downtime > 0 ? formatDowntime(totals.downtime) : "—"}
-          </div>
+          <div className="label">Total</div>
+          <div className="value">{euro(totals.parts + totals.service)}</div>
         </div>
       </div>
 
@@ -176,8 +152,6 @@ export default async function ReportsPage({
                 <th>Faults (open)</th>
                 <th>Parts</th>
                 <th>Services</th>
-                <th>Breakdowns</th>
-                <th>Downtime</th>
                 <th>Total cost</th>
               </tr>
             </thead>
@@ -195,10 +169,6 @@ export default async function ReportsPage({
                   </td>
                   <td className="muted">{euro(r.partsCost)}</td>
                   <td className="muted">{euro(r.serviceCost)}</td>
-                  <td className="muted">{r.breakdowns || "—"}</td>
-                  <td className="muted">
-                    {r.downtime ? formatDowntime(r.downtime) : "—"}
-                  </td>
                   <td>
                     <strong>{euro(r.total)}</strong>
                   </td>

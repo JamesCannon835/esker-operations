@@ -21,7 +21,6 @@ const MANAGER_LINKS: NavLink[] = [
 const MECHANIC_LINKS: NavLink[] = [
   DASHBOARD,
   { href: "/faults", label: "Faults" },
-  { href: "/breakdowns", label: "Breakdowns" },
   { href: "/check", label: "Daily Check" },
   { href: "/inspections", label: "Inspections" },
   { href: "/services", label: "Services" },

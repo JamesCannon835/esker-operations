@@ -20,7 +20,7 @@ export async function AssetTimeline({
 }) {
   const supabase = await createClient();
 
-  const [insp, faults, services, breakdowns] = await Promise.all([
+  const [insp, faults, services] = await Promise.all([
     supabase
       .from("inspections")
       .select("id, inspection_type, result, completed_at")
@@ -44,14 +44,6 @@ export async function AssetTimeline({
       .eq("asset_id", assetId)
       .order("service_date", { ascending: false })
       .limit(20),
-    assetType === "vehicle"
-      ? supabase
-          .from("breakdowns")
-          .select("id, problem_description, reported_at, returned_to_service_at")
-          .eq("vehicle_id", assetId)
-          .order("reported_at", { ascending: false })
-          .limit(20)
-      : Promise.resolve({ data: [] as never[] }),
   ]);
 
   const events: Event[] = [];
@@ -82,15 +74,6 @@ export async function AssetTimeline({
       kind: "Service",
       text: s.notes ?? "Service logged",
       href: `/services/${s.id}`,
-    });
-  }
-  for (const b of breakdowns.data ?? []) {
-    events.push({
-      at: b.reported_at,
-      kind: "Breakdown",
-      text: b.problem_description,
-      href: `/breakdowns/${b.id}`,
-      bad: !b.returned_to_service_at,
     });
   }
 
