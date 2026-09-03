@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { friendlyDbError } from "@/lib/assets";
+import { friendlyDbError, orNull, numOrNull } from "@/lib/assets";
 import { INSPECTION_TYPE_LABELS, type ItemResult } from "@/lib/inspections";
 
 export type FormState = { error?: string };
@@ -107,6 +107,20 @@ export async function submitInspection(
       })),
     );
     if (faultErr) return { error: friendlyDbError(faultErr.message) };
+  }
+
+  // A service carried out during this inspection -> a service record.
+  if (formData.get("service_done") === "on") {
+    const { error: svcErr } = await supabase.from("services").insert({
+      asset_type: assetType,
+      asset_id: assetId,
+      service_date: new Date().toISOString().slice(0, 10),
+      mileage_or_hours: reading,
+      performed_by: user.id,
+      notes: orNull(formData.get("service_notes")),
+      cost: numOrNull(formData.get("service_cost")),
+    });
+    if (svcErr) return { error: friendlyDbError(svcErr.message) };
   }
 
   revalidatePath("/inspections");

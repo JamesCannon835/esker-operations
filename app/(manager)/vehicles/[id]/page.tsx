@@ -52,9 +52,9 @@ export default async function VehicleDetailPage({
           </Link>
           <Link
             className="btn small ghost"
-            href={`/inspections/new?asset=vehicle:${id}&type=thirteen_week`}
+            href={`/inspections/new?asset=vehicle:${id}`}
           >
-            13-week
+            Inspection
           </Link>
           <Link
             className="btn small ghost"

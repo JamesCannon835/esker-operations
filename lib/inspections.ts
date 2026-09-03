@@ -24,15 +24,12 @@ export function dailyInspectionType(assetType: AssetTypeT): string {
 export const INSPECTION_TYPE_LABELS: Record<string, string> = {
   daily_vehicle: "Daily check — vehicle",
   daily_plant: "Daily check — plant",
-  thirteen_week: "13-week inspection",
-  pre_test: "Pre-test inspection",
+  thirteen_week: "Inspection",
+  pre_test: "Inspection",
 };
 
-/** Scheduled inspection types a mechanic can run (not the daily checks). */
-export const SCHEDULED_INSPECTION_TYPES = [
-  { value: "thirteen_week", label: "13-week inspection" },
-  { value: "pre_test", label: "Pre-test inspection" },
-] as const;
+/** The stored inspection_type for a scheduled (non-daily) inspection. */
+export const SCHEDULED_TYPE = "thirteen_week";
 
 /** Picks the best template for a daily check from a list for one asset type. */
 export function pickDailyTemplate<T extends { name: string }>(

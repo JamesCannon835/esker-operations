@@ -87,7 +87,7 @@ export function VehicleForm({
           <Field label="CVRT test due" name="c_cvrt_test" type="date" />
           <Field label="Insurance due" name="c_insurance" type="date" />
           <Field
-            label="13-week inspection due"
+            label="Inspection due"
             name="c_thirteen_week_inspection"
             type="date"
           />

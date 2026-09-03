@@ -54,9 +54,9 @@ export default async function PlantDetailPage({
           </Link>
           <Link
             className="btn small ghost"
-            href={`/inspections/new?asset=plant:${id}&type=thirteen_week`}
+            href={`/inspections/new?asset=plant:${id}`}
           >
-            13-week
+            Inspection
           </Link>
           <Link
             className="btn small ghost"

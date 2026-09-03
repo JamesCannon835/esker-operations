@@ -14,7 +14,7 @@ export const COMPLIANCE_TYPE_LABELS: Record<ComplianceType, string> = {
   tax: "Motor tax",
   cvrt_test: "CVRT test",
   insurance: "Insurance",
-  thirteen_week_inspection: "13-week inspection",
+  thirteen_week_inspection: "Inspection",
   tacho_calibration: "Tachograph calibration",
   service: "Service",
   other: "Other",

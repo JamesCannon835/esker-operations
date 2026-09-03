@@ -81,17 +81,13 @@ export async function RolePanels({
             <div className="label">Unassigned faults</div>
             <div className="value">{unassigned ?? 0}</div>
           </Link>
-          <Link className="tile" href="/check">
-            <div className="label">Daily check</div>
-            <div className="value">Start</div>
-          </Link>
           <Link className="tile" href="/inspections/new">
-            <div className="label">13-week / pre-test</div>
+            <div className="label">New inspection</div>
             <div className="value">Start</div>
           </Link>
-          <Link className="tile" href="/services/new">
-            <div className="label">Log a service</div>
-            <div className="value">Add</div>
+          <Link className="tile" href="/compliance">
+            <div className="label">Compliance</div>
+            <div className="value">View</div>
           </Link>
         </div>
       </div>,
@@ -168,7 +164,6 @@ export async function RolePanels({
           <Link href="/checklists">Checklists</Link> ·{" "}
           <Link href="/faults">Faults</Link> ·{" "}
           <Link href="/inspections">Inspections</Link> ·{" "}
-          <Link href="/services">Services</Link> ·{" "}
           <Link href="/documents">Documents</Link> ·{" "}
           <Link href="/reports">Reports</Link>
         </p>

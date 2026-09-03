@@ -43,16 +43,11 @@ export default async function InspectionsPage() {
     <>
       <div className="page-head">
         <h1>{showAll ? "Inspections" : "My inspections"}</h1>
-        <div style={{ display: "flex", gap: 8 }}>
-          {canRunScheduled && (
-            <Link className="btn small ghost" href="/inspections/new">
-              + 13-week / pre-test
-            </Link>
-          )}
-          <Link className="btn small" href="/check">
-            Daily check
+        {canRunScheduled && (
+          <Link className="btn small" href="/inspections/new">
+            + New inspection
           </Link>
-        </div>
+        )}
       </div>
 
       {error && <div className="error">{error.message}</div>}

@@ -13,6 +13,7 @@ export function InspectionForm({
   cancelHref,
   submitLabel = "Submit",
   intro = "Everything starts as Pass. Mark anything wrong as Fail (add a note) — each Fail raises a fault automatically.",
+  showService = false,
 }: {
   action: (prev: FormState, fd: FormData) => Promise<FormState>;
   items: Item[];
@@ -20,6 +21,7 @@ export function InspectionForm({
   cancelHref: string;
   submitLabel?: string;
   intro?: string;
+  showService?: boolean;
 }) {
   const [state, formAction, pending] = useActionState<FormState, FormData>(
     action,
@@ -99,6 +101,45 @@ export function InspectionForm({
             </span>
           </label>
         </div>
+
+        {showService && (
+          <div
+            className="field"
+            style={{
+              borderTop: "1px solid var(--border)",
+              paddingTop: 14,
+              marginTop: 4,
+            }}
+          >
+            <label style={{ fontWeight: 400, display: "flex", gap: 8 }}>
+              <input
+                type="checkbox"
+                name="service_done"
+                style={{ width: "auto" }}
+              />
+              <span>A service was carried out during this inspection</span>
+            </label>
+            <div className="form-grid" style={{ marginTop: 10 }}>
+              <div className="field">
+                <label htmlFor="service_notes">Service notes</label>
+                <input
+                  id="service_notes"
+                  name="service_notes"
+                  placeholder="Oil & filters, etc."
+                />
+              </div>
+              <div className="field">
+                <label htmlFor="service_cost">Service cost (€)</label>
+                <input
+                  id="service_cost"
+                  name="service_cost"
+                  type="number"
+                  step="any"
+                />
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="btn-row">
           <button className="btn" type="submit" disabled={pending}>

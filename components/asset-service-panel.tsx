@@ -60,23 +60,10 @@ export async function AssetServicePanel({
 
   return (
     <div className="card">
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
-        <h2 style={{ margin: 0 }}>Servicing</h2>
-        {canLog && (
-          <Link
-            className="btn small ghost"
-            href={`/services/new?type=${assetType}&id=${assetId}`}
-          >
-            Log service
-          </Link>
-        )}
-      </div>
+      <h2 style={{ margin: 0 }}>Servicing</h2>
+      <p className="hint">
+        Services are recorded on the inspection where they were done.
+      </p>
 
       <div className="detail-grid" style={{ marginTop: 12 }}>
         <div>

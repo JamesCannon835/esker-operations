@@ -45,9 +45,11 @@ export default async function ServiceDetailPage({
 
   return (
     <>
-      <Link className="link-back" href="/services">
-        ← Services
-      </Link>
+      {href && (
+        <Link className="link-back" href={href}>
+          ← {assetLabel}
+        </Link>
+      )}
       <div className="page-head">
         <h1>Service — {assetLabel}</h1>
       </div>
