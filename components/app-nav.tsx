@@ -29,7 +29,10 @@ const FIELD_LINKS: NavLink[] = [
 
 export function AppNav({ roles }: { roles: Role[] }) {
   const pathname = usePathname();
-  const links = isManager(roles) ? MANAGER_LINKS : FIELD_LINKS;
+  const links = [...(isManager(roles) ? MANAGER_LINKS : FIELD_LINKS)];
+  if (roles.includes("admin")) {
+    links.push({ href: "/admin/users", label: "Users" });
+  }
 
   return (
     <nav className="nav">

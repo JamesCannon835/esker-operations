@@ -306,17 +306,17 @@ export async function RolePanels({
         <h2>Admin — System</h2>
         <p className="hint">Admin-only areas.</p>
         <div className="grid">
-          <div className="tile">
+          <Link className="tile" href="/admin/users">
             <div className="label">Users &amp; roles</div>
-            <div className="value">Phase 1+</div>
-          </div>
+            <div className="value">Manage</div>
+          </Link>
+          <Link className="tile" href="/checklists">
+            <div className="label">Checklist templates</div>
+            <div className="value">Edit</div>
+          </Link>
           <div className="tile">
             <div className="label">Audit log</div>
-            <div className="value">Phase 6</div>
-          </div>
-          <div className="tile">
-            <div className="label">Checklist templates</div>
-            <div className="value">Phase 3</div>
+            <div className="value">Later</div>
           </div>
         </div>
       </div>,
