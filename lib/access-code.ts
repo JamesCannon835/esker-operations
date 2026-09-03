@@ -1,14 +1,11 @@
-// Unambiguous alphabet — no 0/O/1/I/L.
-const ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
-
 /**
- * A short login code to hand to a person, e.g. "esker-K7M2P".
+ * A 6-digit login code to hand to a person, e.g. "482915".
  * Used as their initial password; they can change it after signing in.
+ *
+ * Note: Supabase Auth must allow a minimum password length of 6
+ * (Authentication → Policies → Minimum password length). 6 is the default.
  */
 export function generateAccessCode(): string {
-  let code = "";
-  const bytes = new Uint32Array(5);
-  crypto.getRandomValues(bytes);
-  for (let i = 0; i < 5; i++) code += ALPHABET[bytes[i] % ALPHABET.length];
-  return `esker-${code}`;
+  const n = crypto.getRandomValues(new Uint32Array(1))[0] % 1_000_000;
+  return String(n).padStart(6, "0");
 }
