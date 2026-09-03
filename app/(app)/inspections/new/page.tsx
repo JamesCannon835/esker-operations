@@ -100,7 +100,8 @@ export default async function NewInspectionPage({
     .select("id, name")
     .eq("asset_type", assetType)
     .order("name");
-  const list = templates ?? [];
+  // Daily-check templates belong to the driver/operator flow, not here.
+  const list = (templates ?? []).filter((t) => !/daily/i.test(t.name));
 
   const chosen =
     (templateId && list.find((t) => t.id === templateId)) ||
