@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { ROLES, type Role } from "@/lib/roles";
+import { ROLES, isManager, hasRole, type Role } from "@/lib/roles";
 import type { User } from "@supabase/supabase-js";
 
 export type SessionUser = {
@@ -30,4 +30,18 @@ export async function requireUser(): Promise<SessionUser> {
     .filter((r): r is Role => (ROLES as readonly string[]).includes(r));
 
   return { user, roles };
+}
+
+/** Transport manager or admin only. */
+export async function requireManager(): Promise<SessionUser> {
+  const s = await requireUser();
+  if (!isManager(s.roles)) redirect("/dashboard");
+  return s;
+}
+
+/** Manager, admin, or mechanic — the roles that manage assets & compliance. */
+export async function requireStaff(): Promise<SessionUser> {
+  const s = await requireUser();
+  if (!isManager(s.roles) && !hasRole(s.roles, "mechanic")) redirect("/dashboard");
+  return s;
 }

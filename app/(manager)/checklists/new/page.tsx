@@ -1,10 +1,12 @@
 import Link from "next/link";
+import { requireManager } from "@/lib/auth";
 import { createTemplate } from "../actions";
 import { TemplateForm } from "../template-form";
 
 export const dynamic = "force-dynamic";
 
-export default function NewChecklistPage() {
+export default async function NewChecklistPage() {
+  await requireManager();
   return (
     <>
       <Link className="link-back" href="/checklists">

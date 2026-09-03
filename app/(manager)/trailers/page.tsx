@@ -47,6 +47,7 @@ export default async function TrailersPage({
                 <th>Type</th>
                 <th>Make / model</th>
                 <th>On vehicle</th>
+                <th />
               </tr>
             </thead>
             <tbody>
@@ -63,6 +64,14 @@ export default async function TrailersPage({
                   <td className="muted">
                     {(t.vehicle as { fleet_number?: string } | null)
                       ?.fleet_number ?? "—"}
+                  </td>
+                  <td style={{ textAlign: "right" }}>
+                    <Link
+                      className="btn ghost small"
+                      href={`/trailers/${t.id}/edit`}
+                    >
+                      Edit
+                    </Link>
                   </td>
                 </tr>
               ))}

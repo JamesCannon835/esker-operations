@@ -1,10 +1,12 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { requireManager } from "@/lib/auth";
 import { ASSET_TYPE_LABELS, type AssetTypeT } from "@/lib/inspections";
 
 export const dynamic = "force-dynamic";
 
 export default async function ChecklistsPage() {
+  await requireManager();
   const supabase = await createClient();
   const { data: templates, error } = await supabase
     .from("inspection_templates")

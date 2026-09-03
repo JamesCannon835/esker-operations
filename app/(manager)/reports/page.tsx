@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { requireManager } from "@/lib/auth";
 import { resolveAssetLabels, assetHref } from "@/lib/asset-labels";
 
 export const dynamic = "force-dynamic";
@@ -19,6 +20,7 @@ export default async function ReportsPage({
 }: {
   searchParams: Promise<{ period?: string }>;
 }) {
+  await requireManager();
   const { period: p } = await searchParams;
   const period = PERIODS[p ?? "y1"] ? (p ?? "y1") : "y1";
   const since = PERIODS[period].days

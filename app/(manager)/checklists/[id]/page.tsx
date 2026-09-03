@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { requireManager } from "@/lib/auth";
 import { ASSET_TYPE_LABELS, type AssetTypeT } from "@/lib/inspections";
 import { TemplateForm } from "../template-form";
 import { DeleteTemplateButton } from "./delete-template-button";
@@ -20,6 +21,7 @@ export default async function EditChecklistPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  await requireManager();
   const { id } = await params;
   const supabase = await createClient();
 

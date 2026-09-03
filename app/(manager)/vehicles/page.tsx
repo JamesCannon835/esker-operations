@@ -49,6 +49,7 @@ export default async function VehiclesPage({
                 <th>Make / model</th>
                 <th>Mileage</th>
                 <th>Status</th>
+                <th />
               </tr>
             </thead>
             <tbody>
@@ -73,6 +74,14 @@ export default async function VehiclesPage({
                     <span className={`status-pill ${v.status}`}>
                       {STATUS_LABELS[v.status as AssetStatus] ?? v.status}
                     </span>
+                  </td>
+                  <td style={{ textAlign: "right" }}>
+                    <Link
+                      className="btn ghost small"
+                      href={`/vehicles/${v.id}/edit`}
+                    >
+                      Edit
+                    </Link>
                   </td>
                 </tr>
               ))}

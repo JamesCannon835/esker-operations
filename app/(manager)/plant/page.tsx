@@ -46,6 +46,7 @@ export default async function PlantPage({
                 <th>Make / model</th>
                 <th>Hours</th>
                 <th>Status</th>
+                <th />
               </tr>
             </thead>
             <tbody>
@@ -68,6 +69,11 @@ export default async function PlantPage({
                     <span className={`status-pill ${p.status}`}>
                       {STATUS_LABELS[p.status as AssetStatus] ?? p.status}
                     </span>
+                  </td>
+                  <td style={{ textAlign: "right" }}>
+                    <Link className="btn ghost small" href={`/plant/${p.id}/edit`}>
+                      Edit
+                    </Link>
                   </td>
                 </tr>
               ))}
