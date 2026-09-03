@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { ROLE_LABELS, ROLES, type Role } from "@/lib/roles";
+import { ROLE_LABELS, ROLES, hasRole, type Role } from "@/lib/roles";
 import { AppHeader } from "@/components/app-header";
 import { AccessCheck } from "./access-check";
 import { RolePanels } from "./role-panels";
@@ -78,7 +78,7 @@ export default async function DashboardPage() {
 
         <RolePanels userId={user.id} roles={roles} />
 
-        <AccessCheck roles={roles} />
+        {hasRole(roles, "admin") && <AccessCheck roles={roles} />}
       </div>
     </>
   );
