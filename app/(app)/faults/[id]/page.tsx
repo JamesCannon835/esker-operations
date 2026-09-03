@@ -194,6 +194,32 @@ export default async function FaultDetailPage({
         </div>
       </div>
 
+      {canWork && !isClosed && (
+        <div className="card">
+          <h2>Fixed it?</h2>
+          <p className="hint" style={{ marginTop: 0 }}>
+            One click closes this fault. Logging diagnosis, time and parts
+            below is optional.
+          </p>
+          <ConfirmButton
+            action={closeFault.bind(null, id)}
+            label="✓ Mark as fixed"
+            className="btn"
+            confirmText="Mark this fault as fixed? It moves out of the open list."
+          />
+        </div>
+      )}
+
+      {canWork && isClosed && (
+        <div className="card">
+          <p className="hint" style={{ margin: 0 }}>
+            This fault is closed
+            {fault.closed_at ? ` (${fmtDateTime(fault.closed_at)})` : ""}.
+            {manager ? " Use “Reopen job” below if it needs more work." : ""}
+          </p>
+        </div>
+      )}
+
       {!canWork && (
         <div className="card">
           <p className="hint">

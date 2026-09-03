@@ -9,6 +9,8 @@ import {
 } from "@/lib/inspections";
 import { resolveAssetLabels } from "@/lib/asset-labels";
 import { fmtDate } from "@/lib/format";
+import { ConfirmButton } from "@/components/confirm-button";
+import { closeFault } from "./[id]/actions";
 
 export const dynamic = "force-dynamic";
 
@@ -68,6 +70,7 @@ export default async function FaultsPage({
                 <th>Fault</th>
                 <th>Severity</th>
                 <th>Status</th>
+                <th />
               </tr>
             </thead>
             <tbody>
@@ -82,7 +85,7 @@ export default async function FaultsPage({
                     {labels.get(`${f.asset_type}:${f.asset_id}`) ?? "—"}
                   </td>
                   <td>
-                    {f.description}
+                    <Link href={`/faults/${f.id}`}>{f.description}</Link>
                     {!f.safe_to_operate && (
                       <span className="blocked"> · not safe to operate</span>
                     )}
@@ -95,6 +98,19 @@ export default async function FaultsPage({
                   </td>
                   <td className="muted">
                     {FAULT_STATUS_LABELS[f.status] ?? f.status}
+                  </td>
+                  <td style={{ textAlign: "right", whiteSpace: "nowrap" }}>
+                    {seeAll && f.status !== "closed" && (
+                      <ConfirmButton
+                        action={closeFault.bind(null, f.id)}
+                        label="Mark fixed"
+                        className="btn small"
+                        confirmText="Mark this fault as fixed? It moves out of the open list."
+                      />
+                    )}{" "}
+                    <Link className="btn ghost small" href={`/faults/${f.id}`}>
+                      Open
+                    </Link>
                   </td>
                 </tr>
               ))}
