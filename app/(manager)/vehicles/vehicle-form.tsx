@@ -96,6 +96,7 @@ export function VehicleForm({
             name="c_tacho_calibration"
             type="date"
           />
+          <Field label="Next service due" name="c_service" type="date" />
         </FormSection>
       )}
 

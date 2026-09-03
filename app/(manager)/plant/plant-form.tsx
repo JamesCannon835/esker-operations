@@ -72,11 +72,7 @@ export function PlantForm({
       {!full && (
         <FormSection title="Compliance dates (optional)">
           <Field label="Insurance due" name="c_insurance" type="date" />
-          <Field
-            label="13-week inspection due"
-            name="c_thirteen_week_inspection"
-            type="date"
-          />
+          <Field label="Next service due" name="c_service" type="date" />
         </FormSection>
       )}
 
