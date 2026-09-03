@@ -17,20 +17,37 @@ export function ImportPeopleForm() {
 
   const preview = useMemo<Preview[]>(() => {
     const { headers, rows } = parseTable(text);
-    if (rows.length === 0) return [];
-    const iName = Math.max(0, colIndex(headers, "name"));
-    const iEmail = colIndex(headers, "email", "e-mail");
-    const iPhone = colIndex(headers, "phone", "mobile");
-    return rows.map((r) => {
-      const email = (iEmail >= 0 ? r[iEmail] : r[1]) ?? "";
-      const name = (r[iName] ?? "").trim();
-      return {
-        name,
-        email: email.trim(),
-        phone: (iPhone >= 0 ? (r[iPhone] ?? "") : "").trim(),
-        ok: !!name && looksLikeEmail(email),
-      };
-    });
+    // A header row only counts if it names columns and holds no email itself;
+    // otherwise the sheet has no header and every line is data.
+    const hasHeader =
+      !headers.some(looksLikeEmail) &&
+      headers.some((h) => /name|email|e-mail|phone|mobile/.test(h));
+    const allRows = hasHeader ? rows : [headers, ...rows].filter((r) => r.length);
+
+    const iName = hasHeader ? Math.max(0, colIndex(headers, "name")) : -1;
+    const iEmail = hasHeader ? colIndex(headers, "email", "e-mail") : -1;
+    const iPhone = hasHeader ? colIndex(headers, "phone", "mobile") : -1;
+
+    return allRows
+      .map((r) => {
+        const cells = r.map((c) => (c ?? "").trim());
+        // email: named column, else the first cell that looks like one
+        const email =
+          (iEmail >= 0 ? cells[iEmail] : cells.find(looksLikeEmail)) ?? "";
+        // name: named column, else the first non-email, non-numeric cell
+        const name =
+          (iName >= 0
+            ? cells[iName]
+            : cells.find(
+                (c) => c && c !== email && !looksLikeEmail(c) && !/^\+?[\d\s()-]+$/.test(c),
+              )) ?? "";
+        const phone =
+          iPhone >= 0
+            ? (cells[iPhone] ?? "")
+            : (cells.find((c) => c && c !== name && c !== email && /^\+?[\d\s()-]{6,}$/.test(c)) ?? "");
+        return { name, email, phone, ok: !!name && looksLikeEmail(email) };
+      })
+      .filter((p) => p.name || p.email);
   }, [text]);
 
   const good = preview.filter((p) => p.ok);
