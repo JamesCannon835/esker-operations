@@ -1,11 +1,14 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { requireUser } from "@/lib/auth";
+import { isManager, hasRole } from "@/lib/roles";
 import { getAssetOptions } from "@/lib/asset-picker";
 import { resolveAssetLabels } from "@/lib/asset-labels";
+import { COMPLIANCE_TYPE_LABELS, type ComplianceType } from "@/lib/compliance";
+import { ConfirmButton } from "@/components/confirm-button";
 import { updateComplianceItem, setComplianceVoided } from "../../actions";
 import { ComplianceForm } from "../../compliance-form";
-import { ConfirmButton } from "@/components/confirm-button";
 
 export const dynamic = "force-dynamic";
 
@@ -14,6 +17,9 @@ export default async function EditCompliancePage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const { roles } = await requireUser();
+  if (!isManager(roles) && !hasRole(roles, "mechanic")) redirect("/compliance");
+
   const { id } = await params;
   const supabase = await createClient();
 
@@ -36,11 +42,14 @@ export default async function EditCompliancePage({
         ← Compliance
       </Link>
       <div className="page-head">
-        <h1>Edit compliance item</h1>
+        <h1>
+          {assetLabel} —{" "}
+          {COMPLIANCE_TYPE_LABELS[item.compliance_type as ComplianceType] ??
+            item.compliance_type}
+        </h1>
       </div>
 
       <div className="card">
-        <p className="hint">Asset: {assetLabel}</p>
         <ComplianceForm
           action={updateComplianceItem.bind(null, id)}
           assets={assets}
@@ -52,15 +61,14 @@ export default async function EditCompliancePage({
             last_completed_date: item.last_completed_date,
             notes: item.notes,
           }}
-          submitLabel="Save changes"
+          submitLabel="Save"
         />
       </div>
 
       <div className="card">
-        <h2>Void</h2>
+        <h2>Remove</h2>
         <p className="hint">
-          Compliance records are never deleted. Voiding removes it from the
-          dashboard but keeps it for audit.
+          Voiding takes it off the board but keeps it for audit.
         </p>
         <ConfirmButton
           action={setComplianceVoided.bind(null, id, true)}

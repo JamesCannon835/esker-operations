@@ -51,7 +51,7 @@ export async function createComplianceItem(
   if (error) return { error: friendlyDbError(error.message) };
 
   revalidatePath("/compliance");
-  redirect(`/compliance#item-${data.id}`);
+  redirect("/compliance");
 }
 
 export async function updateComplianceItem(
@@ -79,7 +79,7 @@ export async function updateComplianceItem(
   if (error) return { error: friendlyDbError(error.message) };
 
   revalidatePath("/compliance");
-  redirect(`/compliance#item-${id}`);
+  redirect("/compliance");
 }
 
 /** Marks the current item done and rolls the due date forward. */

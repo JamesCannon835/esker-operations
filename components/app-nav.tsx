@@ -24,6 +24,7 @@ const MECHANIC_LINKS: NavLink[] = [
   { href: "/check", label: "Daily Check" },
   { href: "/inspections", label: "Inspections" },
   { href: "/services", label: "Services" },
+  { href: "/compliance", label: "Compliance" },
 ];
 
 // Drivers and plant operators — kept deliberately minimal.

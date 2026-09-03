@@ -21,8 +21,11 @@ Next.js (App Router) + Supabase.
   service logging (`/services`); service-due indicators on the dashboard and
   asset pages.
   Run once: `supabase/phase5_policies.sql`, `supabase/phase5_seed_templates.sql`.
-- **Phase 6 — done.** Central compliance dashboard (`/compliance`, green/amber/red
-  for tax, CVRT, insurance, tacho…); document uploads to Supabase Storage
+- **Phase 6 — done.** Compliance board (`/compliance`) — a grid of asset × date
+  type (tax, CVRT, insurance, 13-week, tacho), each cell colour-coded and
+  click-to-edit; visible/editable by mechanic, transport manager and admin
+  (`supabase/phase_compliance_mechanic.sql`). Document uploads to Supabase
+  Storage
   (`/documents`); per-asset compliance + document panel; daily reminder email
   edge function (`supabase/functions/send-reminders`).
   Setup: create a private `documents` bucket, then run `supabase/phase6_storage.sql`.
