@@ -1,13 +1,10 @@
 import Link from "next/link";
-import { getAssignablePeople } from "@/lib/assets-server";
 import { createVehicle } from "../actions";
 import { VehicleForm } from "../vehicle-form";
 
 export const dynamic = "force-dynamic";
 
-export default async function NewVehiclePage() {
-  const drivers = await getAssignablePeople("driver");
-
+export default function NewVehiclePage() {
   return (
     <>
       <Link className="link-back" href="/vehicles">
@@ -19,10 +16,14 @@ export default async function NewVehiclePage() {
       <div className="card">
         <VehicleForm
           action={createVehicle}
-          drivers={drivers}
-          submitLabel="Create vehicle"
+          mode="create"
+          submitLabel="Add vehicle"
           cancelHref="/vehicles"
         />
+        <p className="field-hint" style={{ marginTop: 12 }}>
+          Assign a driver, mileage and service schedule after saving, on the
+          vehicle&apos;s page.
+        </p>
       </div>
     </>
   );

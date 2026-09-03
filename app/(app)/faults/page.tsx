@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { requireUser } from "@/lib/auth";
+import { isManager, hasRole } from "@/lib/roles";
 import {
   FAULT_STATUS_LABELS,
   FAULT_SEVERITY_LABELS,
@@ -17,6 +19,11 @@ export default async function FaultsPage({
 }: {
   searchParams: Promise<{ show?: string }>;
 }) {
+  const { user, roles } = await requireUser();
+  // Managers and mechanics see the whole workshop queue.
+  // Drivers / operators only see faults they raised.
+  const seeAll = isManager(roles) || hasRole(roles, "mechanic");
+
   const { show } = await searchParams;
   const showClosed = show === "all";
 
@@ -29,6 +36,7 @@ export default async function FaultsPage({
     .eq("voided", false)
     .order("reported_at", { ascending: false })
     .limit(200);
+  if (!seeAll) query = query.eq("reported_by", user.id);
   if (!showClosed) query = query.in("status", OPEN);
 
   const { data: faults, error } = await query;
@@ -38,7 +46,7 @@ export default async function FaultsPage({
   return (
     <>
       <div className="page-head">
-        <h1>Faults</h1>
+        <h1>{seeAll ? "Faults" : "My faults"}</h1>
         <Link className="btn small" href="/faults/new">
           + Report fault
         </Link>
@@ -97,9 +105,9 @@ export default async function FaultsPage({
 
       <p className="field-hint">
         {showClosed ? (
-          <Link href="/faults">Show open faults only</Link>
+          <Link href="/faults">Show open only</Link>
         ) : (
-          <Link href="/faults?show=all">Show all faults (incl. closed)</Link>
+          <Link href="/faults?show=all">Show all (incl. closed)</Link>
         )}
       </p>
     </>

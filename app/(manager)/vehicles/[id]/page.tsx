@@ -7,6 +7,7 @@ import { VoidControl } from "@/components/void-control";
 import { AssetServicePanel } from "@/components/asset-service-panel";
 import { AssetCompliancePanel } from "@/components/asset-compliance-panel";
 import { AssetTimeline } from "@/components/asset-timeline";
+import { vehicleName } from "@/lib/asset-name";
 import { fmtNumber as fmtNum } from "@/lib/format";
 import { setVehicleVoided } from "../actions";
 
@@ -31,14 +32,11 @@ export default async function VehicleDetailPage({
 
   const { data: vehicle } = await supabase
     .from("vehicles")
-    .select("*, driver:assigned_driver_id (full_name)")
+    .select("*")
     .eq("id", id)
     .maybeSingle();
 
   if (!vehicle) notFound();
-
-  const driverName =
-    (vehicle.driver as { full_name?: string } | null)?.full_name ?? null;
 
   return (
     <>
@@ -47,9 +45,7 @@ export default async function VehicleDetailPage({
       </Link>
 
       <div className="page-head">
-        <h1>
-          {vehicle.fleet_number} · {vehicle.registration}
-        </h1>
+        <h1>{vehicleName(vehicle.fleet_number, vehicle.registration)}</h1>
         <div style={{ display: "flex", gap: 8 }}>
           <Link className="btn small ghost" href={`/check/vehicle/${id}`}>
             Daily check
@@ -89,7 +85,6 @@ export default async function VehicleDetailPage({
               </span>
             }
           />
-          <Row label="Assigned driver" value={driverName} />
           <Row label="Make" value={vehicle.make} />
           <Row label="Model" value={vehicle.model} />
           <Row label="Vehicle type" value={vehicle.vehicle_type} />

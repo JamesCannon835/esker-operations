@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { vehicleName } from "@/lib/asset-name";
 
 export type AssetOption = { value: string; label: string; group: string };
 
@@ -27,7 +28,7 @@ export async function getAssetOptions(): Promise<AssetOption[]> {
   return [
     ...(vehicles ?? []).map((v) => ({
       value: `vehicle:${v.id}`,
-      label: `${v.fleet_number} · ${v.registration}`,
+      label: vehicleName(v.fleet_number, v.registration),
       group: "Vehicles",
     })),
     ...(plant ?? []).map((p) => ({

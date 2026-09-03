@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import type { Role } from "@/lib/roles";
+import { vehicleName } from "@/lib/asset-name";
 
 /** People who can be assigned to an asset, for the assignment dropdowns. */
 export type AssignablePerson = { id: string; full_name: string };
@@ -39,6 +40,6 @@ export async function getVehiclesForAssignment(): Promise<
 
   return (data ?? []).map((v) => ({
     id: v.id,
-    label: `${v.fleet_number} · ${v.registration}`,
+    label: vehicleName(v.fleet_number, v.registration),
   }));
 }

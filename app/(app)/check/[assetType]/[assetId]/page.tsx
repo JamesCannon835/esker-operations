@@ -10,6 +10,7 @@ import {
 } from "@/lib/inspections";
 import { submitInspection } from "@/app/(app)/inspections/actions";
 import { InspectionForm } from "@/components/inspection-form";
+import { vehicleName } from "@/lib/asset-name";
 
 export const dynamic = "force-dynamic";
 
@@ -36,7 +37,7 @@ export default async function DailyCheckPage({
   const label =
     type === "plant"
       ? `${asset.asset_number}${asset.plant_type ? ` · ${asset.plant_type}` : ""}`
-      : `${asset.fleet_number} · ${asset.registration}`;
+      : vehicleName(asset.fleet_number, asset.registration);
 
   const { data: templates } = await supabase
     .from("inspection_templates")

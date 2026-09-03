@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { isManager, type Role } from "@/lib/roles";
+import { isManager, hasRole, type Role } from "@/lib/roles";
 
 type NavLink = { href: string; label: string };
 
@@ -18,18 +18,31 @@ const MANAGER_LINKS: NavLink[] = [
   { href: "/reports", label: "Reports" },
 ];
 
-const FIELD_LINKS: NavLink[] = [
+const MECHANIC_LINKS: NavLink[] = [
   DASHBOARD,
-  { href: "/check", label: "Daily Check" },
-  { href: "/inspections", label: "Inspections" },
   { href: "/faults", label: "Faults" },
   { href: "/breakdowns", label: "Breakdowns" },
+  { href: "/check", label: "Daily Check" },
+  { href: "/inspections", label: "Inspections" },
   { href: "/services", label: "Services" },
+];
+
+// Drivers and plant operators — kept deliberately minimal.
+const BASIC_LINKS: NavLink[] = [
+  DASHBOARD,
+  { href: "/check", label: "Daily Check" },
+  { href: "/faults", label: "My Faults" },
 ];
 
 export function AppNav({ roles }: { roles: Role[] }) {
   const pathname = usePathname();
-  const links = [...(isManager(roles) ? MANAGER_LINKS : FIELD_LINKS)];
+
+  const links = isManager(roles)
+    ? [...MANAGER_LINKS]
+    : hasRole(roles, "mechanic")
+      ? [...MECHANIC_LINKS]
+      : [...BASIC_LINKS];
+
   if (roles.includes("admin")) {
     links.push({ href: "/admin/users", label: "Users" });
   }

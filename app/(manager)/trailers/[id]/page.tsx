@@ -5,6 +5,7 @@ import { AssetQr } from "@/components/qr-code";
 import { VoidControl } from "@/components/void-control";
 import { AssetCompliancePanel } from "@/components/asset-compliance-panel";
 import { AssetTimeline } from "@/components/asset-timeline";
+import { vehicleName } from "@/lib/asset-name";
 import { setTrailerVoided } from "../actions";
 
 export const dynamic = "force-dynamic";
@@ -74,7 +75,7 @@ export default async function TrailerDetailPage({
             value={
               vehicle ? (
                 <Link href={`/vehicles/${vehicle.id}`}>
-                  {vehicle.fleet_number} · {vehicle.registration}
+                  {vehicleName(vehicle.fleet_number, vehicle.registration)}
                 </Link>
               ) : null
             }

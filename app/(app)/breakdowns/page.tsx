@@ -9,6 +9,7 @@ import {
   downtimeMs,
   formatDowntime,
 } from "@/lib/breakdowns";
+import { vehicleName } from "@/lib/asset-name";
 
 export const dynamic = "force-dynamic";
 
@@ -37,7 +38,7 @@ export default async function BreakdownsPage() {
       .select("id, fleet_number, registration")
       .in("id", vids as string[]);
     for (const v of data ?? [])
-      vmap.set(v.id, `${v.fleet_number} · ${v.registration}`);
+      vmap.set(v.id, vehicleName(v.fleet_number, v.registration));
   }
 
   return (

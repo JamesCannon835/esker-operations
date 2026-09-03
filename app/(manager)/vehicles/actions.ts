@@ -4,13 +4,15 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { orNull, numOrNull, friendlyDbError } from "@/lib/assets";
+import { COMPLIANCE_TYPES, type ComplianceType } from "@/lib/compliance";
 
 export type FormState = { error?: string };
 
 function readVehicle(formData: FormData) {
+  const registration = orNull(formData.get("registration"));
   return {
-    fleet_number: orNull(formData.get("fleet_number")),
-    registration: orNull(formData.get("registration")),
+    registration,
+    fleet_number: orNull(formData.get("fleet_number")) ?? registration,
     make: orNull(formData.get("make")),
     model: orNull(formData.get("model")),
     vehicle_type: orNull(formData.get("vehicle_type")),
@@ -19,7 +21,6 @@ function readVehicle(formData: FormData) {
     fuel_type: orNull(formData.get("fuel_type")),
     current_mileage: numOrNull(formData.get("current_mileage")),
     status: orNull(formData.get("status")) ?? "available",
-    assigned_driver_id: orNull(formData.get("assigned_driver_id")),
     service_interval_km: numOrNull(formData.get("service_interval_km")),
     next_service_mileage: numOrNull(formData.get("next_service_mileage")),
     next_service_date: orNull(formData.get("next_service_date")),
@@ -31,21 +32,48 @@ export async function createVehicle(
   _prev: FormState,
   formData: FormData,
 ): Promise<FormState> {
-  const values = readVehicle(formData);
-  if (!values.fleet_number || !values.registration) {
-    return { error: "Fleet number and registration are required." };
+  const v = readVehicle(formData);
+  if (!v.registration) {
+    return { error: "Registration is required." };
   }
 
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("vehicles")
-    .insert(values)
+    .insert({
+      registration: v.registration,
+      fleet_number: v.fleet_number,
+      make: v.make,
+      model: v.model,
+      vehicle_type: v.vehicle_type,
+      year: v.year,
+      vin: v.vin,
+    })
     .select("id")
     .single();
 
   if (error) return { error: friendlyDbError(error.message) };
 
+  // Compliance dates entered on the setup form -> compliance_items rows.
+  const complianceRows = COMPLIANCE_TYPES.flatMap((t) => {
+    const due = orNull(formData.get(`c_${t}`));
+    return due
+      ? [
+          {
+            asset_type: "vehicle",
+            asset_id: data.id,
+            compliance_type: t as ComplianceType,
+            due_date: due,
+          },
+        ]
+      : [];
+  });
+  if (complianceRows.length) {
+    await supabase.from("compliance_items").insert(complianceRows);
+  }
+
   revalidatePath("/vehicles");
+  revalidatePath("/compliance");
   redirect(`/vehicles/${data.id}`);
 }
 
@@ -54,15 +82,15 @@ export async function updateVehicle(
   _prev: FormState,
   formData: FormData,
 ): Promise<FormState> {
-  const values = readVehicle(formData);
-  if (!values.fleet_number || !values.registration) {
-    return { error: "Fleet number and registration are required." };
+  const v = readVehicle(formData);
+  if (!v.registration) {
+    return { error: "Registration is required." };
   }
 
   const supabase = await createClient();
   const { error } = await supabase
     .from("vehicles")
-    .update({ ...values, updated_at: new Date().toISOString() })
+    .update({ ...v, updated_at: new Date().toISOString() })
     .eq("id", id);
 
   if (error) return { error: friendlyDbError(error.message) };

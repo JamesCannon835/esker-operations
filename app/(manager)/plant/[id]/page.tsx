@@ -31,14 +31,11 @@ export default async function PlantDetailPage({
 
   const { data: plant } = await supabase
     .from("plant")
-    .select("*, operator:assigned_operator_id (full_name)")
+    .select("*")
     .eq("id", id)
     .maybeSingle();
 
   if (!plant) notFound();
-
-  const operatorName =
-    (plant.operator as { full_name?: string } | null)?.full_name ?? null;
 
   return (
     <>
@@ -90,7 +87,6 @@ export default async function PlantDetailPage({
               </span>
             }
           />
-          <Row label="Assigned operator" value={operatorName} />
           <Row label="Make" value={plant.make} />
           <Row label="Model" value={plant.model} />
           <Row label="Year" value={plant.year} />

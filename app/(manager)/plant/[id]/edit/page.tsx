@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { getAssignablePeople } from "@/lib/assets-server";
 import { updatePlant } from "../../actions";
 import { PlantForm } from "../../plant-form";
 
@@ -15,10 +14,11 @@ export default async function EditPlantPage({
   const { id } = await params;
   const supabase = await createClient();
 
-  const [{ data: plant }, operators] = await Promise.all([
-    supabase.from("plant").select("*").eq("id", id).maybeSingle(),
-    getAssignablePeople("plant_operator"),
-  ]);
+  const { data: plant } = await supabase
+    .from("plant")
+    .select("*")
+    .eq("id", id)
+    .maybeSingle();
 
   if (!plant) notFound();
 
@@ -33,7 +33,6 @@ export default async function EditPlantPage({
       <div className="card">
         <PlantForm
           action={updatePlant.bind(null, id)}
-          operators={operators}
           defaults={plant}
           submitLabel="Save changes"
           cancelHref={`/plant/${id}`}

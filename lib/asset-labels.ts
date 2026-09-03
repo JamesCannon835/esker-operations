@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { vehicleName } from "@/lib/asset-name";
 
 /**
  * Resolves { asset_type, asset_id } pairs to human labels in two queries.
@@ -26,7 +27,7 @@ export async function resolveAssetLabels(
       .select("id, fleet_number, registration")
       .in("id", vehicleIds);
     for (const v of data ?? [])
-      map.set(`vehicle:${v.id}`, `${v.fleet_number} · ${v.registration}`);
+      map.set(`vehicle:${v.id}`, vehicleName(v.fleet_number, v.registration));
   }
   if (plantIds.length) {
     const { data } = await supabase

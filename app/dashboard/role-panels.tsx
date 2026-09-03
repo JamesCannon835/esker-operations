@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { isManager, hasRole, type Role } from "@/lib/roles";
+import { vehicleName } from "@/lib/asset-name";
 
 /**
  * Placeholder "home screen" per role, matching sections 7-8 of the
@@ -17,92 +18,37 @@ export async function RolePanels({
   const supabase = await createClient();
   const panels: React.ReactNode[] = [];
 
-  if (hasRole(roles, "driver")) {
-    const { data: myVehicles } = await supabase
-      .from("vehicles")
-      .select("fleet_number, registration, make, model, status")
-      .eq("assigned_driver_id", userId)
-      .eq("voided", false)
-      .order("fleet_number");
-
+  if (hasRole(roles, "driver") || hasRole(roles, "plant_operator")) {
     panels.push(
-      <div className="card" key="driver">
-        <h2>Driver — My Vehicle</h2>
-        <p className="hint">Phone-first daily workflow.</p>
-        {myVehicles && myVehicles.length > 0 ? (
-          myVehicles.map((vehicle) => (
-            <p key={vehicle.fleet_number}>
-              <strong>
-                {vehicle.fleet_number} · {vehicle.registration}
-              </strong>
-              <br />
-              {[vehicle.make, vehicle.model].filter(Boolean).join(" ")} —{" "}
-              <span className="badge">{vehicle.status}</span>
-            </p>
-          ))
-        ) : (
-          <p className="hint">No vehicle assigned to you yet.</p>
-        )}
-        <Link className="tile tile-alert" href="/breakdowns/new">
-          <div className="value">🔴 BREAKDOWN</div>
-          <div className="label">Report a roadside breakdown now</div>
+      <div className="card" key="field">
+        <h2>Your day</h2>
+        <p className="hint">
+          Do your daily check. Mark anything wrong on the check — it becomes a
+          fault for the workshop automatically.
+        </p>
+
+        <Link
+          className="tile"
+          href="/check"
+          style={{ padding: "18px 16px", textAlign: "center" }}
+        >
+          <div className="value" style={{ fontSize: 20 }}>
+            Start daily check
+          </div>
         </Link>
+
+        <Link className="tile tile-alert" href="/breakdowns/new">
+          <div className="value">BREAKDOWN</div>
+          <div className="label">Broken down on the road? Report it now</div>
+        </Link>
+
         <div className="grid">
-          <Link className="tile" href="/check">
-            <div className="label">Daily check</div>
-            <div className="value">Start</div>
-          </Link>
-          <Link className="tile" href="/faults/new">
-            <div className="label">Report fault</div>
-            <div className="value">Report</div>
-          </Link>
-          <Link className="tile" href="/inspections">
-            <div className="label">My inspection history</div>
+          <Link className="tile" href="/faults">
+            <div className="label">My faults</div>
             <div className="value">View</div>
           </Link>
-        </div>
-      </div>,
-    );
-  }
-
-  if (hasRole(roles, "plant_operator")) {
-    const { data: myPlant } = await supabase
-      .from("plant")
-      .select("asset_number, plant_type, make, model, status")
-      .eq("assigned_operator_id", userId)
-      .eq("voided", false)
-      .order("asset_number");
-
-    panels.push(
-      <div className="card" key="plant_operator">
-        <h2>Plant Operator — My Plant</h2>
-        <p className="hint">Same shape as Driver, hours instead of mileage.</p>
-        {myPlant && myPlant.length > 0 ? (
-          myPlant.map((plant) => (
-            <p key={plant.asset_number}>
-              <strong>
-                {plant.asset_number}
-                {plant.plant_type ? ` · ${plant.plant_type}` : ""}
-              </strong>
-              <br />
-              {[plant.make, plant.model].filter(Boolean).join(" ")} —{" "}
-              <span className="badge">{plant.status}</span>
-            </p>
-          ))
-        ) : (
-          <p className="hint">No plant assigned to you yet.</p>
-        )}
-        <div className="grid">
-          <Link className="tile" href="/check">
-            <div className="label">Daily check</div>
-            <div className="value">Start</div>
-          </Link>
-          <Link className="tile" href="/faults/new">
-            <div className="label">Report fault</div>
-            <div className="value">Report</div>
-          </Link>
           <Link className="tile" href="/inspections">
-            <div className="label">My inspection history</div>
+            <div className="label">My checks</div>
             <div className="value">View</div>
           </Link>
         </div>

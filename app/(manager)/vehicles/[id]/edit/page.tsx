@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { getAssignablePeople } from "@/lib/assets-server";
+import { vehicleName } from "@/lib/asset-name";
 import { updateVehicle } from "../../actions";
 import { VehicleForm } from "../../vehicle-form";
 
@@ -15,25 +15,26 @@ export default async function EditVehiclePage({
   const { id } = await params;
   const supabase = await createClient();
 
-  const [{ data: vehicle }, drivers] = await Promise.all([
-    supabase.from("vehicles").select("*").eq("id", id).maybeSingle(),
-    getAssignablePeople("driver"),
-  ]);
+  const { data: vehicle } = await supabase
+    .from("vehicles")
+    .select("*")
+    .eq("id", id)
+    .maybeSingle();
 
   if (!vehicle) notFound();
+  const name = vehicleName(vehicle.fleet_number, vehicle.registration);
 
   return (
     <>
       <Link className="link-back" href={`/vehicles/${id}`}>
-        ← {vehicle.fleet_number}
+        ← {name}
       </Link>
       <div className="page-head">
-        <h1>Edit {vehicle.fleet_number}</h1>
+        <h1>Edit {name}</h1>
       </div>
       <div className="card">
         <VehicleForm
           action={updateVehicle.bind(null, id)}
-          drivers={drivers}
           defaults={vehicle}
           submitLabel="Save changes"
           cancelHref={`/vehicles/${id}`}

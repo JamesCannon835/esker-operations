@@ -13,6 +13,7 @@ import {
 } from "@/lib/inspections";
 import { submitInspection } from "@/app/(app)/inspections/actions";
 import { InspectionForm } from "@/components/inspection-form";
+import { vehicleName } from "@/lib/asset-name";
 
 export const dynamic = "force-dynamic";
 
@@ -109,7 +110,7 @@ export default async function NewInspectionPage({
       ? `${assetRow.asset_number}${assetRow.plant_type ? ` · ${assetRow.plant_type}` : ""}`
       : assetType === "trailer"
         ? assetRow.registration
-        : `${assetRow.fleet_number} · ${assetRow.registration}`;
+        : vehicleName(assetRow.fleet_number, assetRow.registration);
 
   // Templates for this asset type
   const { data: templates } = await supabase

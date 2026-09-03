@@ -12,6 +12,7 @@ import {
   formatDowntime,
 } from "@/lib/breakdowns";
 import { ConfirmButton } from "@/components/confirm-button";
+import { vehicleName } from "@/lib/asset-name";
 import { advanceBreakdown } from "../actions";
 
 export const dynamic = "force-dynamic";
@@ -73,7 +74,7 @@ export default async function BreakdownDetailPage({
   const stage = breakdownStage(b);
   const next = NEXT_STEP[stage];
   const vLabel = vehicle
-    ? `${vehicle.fleet_number} · ${vehicle.registration}`
+    ? vehicleName(vehicle.fleet_number, vehicle.registration)
     : "—";
   const mapUrl =
     b.location_lat && b.location_lng

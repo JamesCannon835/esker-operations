@@ -1,13 +1,10 @@
 import Link from "next/link";
-import { getAssignablePeople } from "@/lib/assets-server";
 import { createPlant } from "../actions";
 import { PlantForm } from "../plant-form";
 
 export const dynamic = "force-dynamic";
 
-export default async function NewPlantPage() {
-  const operators = await getAssignablePeople("plant_operator");
-
+export default function NewPlantPage() {
   return (
     <>
       <Link className="link-back" href="/plant">
@@ -19,10 +16,13 @@ export default async function NewPlantPage() {
       <div className="card">
         <PlantForm
           action={createPlant}
-          operators={operators}
-          submitLabel="Create plant item"
+          mode="create"
+          submitLabel="Add plant item"
           cancelHref="/plant"
         />
+        <p className="field-hint" style={{ marginTop: 12 }}>
+          Set hours and service schedule after saving, on the item&apos;s page.
+        </p>
       </div>
     </>
   );

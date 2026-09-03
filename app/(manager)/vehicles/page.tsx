@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { STATUS_LABELS, type AssetStatus } from "@/lib/assets";
+import { vehicleName } from "@/lib/asset-name";
 
 export const dynamic = "force-dynamic";
 
@@ -43,7 +44,6 @@ export default async function VehiclesPage({
           <table className="list-table">
             <thead>
               <tr>
-                <th>Fleet no.</th>
                 <th>Registration</th>
                 <th>Type</th>
                 <th>Make / model</th>
@@ -55,10 +55,11 @@ export default async function VehiclesPage({
               {vehicles.map((v) => (
                 <tr key={v.id}>
                   <td>
-                    <Link href={`/vehicles/${v.id}`}>{v.fleet_number}</Link>
+                    <Link href={`/vehicles/${v.id}`}>
+                      {vehicleName(v.fleet_number, v.registration)}
+                    </Link>
                     {v.voided && <span className="muted"> · voided</span>}
                   </td>
-                  <td>{v.registration}</td>
                   <td className="muted">{v.vehicle_type ?? "—"}</td>
                   <td className="muted">
                     {[v.make, v.model].filter(Boolean).join(" ") || "—"}
