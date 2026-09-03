@@ -5,6 +5,8 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { friendlyDbError, orNull, numOrNull } from "@/lib/assets";
 import { INSPECTION_TYPE_LABELS, type ItemResult } from "@/lib/inspections";
+import { resolveAssetLabels } from "@/lib/asset-labels";
+import { notifyManagers, SITE_URL } from "@/lib/notify";
 
 export type FormState = { error?: string };
 
@@ -121,6 +123,42 @@ export async function submitInspection(
       labour_hours: numOrNull(formData.get("service_hours")),
     });
     if (svcErr) return { error: friendlyDbError(svcErr.message) };
+  }
+
+  // Email the transport managers + admins.
+  const isDaily =
+    inspectionType === "daily_vehicle" || inspectionType === "daily_plant";
+  const [labelMap, { data: me }] = await Promise.all([
+    resolveAssetLabels([{ asset_type: assetType, asset_id: assetId }]),
+    supabase.from("users").select("full_name").eq("id", user.id).maybeSingle(),
+  ]);
+  const assetLabel = labelMap.get(`${assetType}:${assetId}`) ?? assetType;
+  const who = me?.full_name ?? "Someone";
+  const failLines = failed
+    .map((r) => `• ${r.item.item_name}${r.comment ? ` — ${r.comment}` : ""}`)
+    .join("\n");
+
+  if (!isDaily) {
+    // A mechanic completed an inspection / maintenance report.
+    await notifyManagers(
+      `Inspection completed — ${assetLabel} (${anyFail ? "issues found" : "passed"})`,
+      `${who} completed an inspection on ${assetLabel}.\n\n` +
+        `Result: ${anyFail ? "Fail — issues found" : "Pass"}\n` +
+        (formData.get("service_done") === "on"
+          ? "A service was carried out during this inspection.\n"
+          : "") +
+        (failed.length > 0 ? `\nItems failed:\n${failLines}\n` : "") +
+        `\nView it: ${SITE_URL}/inspections/${inspection.id}\n`,
+    );
+  } else if (failed.length > 0) {
+    // A driver's / operator's daily check raised faults.
+    await notifyManagers(
+      `Daily check raised ${failed.length} fault(s) — ${assetLabel}`,
+      `${who}'s daily check on ${assetLabel} raised ${failed.length} fault(s):\n\n` +
+        `${failLines}\n\n` +
+        (safeToOperate ? "" : "Marked NOT safe to operate.\n\n") +
+        `Faults list: ${SITE_URL}/faults\n`,
+    );
   }
 
   revalidatePath("/inspections");

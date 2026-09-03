@@ -4,7 +4,13 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { orNull, friendlyDbError } from "@/lib/assets";
-import { FAULT_SEVERITIES, type FaultSeverity } from "@/lib/inspections";
+import {
+  FAULT_SEVERITIES,
+  FAULT_SEVERITY_LABELS,
+  type FaultSeverity,
+} from "@/lib/inspections";
+import { resolveAssetLabels } from "@/lib/asset-labels";
+import { notifyManagers, SITE_URL } from "@/lib/notify";
 
 export type FormState = { error?: string };
 
@@ -56,6 +62,21 @@ export async function reportFault(
     .single();
 
   if (error) return { error: friendlyDbError(error.message) };
+
+  // Tell the transport managers + admins a fault has come in.
+  const [labels, { data: me }] = await Promise.all([
+    resolveAssetLabels([{ asset_type, asset_id }]),
+    supabase.from("users").select("full_name").eq("id", user.id).maybeSingle(),
+  ]);
+  const assetLabel = labels.get(`${asset_type}:${asset_id}`) ?? asset_type;
+  await notifyManagers(
+    `New fault reported — ${assetLabel}`,
+    `${me?.full_name ?? "Someone"} reported a fault on ${assetLabel}.\n\n` +
+      `${description}\n` +
+      `Severity: ${FAULT_SEVERITY_LABELS[severity]}\n` +
+      (safe_to_operate ? "" : "Reported as NOT safe to operate.\n") +
+      `\nOpen it: ${SITE_URL}/faults/${data.id}\n`,
+  );
 
   revalidatePath("/faults");
   redirect(`/faults/${data.id}`);
