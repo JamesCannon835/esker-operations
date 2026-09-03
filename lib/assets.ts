@@ -18,6 +18,17 @@ export const STATUS_LABELS: Record<AssetStatus, string> = {
   retired: "Retired",
 };
 
+/** Fixed vehicle sub-categories, in display order. Stored in vehicles.vehicle_type. */
+export const VEHICLE_CATEGORIES = [
+  "Mixers",
+  "Pump Truck",
+  "Block Trucks",
+  "Cars & Vans",
+  "Tippers",
+] as const;
+
+export type VehicleCategory = (typeof VEHICLE_CATEGORIES)[number];
+
 export const FUEL_TYPES = [
   "Diesel",
   "Petrol",

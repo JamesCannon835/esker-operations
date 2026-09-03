@@ -8,7 +8,12 @@ import {
   TextAreaField,
   FormSection,
 } from "@/components/form-fields";
-import { ASSET_STATUSES, STATUS_LABELS, FUEL_TYPES } from "@/lib/assets";
+import {
+  ASSET_STATUSES,
+  STATUS_LABELS,
+  FUEL_TYPES,
+  VEHICLE_CATEGORIES,
+} from "@/lib/assets";
 import {
   ComplianceDateFields,
   type ComplianceItemLite,
@@ -16,6 +21,13 @@ import {
 import type { FormState } from "./actions";
 
 type Defaults = Record<string, string | number | null | undefined>;
+
+/** The fixed categories, plus the current value if it's an older free-text one. */
+function categoryOptions(current?: string) {
+  const values: string[] = [...VEHICLE_CATEGORIES];
+  if (current && !values.includes(current)) values.push(current);
+  return values.map((v) => ({ value: v, label: v }));
+}
 
 export function VehicleForm({
   action,
@@ -55,11 +67,11 @@ export function VehicleForm({
           name="model"
           defaultValue={defaults.model as string}
         />
-        <Field
-          label="Type"
+        <SelectField
+          label="Category"
           name="vehicle_type"
-          placeholder="Tipper, Mixer, Van…"
           defaultValue={defaults.vehicle_type as string}
+          options={categoryOptions(defaults.vehicle_type as string | undefined)}
         />
         <Field
           label="Year"
