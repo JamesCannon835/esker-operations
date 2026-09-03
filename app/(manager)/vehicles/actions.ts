@@ -3,10 +3,104 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { requireStaff } from "@/lib/auth";
 import { orNull, numOrNull, friendlyDbError } from "@/lib/assets";
 import { syncComplianceDates } from "@/lib/compliance-server";
+import { COMPLIANCE_TYPES, type ComplianceType } from "@/lib/compliance";
 
 export type FormState = { error?: string };
+
+export type VehicleImportRow = {
+  registration: string;
+  notes?: string;
+  status?: string;
+  dates?: Partial<Record<ComplianceType, string>>;
+};
+export type VehicleImportResult = {
+  registration: string;
+  status: "created" | "skipped" | "error";
+  dates: number;
+  detail?: string;
+};
+export type VehicleImportState = {
+  error?: string;
+  results?: VehicleImportResult[];
+};
+
+export async function importVehicles(
+  _prev: VehicleImportState,
+  formData: FormData,
+): Promise<VehicleImportState> {
+  await requireStaff();
+
+  let rows: VehicleImportRow[];
+  try {
+    rows = JSON.parse(String(formData.get("rows") ?? "[]"));
+  } catch {
+    return { error: "Could not read the pasted rows." };
+  }
+  if (!Array.isArray(rows) || rows.length === 0) {
+    return { error: "Nothing to import." };
+  }
+
+  const supabase = await createClient();
+  const results: VehicleImportResult[] = [];
+
+  for (const row of rows) {
+    const registration = (row.registration ?? "").trim();
+    if (!registration) {
+      results.push({ registration: "", status: "error", dates: 0, detail: "no registration" });
+      continue;
+    }
+
+    const { data: existing } = await supabase
+      .from("vehicles")
+      .select("id")
+      .ilike("registration", registration)
+      .maybeSingle();
+    if (existing) {
+      results.push({ registration, status: "skipped", dates: 0, detail: "already exists" });
+      continue;
+    }
+
+    const { data: created, error } = await supabase
+      .from("vehicles")
+      .insert({
+        registration,
+        fleet_number: registration,
+        status: row.status || "available",
+        notes: row.notes?.trim() || null,
+      })
+      .select("id")
+      .single();
+    if (error || !created) {
+      results.push({ registration, status: "error", dates: 0, detail: friendlyDbError(error?.message ?? "insert failed") });
+      continue;
+    }
+
+    let dateCount = 0;
+    const entries = Object.entries(row.dates ?? {}).filter(
+      ([t, d]) => COMPLIANCE_TYPES.includes(t as ComplianceType) && d,
+    );
+    if (entries.length) {
+      const { error: cErr } = await supabase.from("compliance_items").insert(
+        entries.map(([compliance_type, due_date]) => ({
+          asset_type: "vehicle",
+          asset_id: created.id,
+          compliance_type,
+          due_date,
+          voided: false,
+        })),
+      );
+      if (!cErr) dateCount = entries.length;
+    }
+    results.push({ registration, status: "created", dates: dateCount });
+  }
+
+  revalidatePath("/vehicles");
+  revalidatePath("/compliance");
+  return { results };
+}
 
 function readVehicle(formData: FormData) {
   const registration = orNull(formData.get("registration"));

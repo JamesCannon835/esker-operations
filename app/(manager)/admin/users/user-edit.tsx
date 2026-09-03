@@ -5,6 +5,7 @@ import { ROLES, ROLE_LABELS, type Role } from "@/lib/roles";
 import {
   updateProfile,
   resetPassword,
+  regenerateAccessCode,
   toggleRole,
   type FormState,
 } from "./actions";
@@ -72,6 +73,27 @@ export function RoleEditor({
         );
       })}
     </div>
+  );
+}
+
+export function AccessCodeForm({ userId }: { userId: string }) {
+  const action = regenerateAccessCode.bind(null, userId);
+  const [state, formAction, pending] = useActionState<FormState, FormData>(
+    action,
+    {},
+  );
+  return (
+    <form action={formAction}>
+      {state.error && <div className="error">{state.error}</div>}
+      {state.ok && (
+        <p className="ok" style={{ fontSize: 16 }}>
+          {state.ok}
+        </p>
+      )}
+      <button className="btn" type="submit" disabled={pending}>
+        {pending ? "Generating…" : "Generate a new access code"}
+      </button>
+    </form>
   );
 }
 

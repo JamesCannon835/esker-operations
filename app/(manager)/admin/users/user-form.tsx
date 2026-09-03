@@ -14,6 +14,11 @@ export function NewUserForm() {
   return (
     <form action={formAction}>
       {state.error && <div className="error">{state.error}</div>}
+      {state.ok && (
+        <div className="ok" style={{ marginBottom: 12 }}>
+          {state.ok} <a href="/admin/users">Back to people</a>
+        </div>
+      )}
 
       <div className="form-grid">
         <div className="field">
@@ -33,12 +38,10 @@ export function NewUserForm() {
           <input id="phone" name="phone" />
         </div>
         <div className="field">
-          <label htmlFor="password">
-            Starting password <span className="req">*</span>
-          </label>
-          <input id="password" name="password" minLength={8} required />
+          <label htmlFor="password">Starting password</label>
+          <input id="password" name="password" minLength={8} />
           <div className="field-hint">
-            At least 8 characters. Tell the person — they can change it later.
+            Leave blank to auto-generate an access code you hand to the person.
           </div>
         </div>
       </div>

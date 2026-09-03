@@ -65,9 +65,14 @@ export default async function VehiclesPage({
     <>
       <div className="page-head">
         <h1>Vehicles</h1>
-        <Link className="btn small" href="/vehicles/new">
-          + Add vehicle
-        </Link>
+        <div style={{ display: "flex", gap: 8 }}>
+          <Link className="btn small ghost" href="/vehicles/import">
+            Import
+          </Link>
+          <Link className="btn small" href="/vehicles/new">
+            + Add vehicle
+          </Link>
+        </div>
       </div>
 
       {error && <div className="error">{error.message}</div>}

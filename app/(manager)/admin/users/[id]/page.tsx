@@ -4,7 +4,12 @@ import { createClient } from "@/lib/supabase/server";
 import { fmtDate } from "@/lib/format";
 import type { Role } from "@/lib/roles";
 import { ConfirmButton } from "@/components/confirm-button";
-import { ProfileForm, RoleEditor, PasswordForm } from "../user-edit";
+import {
+  ProfileForm,
+  RoleEditor,
+  PasswordForm,
+  AccessCodeForm,
+} from "../user-edit";
 import { setActive } from "../actions";
 
 export const dynamic = "force-dynamic";
@@ -61,9 +66,20 @@ export default async function EditUserPage({
       </div>
 
       <div className="card">
-        <h2>Password</h2>
-        <p className="hint">Set a new password and pass it to the person.</p>
-        <PasswordForm userId={id} />
+        <h2>Login / access code</h2>
+        <p className="hint">
+          Generate a fresh code to hand to the person — it replaces their old
+          one straight away.
+        </p>
+        <AccessCodeForm userId={id} />
+        <details style={{ marginTop: 14 }}>
+          <summary className="hint" style={{ cursor: "pointer" }}>
+            Or set a specific password
+          </summary>
+          <div style={{ marginTop: 10 }}>
+            <PasswordForm userId={id} />
+          </div>
+        </details>
       </div>
 
       <div className="card">

@@ -26,9 +26,14 @@ export default async function AdminUsersPage() {
     <>
       <div className="page-head">
         <h1>Users &amp; roles</h1>
-        <Link className="btn small" href="/admin/users/new">
-          + Add person
-        </Link>
+        <div style={{ display: "flex", gap: 8 }}>
+          <Link className="btn small ghost" href="/admin/users/import">
+            Import list
+          </Link>
+          <Link className="btn small" href="/admin/users/new">
+            + Add person
+          </Link>
+        </div>
       </div>
 
       {error && <div className="error">{error.message}</div>}

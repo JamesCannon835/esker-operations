@@ -6,8 +6,20 @@ import { requireUser } from "@/lib/auth";
 import { hasRole, ROLES, type Role } from "@/lib/roles";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { orNull, friendlyDbError } from "@/lib/assets";
+import { generateAccessCode } from "@/lib/access-code";
+import { looksLikeEmail } from "@/lib/import-parse";
 
 export type FormState = { error?: string; ok?: string };
+
+export type ImportRow = { name: string; email: string; phone?: string };
+export type ImportResult = {
+  name: string;
+  email: string;
+  code?: string;
+  status: "created" | "skipped" | "error";
+  detail?: string;
+};
+export type ImportState = { error?: string; results?: ImportResult[] };
 
 async function requireAdmin() {
   const { user, roles } = await requireUser();
@@ -28,14 +40,18 @@ export async function createUser(
   const email = orNull(formData.get("email"))?.toLowerCase();
   const full_name = orNull(formData.get("full_name"));
   const phone = orNull(formData.get("phone"));
-  const password = orNull(formData.get("password"));
+  const typed = orNull(formData.get("password"));
   const roles = readRoles(formData);
 
   if (!email) return { error: "Email is required." };
   if (!full_name) return { error: "Full name is required." };
-  if (!password || password.length < 8) {
-    return { error: "Set a starting password of at least 8 characters." };
+  if (typed && typed.length < 8) {
+    return { error: "A typed password must be at least 8 characters." };
   }
+
+  // Blank password field -> generate an access code to hand to the person.
+  const generated = !typed;
+  const password = typed ?? generateAccessCode();
 
   let admin;
   try {
@@ -72,7 +88,105 @@ export async function createUser(
   }
 
   revalidatePath("/admin/users");
+  if (generated) {
+    return {
+      ok: `${full_name} created. Access code: ${password} — write it down now, it won't be shown again. Then open their page to set roles.`,
+    };
+  }
   redirect(`/admin/users/${uid}`);
+}
+
+export async function regenerateAccessCode(
+  id: string,
+  _prev: FormState,
+  _formData: FormData,
+): Promise<FormState> {
+  await requireAdmin();
+  const admin = createAdminClient();
+  const code = generateAccessCode();
+  const { error } = await admin.auth.admin.updateUserById(id, {
+    password: code,
+  });
+  if (error) return { error: error.message };
+  return { ok: `New access code: ${code} — give it to the person.` };
+}
+
+export async function importPeople(
+  _prev: ImportState,
+  formData: FormData,
+): Promise<ImportState> {
+  await requireAdmin();
+
+  const role = (orNull(formData.get("role")) ?? "") as Role;
+  const rawRole = ROLES.includes(role) ? role : null;
+
+  let rows: ImportRow[];
+  try {
+    rows = JSON.parse(String(formData.get("rows") ?? "[]"));
+  } catch {
+    return { error: "Could not read the pasted rows." };
+  }
+  if (!Array.isArray(rows) || rows.length === 0) {
+    return { error: "Nothing to import." };
+  }
+
+  let admin;
+  try {
+    admin = createAdminClient();
+  } catch (e) {
+    return { error: (e as Error).message };
+  }
+
+  const results: ImportResult[] = [];
+  for (const row of rows) {
+    const name = (row.name ?? "").trim();
+    const email = (row.email ?? "").trim().toLowerCase();
+    if (!name || !looksLikeEmail(email)) {
+      results.push({
+        name,
+        email,
+        status: "error",
+        detail: "missing name or valid email",
+      });
+      continue;
+    }
+
+    const code = generateAccessCode();
+    const { data: created, error: authErr } = await admin.auth.admin.createUser({
+      email,
+      password: code,
+      email_confirm: true,
+      user_metadata: { full_name: name },
+    });
+    if (authErr || !created.user) {
+      results.push({
+        name,
+        email,
+        status: /already|registered|exists/i.test(authErr?.message ?? "")
+          ? "skipped"
+          : "error",
+        detail: authErr?.message,
+      });
+      continue;
+    }
+
+    const uid = created.user.id;
+    const { error: profErr } = await admin
+      .from("users")
+      .insert({ id: uid, full_name: name, phone: row.phone?.trim() || null });
+    if (profErr) {
+      await admin.auth.admin.deleteUser(uid);
+      results.push({ name, email, status: "error", detail: profErr.message });
+      continue;
+    }
+    if (rawRole) {
+      await admin.from("user_roles").insert({ user_id: uid, role: rawRole });
+    }
+    results.push({ name, email, code, status: "created" });
+  }
+
+  revalidatePath("/admin/users");
+  return { results };
 }
 
 export async function updateProfile(
