@@ -17,13 +17,13 @@ import { createAdminClient } from "@/lib/supabase/admin";
 export const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL ?? "https://esker-operations.vercel.app";
 
-async function managerRecipients(): Promise<string[]> {
+async function recipientsForRoles(roles: string[]): Promise<string[]> {
   const admin = createAdminClient();
 
   const { data: roleRows } = await admin
     .from("user_roles")
     .select("user_id")
-    .in("role", ["transport_manager", "admin"]);
+    .in("role", roles);
   const wanted = new Set((roleRows ?? []).map((r) => r.user_id as string));
   if (wanted.size === 0) return [];
 
@@ -42,8 +42,9 @@ async function managerRecipients(): Promise<string[]> {
     .map((u) => u.email as string);
 }
 
-/** Fire an email to the transport managers + admins. Best-effort — never throws. */
-export async function notifyManagers(
+/** Email every active user holding one of `roles`. Best-effort — never throws. */
+export async function notifyRoles(
+  roles: string[],
   subject: string,
   text: string,
 ): Promise<void> {
@@ -55,9 +56,9 @@ export async function notifyManagers(
       return;
     }
 
-    const to = await managerRecipients();
+    const to = await recipientsForRoles(roles);
     if (to.length === 0) {
-      console.warn("notify: no active manager/admin recipients");
+      console.warn(`notify: no active recipients for ${roles.join(", ")}`);
       return;
     }
 
@@ -75,4 +76,14 @@ export async function notifyManagers(
   } catch (err) {
     console.error("notify: failed", err);
   }
+}
+
+/** Transport managers + admins. */
+export function notifyManagers(subject: string, text: string): Promise<void> {
+  return notifyRoles(["transport_manager", "admin"], subject, text);
+}
+
+/** Transport managers + admins + mechanics — for anything the workshop acts on. */
+export function notifyWorkshop(subject: string, text: string): Promise<void> {
+  return notifyRoles(["transport_manager", "admin", "mechanic"], subject, text);
 }

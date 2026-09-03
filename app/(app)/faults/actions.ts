@@ -10,7 +10,7 @@ import {
   type FaultSeverity,
 } from "@/lib/inspections";
 import { resolveAssetLabels } from "@/lib/asset-labels";
-import { notifyManagers, SITE_URL } from "@/lib/notify";
+import { notifyWorkshop, SITE_URL } from "@/lib/notify";
 
 export type FormState = { error?: string };
 
@@ -69,7 +69,7 @@ export async function reportFault(
     supabase.from("users").select("full_name").eq("id", user.id).maybeSingle(),
   ]);
   const assetLabel = labels.get(`${asset_type}:${asset_id}`) ?? asset_type;
-  await notifyManagers(
+  await notifyWorkshop(
     `New fault reported — ${assetLabel}`,
     `${me?.full_name ?? "Someone"} reported a fault on ${assetLabel}.\n\n` +
       `${description}\n` +

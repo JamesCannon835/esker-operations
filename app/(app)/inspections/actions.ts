@@ -6,7 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { friendlyDbError, orNull, numOrNull } from "@/lib/assets";
 import { INSPECTION_TYPE_LABELS, type ItemResult } from "@/lib/inspections";
 import { resolveAssetLabels } from "@/lib/asset-labels";
-import { notifyManagers, SITE_URL } from "@/lib/notify";
+import { notifyManagers, notifyWorkshop, SITE_URL } from "@/lib/notify";
 
 export type FormState = { error?: string };
 
@@ -152,7 +152,7 @@ export async function submitInspection(
     );
   } else if (failed.length > 0) {
     // A driver's / operator's daily check raised faults.
-    await notifyManagers(
+    await notifyWorkshop(
       `Daily check raised ${failed.length} fault(s) — ${assetLabel}`,
       `${who}'s daily check on ${assetLabel} raised ${failed.length} fault(s):\n\n` +
         `${failLines}\n\n` +
