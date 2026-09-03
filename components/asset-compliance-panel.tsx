@@ -31,7 +31,7 @@ export async function AssetCompliancePanel({
       .eq("voided", false),
     supabase
       .from("documents")
-      .select("id, category, file_url, expiry_date")
+      .select("id, category, title, file_url, expiry_date")
       .eq("asset_type", assetType)
       .eq("asset_id", assetId)
       .eq("voided", false)
@@ -124,7 +124,7 @@ export async function AssetCompliancePanel({
               <tr key={d.id}>
                 <td>
                   <Link href={`/documents/${d.id}/download`}>
-                    {String(d.file_url).split("/").pop()}
+                    {d.title ?? String(d.file_url).split("/").pop()}
                   </Link>
                 </td>
                 <td className="muted">

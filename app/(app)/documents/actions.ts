@@ -24,6 +24,9 @@ export async function registerDocument(
 
   const storagePath = orNull(formData.get("storage_path"));
   const assetRef = orNull(formData.get("asset"));
+  const title =
+    orNull(formData.get("title")) ??
+    (storagePath ? (storagePath.split("/").pop() ?? null) : null);
   const category = orNull(formData.get("category")) ?? "other";
   const expiry_date = orNull(formData.get("expiry_date"));
 
@@ -41,6 +44,7 @@ export async function registerDocument(
     asset_type,
     asset_id,
     category,
+    title,
     file_url: storagePath,
     uploaded_by: user.id,
     expiry_date,

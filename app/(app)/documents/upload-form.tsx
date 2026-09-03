@@ -60,6 +60,9 @@ export function UploadForm({
 
     const fd = new FormData(form);
     fd.set("storage_path", path);
+    if (!String(fd.get("title") ?? "").trim()) {
+      fd.set("title", file.name.replace(/\.[^.]+$/, ""));
+    }
     fd.delete("file");
     formAction(fd);
     setBusy(false);
@@ -77,6 +80,19 @@ export function UploadForm({
         </label>
         <input id="file" name="file" type="file" accept={ACCEPTED_DOC_TYPES} />
         <div className="field-hint">PDF, image or Office file, up to 15 MB.</div>
+      </div>
+
+      <div className="field">
+        <label htmlFor="title">Name</label>
+        <input
+          id="title"
+          name="title"
+          type="text"
+          placeholder="e.g. Insurance certificate 2026"
+        />
+        <div className="field-hint">
+          Leave blank to use the file&apos;s own name.
+        </div>
       </div>
 
       <div className="field">

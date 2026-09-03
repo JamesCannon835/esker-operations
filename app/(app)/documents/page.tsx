@@ -19,7 +19,9 @@ export default async function DocumentsPage() {
   const supabase = await createClient();
   const { data: docs, error } = await supabase
     .from("documents")
-    .select("id, asset_type, asset_id, category, file_url, uploaded_at, expiry_date")
+    .select(
+      "id, asset_type, asset_id, category, title, file_url, uploaded_at, expiry_date",
+    )
     .eq("voided", false)
     .order("uploaded_at", { ascending: false })
     .limit(300);
@@ -56,7 +58,8 @@ export default async function DocumentsPage() {
             </thead>
             <tbody>
               {rows.map((d) => {
-                const name = String(d.file_url).split("/").pop() ?? d.file_url;
+                const name =
+                  d.title ?? String(d.file_url).split("/").pop() ?? d.file_url;
                 const exp =
                   d.expiry_date && complianceStatus(d.expiry_date);
                 return (
