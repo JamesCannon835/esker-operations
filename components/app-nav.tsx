@@ -47,6 +47,7 @@ export function AppNav({ roles }: { roles: Role[] }) {
 
   if (roles.includes("admin")) {
     links.push({ href: "/admin/users", label: "Users" });
+    links.push({ href: "/admin/settings", label: "Settings" });
   }
 
   return (

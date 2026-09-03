@@ -22,3 +22,12 @@ export function fmtNumber(n: number | null | undefined, suffix = ""): string {
   if (n == null) return "—";
   return `${Number(n).toLocaleString(LOCALE)}${suffix}`;
 }
+
+export function fmtMoney(n: number | null | undefined): string {
+  if (n == null) return "—";
+  return new Intl.NumberFormat(LOCALE, {
+    style: "currency",
+    currency: "EUR",
+    minimumFractionDigits: 2,
+  }).format(Number(n));
+}

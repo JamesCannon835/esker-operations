@@ -7,6 +7,8 @@ import { VoidControl } from "@/components/void-control";
 import { AssetServicePanel } from "@/components/asset-service-panel";
 import { AssetCompliancePanel } from "@/components/asset-compliance-panel";
 import { AssetTimeline } from "@/components/asset-timeline";
+import { AssetDocuments } from "@/components/asset-documents";
+import { AssetCostSummary } from "@/components/asset-cost-summary";
 import { fmtNumber as fmtNum } from "@/lib/format";
 import { setPlantVoided } from "../actions";
 
@@ -107,6 +109,10 @@ export default async function PlantDetailPage({
       <AssetCompliancePanel assetType="plant" assetId={id} />
 
       <AssetTimeline assetType="plant" assetId={id} />
+
+      <AssetDocuments assetType="plant" assetId={id} />
+
+      <AssetCostSummary assetType="plant" assetId={id} noun="plant item" />
 
       {plant.notes && (
         <div className="card">

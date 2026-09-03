@@ -220,6 +220,10 @@ export async function RolePanels({
             <div className="label">Users &amp; roles</div>
             <div className="value">Manage</div>
           </Link>
+          <Link className="tile" href="/admin/settings">
+            <div className="label">Settings</div>
+            <div className="value">Edit</div>
+          </Link>
           <Link className="tile" href="/checklists">
             <div className="label">Checklist templates</div>
             <div className="value">Edit</div>

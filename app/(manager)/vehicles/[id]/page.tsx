@@ -7,6 +7,8 @@ import { VoidControl } from "@/components/void-control";
 import { AssetServicePanel } from "@/components/asset-service-panel";
 import { AssetCompliancePanel } from "@/components/asset-compliance-panel";
 import { AssetTimeline } from "@/components/asset-timeline";
+import { AssetDocuments } from "@/components/asset-documents";
+import { AssetCostSummary } from "@/components/asset-cost-summary";
 import { vehicleName } from "@/lib/asset-name";
 import { fmtNumber as fmtNum } from "@/lib/format";
 import { setVehicleVoided } from "../actions";
@@ -110,6 +112,10 @@ export default async function VehicleDetailPage({
       <AssetCompliancePanel assetType="vehicle" assetId={id} />
 
       <AssetTimeline assetType="vehicle" assetId={id} />
+
+      <AssetDocuments assetType="vehicle" assetId={id} />
+
+      <AssetCostSummary assetType="vehicle" assetId={id} noun="vehicle" />
 
       {vehicle.notes && (
         <div className="card">

@@ -5,6 +5,8 @@ import { AssetQr } from "@/components/qr-code";
 import { VoidControl } from "@/components/void-control";
 import { AssetCompliancePanel } from "@/components/asset-compliance-panel";
 import { AssetTimeline } from "@/components/asset-timeline";
+import { AssetDocuments } from "@/components/asset-documents";
+import { AssetCostSummary } from "@/components/asset-cost-summary";
 import { vehicleName } from "@/lib/asset-name";
 import { setTrailerVoided } from "../actions";
 
@@ -93,6 +95,10 @@ export default async function TrailerDetailPage({
       <AssetCompliancePanel assetType="trailer" assetId={id} />
 
       <AssetTimeline assetType="trailer" assetId={id} />
+
+      <AssetDocuments assetType="trailer" assetId={id} />
+
+      <AssetCostSummary assetType="trailer" assetId={id} noun="trailer" />
 
       <div className="card">
         <h2>QR code</h2>

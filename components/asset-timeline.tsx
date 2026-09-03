@@ -82,7 +82,7 @@ export async function AssetTimeline({
 
   return (
     <div className="card">
-      <h2>History</h2>
+      <h2>Inspection, fault &amp; service history</h2>
       {shown.length === 0 ? (
         <p className="hint">Nothing recorded yet.</p>
       ) : (
