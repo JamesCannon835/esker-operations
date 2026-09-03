@@ -118,7 +118,7 @@ export async function submitInspection(
       mileage_or_hours: reading,
       performed_by: user.id,
       notes: orNull(formData.get("service_notes")),
-      cost: numOrNull(formData.get("service_cost")),
+      labour_hours: numOrNull(formData.get("service_hours")),
     });
     if (svcErr) return { error: friendlyDbError(svcErr.message) };
   }

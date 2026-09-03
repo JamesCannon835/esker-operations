@@ -129,12 +129,13 @@ export function InspectionForm({
                 />
               </div>
               <div className="field">
-                <label htmlFor="service_cost">Service cost (€)</label>
+                <label htmlFor="service_hours">Hours spent on truck</label>
                 <input
-                  id="service_cost"
-                  name="service_cost"
+                  id="service_hours"
+                  name="service_hours"
                   type="number"
                   step="any"
+                  inputMode="decimal"
                 />
               </div>
             </div>
