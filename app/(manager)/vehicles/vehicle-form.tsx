@@ -9,6 +9,10 @@ import {
   FormSection,
 } from "@/components/form-fields";
 import { ASSET_STATUSES, STATUS_LABELS, FUEL_TYPES } from "@/lib/assets";
+import {
+  ComplianceDateFields,
+  type ComplianceItemLite,
+} from "@/components/compliance-date-fields";
 import type { FormState } from "./actions";
 
 type Defaults = Record<string, string | number | null | undefined>;
@@ -16,12 +20,14 @@ type Defaults = Record<string, string | number | null | undefined>;
 export function VehicleForm({
   action,
   defaults = {},
+  compliance = [],
   submitLabel,
   cancelHref,
   mode = "edit",
 }: {
   action: (prev: FormState, fd: FormData) => Promise<FormState>;
   defaults?: Defaults;
+  compliance?: ComplianceItemLite[];
   submitLabel: string;
   cancelHref: string;
   mode?: "create" | "edit";
@@ -81,24 +87,7 @@ export function VehicleForm({
         )}
       </FormSection>
 
-      {!full && (
-        <FormSection title="Compliance dates (optional)">
-          <Field label="Motor tax due" name="c_tax" type="date" />
-          <Field label="CVRT test due" name="c_cvrt_test" type="date" />
-          <Field label="Insurance due" name="c_insurance" type="date" />
-          <Field
-            label="Inspection due"
-            name="c_thirteen_week_inspection"
-            type="date"
-          />
-          <Field
-            label="Tacho calibration due"
-            name="c_tacho_calibration"
-            type="date"
-          />
-          <Field label="Next service due" name="c_service" type="date" />
-        </FormSection>
-      )}
+      <ComplianceDateFields assetType="vehicle" items={compliance} />
 
       {full && (
         <>

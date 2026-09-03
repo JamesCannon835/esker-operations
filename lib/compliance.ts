@@ -20,6 +20,23 @@ export const COMPLIANCE_TYPE_LABELS: Record<ComplianceType, string> = {
   other: "Other",
 };
 
+/** Which compliance date types apply to each asset type. */
+export const COMPLIANCE_COLUMNS: Record<
+  "vehicle" | "plant" | "trailer",
+  ComplianceType[]
+> = {
+  vehicle: [
+    "tax",
+    "cvrt_test",
+    "insurance",
+    "thirteen_week_inspection",
+    "tacho_calibration",
+    "service",
+  ],
+  trailer: ["tax", "cvrt_test", "insurance", "thirteen_week_inspection"],
+  plant: ["insurance", "service"],
+};
+
 export type ComplianceStatus = "red" | "amber" | "green";
 
 export const COMPLIANCE_STATUS_LABELS: Record<ComplianceStatus, string> = {

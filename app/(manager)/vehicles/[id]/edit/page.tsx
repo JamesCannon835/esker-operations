@@ -15,11 +15,15 @@ export default async function EditVehiclePage({
   const { id } = await params;
   const supabase = await createClient();
 
-  const { data: vehicle } = await supabase
-    .from("vehicles")
-    .select("*")
-    .eq("id", id)
-    .maybeSingle();
+  const [{ data: vehicle }, { data: compliance }] = await Promise.all([
+    supabase.from("vehicles").select("*").eq("id", id).maybeSingle(),
+    supabase
+      .from("compliance_items")
+      .select("id, compliance_type, due_date")
+      .eq("asset_type", "vehicle")
+      .eq("asset_id", id)
+      .eq("voided", false),
+  ]);
 
   if (!vehicle) notFound();
   const name = vehicleName(vehicle.fleet_number, vehicle.registration);
@@ -36,6 +40,7 @@ export default async function EditVehiclePage({
         <VehicleForm
           action={updateVehicle.bind(null, id)}
           defaults={vehicle}
+          compliance={compliance ?? []}
           submitLabel="Save changes"
           cancelHref={`/vehicles/${id}`}
         />

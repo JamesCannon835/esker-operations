@@ -9,6 +9,10 @@ import {
   FormSection,
 } from "@/components/form-fields";
 import { ASSET_STATUSES, STATUS_LABELS } from "@/lib/assets";
+import {
+  ComplianceDateFields,
+  type ComplianceItemLite,
+} from "@/components/compliance-date-fields";
 import type { FormState } from "./actions";
 
 type Defaults = Record<string, string | number | null | undefined>;
@@ -16,12 +20,14 @@ type Defaults = Record<string, string | number | null | undefined>;
 export function PlantForm({
   action,
   defaults = {},
+  compliance = [],
   submitLabel,
   cancelHref,
   mode = "edit",
 }: {
   action: (prev: FormState, fd: FormData) => Promise<FormState>;
   defaults?: Defaults;
+  compliance?: ComplianceItemLite[];
   submitLabel: string;
   cancelHref: string;
   mode?: "create" | "edit";
@@ -69,12 +75,7 @@ export function PlantForm({
         />
       </FormSection>
 
-      {!full && (
-        <FormSection title="Compliance dates (optional)">
-          <Field label="Insurance due" name="c_insurance" type="date" />
-          <Field label="Next service due" name="c_service" type="date" />
-        </FormSection>
-      )}
+      <ComplianceDateFields assetType="plant" items={compliance} />
 
       {full && (
         <>

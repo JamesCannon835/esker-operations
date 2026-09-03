@@ -9,23 +9,11 @@ import {
   complianceStatus,
   daysUntil,
   COMPLIANCE_TYPE_LABELS,
+  COMPLIANCE_COLUMNS as COLUMNS,
   type ComplianceType,
 } from "@/lib/compliance";
 
 export const dynamic = "force-dynamic";
-
-const COLUMNS: Record<"vehicle" | "plant" | "trailer", ComplianceType[]> = {
-  vehicle: [
-    "tax",
-    "cvrt_test",
-    "insurance",
-    "thirteen_week_inspection",
-    "tacho_calibration",
-    "service",
-  ],
-  trailer: ["tax", "cvrt_test", "insurance", "thirteen_week_inspection"],
-  plant: ["insurance", "service"],
-};
 
 type Item = {
   id: string;

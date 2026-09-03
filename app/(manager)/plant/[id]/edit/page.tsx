@@ -14,11 +14,15 @@ export default async function EditPlantPage({
   const { id } = await params;
   const supabase = await createClient();
 
-  const { data: plant } = await supabase
-    .from("plant")
-    .select("*")
-    .eq("id", id)
-    .maybeSingle();
+  const [{ data: plant }, { data: compliance }] = await Promise.all([
+    supabase.from("plant").select("*").eq("id", id).maybeSingle(),
+    supabase
+      .from("compliance_items")
+      .select("id, compliance_type, due_date")
+      .eq("asset_type", "plant")
+      .eq("asset_id", id)
+      .eq("voided", false),
+  ]);
 
   if (!plant) notFound();
 
@@ -34,6 +38,7 @@ export default async function EditPlantPage({
         <PlantForm
           action={updatePlant.bind(null, id)}
           defaults={plant}
+          compliance={compliance ?? []}
           submitLabel="Save changes"
           cancelHref={`/plant/${id}`}
         />

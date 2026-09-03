@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { orNull, numOrNull, friendlyDbError } from "@/lib/assets";
-import { COMPLIANCE_TYPES, type ComplianceType } from "@/lib/compliance";
+import { syncComplianceDates } from "@/lib/compliance-server";
 
 export type FormState = { error?: string };
 
@@ -50,22 +50,7 @@ export async function createPlant(
 
   if (error) return { error: friendlyDbError(error.message) };
 
-  const complianceRows = COMPLIANCE_TYPES.flatMap((t) => {
-    const due = orNull(formData.get(`c_${t}`));
-    return due
-      ? [
-          {
-            asset_type: "plant",
-            asset_id: data.id,
-            compliance_type: t as ComplianceType,
-            due_date: due,
-          },
-        ]
-      : [];
-  });
-  if (complianceRows.length) {
-    await supabase.from("compliance_items").insert(complianceRows);
-  }
+  await syncComplianceDates("plant", data.id, formData);
 
   revalidatePath("/plant");
   revalidatePath("/compliance");
@@ -90,8 +75,11 @@ export async function updatePlant(
 
   if (error) return { error: friendlyDbError(error.message) };
 
+  await syncComplianceDates("plant", id, formData);
+
   revalidatePath("/plant");
   revalidatePath(`/plant/${id}`);
+  revalidatePath("/compliance");
   redirect(`/plant/${id}`);
 }
 

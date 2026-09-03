@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { orNull, numOrNull, friendlyDbError } from "@/lib/assets";
-import { COMPLIANCE_TYPES, type ComplianceType } from "@/lib/compliance";
+import { syncComplianceDates } from "@/lib/compliance-server";
 
 export type FormState = { error?: string };
 
@@ -54,23 +54,7 @@ export async function createVehicle(
 
   if (error) return { error: friendlyDbError(error.message) };
 
-  // Compliance dates entered on the setup form -> compliance_items rows.
-  const complianceRows = COMPLIANCE_TYPES.flatMap((t) => {
-    const due = orNull(formData.get(`c_${t}`));
-    return due
-      ? [
-          {
-            asset_type: "vehicle",
-            asset_id: data.id,
-            compliance_type: t as ComplianceType,
-            due_date: due,
-          },
-        ]
-      : [];
-  });
-  if (complianceRows.length) {
-    await supabase.from("compliance_items").insert(complianceRows);
-  }
+  await syncComplianceDates("vehicle", data.id, formData);
 
   revalidatePath("/vehicles");
   revalidatePath("/compliance");
@@ -95,8 +79,11 @@ export async function updateVehicle(
 
   if (error) return { error: friendlyDbError(error.message) };
 
+  await syncComplianceDates("vehicle", id, formData);
+
   revalidatePath("/vehicles");
   revalidatePath(`/vehicles/${id}`);
+  revalidatePath("/compliance");
   redirect(`/vehicles/${id}`);
 }
 
