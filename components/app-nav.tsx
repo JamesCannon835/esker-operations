@@ -15,6 +15,7 @@ const MANAGER_LINKS: NavLink[] = [
   { href: "/trailers", label: "Trailers" },
   { href: "/compliance", label: "Compliance" },
   { href: "/faults", label: "Faults" },
+  { href: "/training", label: "Training" },
   { href: "/reports", label: "Reports" },
 ];
 

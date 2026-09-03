@@ -1,6 +1,9 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { isManager, hasRole, type Role } from "@/lib/roles";
+import { fmtDate } from "@/lib/format";
+import { trainingStatus } from "@/lib/training";
+import { COMPLIANCE_STATUS_LABELS } from "@/lib/compliance";
 
 /**
  * Placeholder "home screen" per role, matching sections 7-8 of the
@@ -165,6 +168,7 @@ export async function RolePanels({
           <Link href="/faults">Faults</Link> ·{" "}
           <Link href="/inspections">Inspections</Link> ·{" "}
           <Link href="/documents">Documents</Link> ·{" "}
+          <Link href="/training">Training</Link> ·{" "}
           <Link href="/reports">Reports</Link>
         </p>
         <div className="grid">
@@ -228,6 +232,69 @@ export async function RolePanels({
       </div>,
     );
   }
+
+  // Everyone sees their own safety training.
+  const { data: training } = await supabase
+    .from("training_records")
+    .select("id, course_name, completed_date, expiry_date, certificate_name")
+    .eq("user_id", userId)
+    .eq("voided", false)
+    .order("completed_date", { ascending: false });
+
+  panels.push(
+    <div className="card" key="my-training">
+      <h2>Your safety training</h2>
+      {!training || training.length === 0 ? (
+        <p className="hint">
+          Nothing recorded yet. Your transport manager keeps this up to date.
+        </p>
+      ) : (
+        <table className="list-table">
+          <thead>
+            <tr>
+              <th>Course</th>
+              <th>Completed</th>
+              <th>Expires</th>
+              <th>Status</th>
+              <th />
+            </tr>
+          </thead>
+          <tbody>
+            {training.map((t) => {
+              const s = trainingStatus(t.expiry_date);
+              return (
+                <tr key={t.id}>
+                  <td>{t.course_name}</td>
+                  <td className="muted">{fmtDate(t.completed_date)}</td>
+                  <td className="muted">
+                    {t.expiry_date ? fmtDate(t.expiry_date) : "—"}
+                  </td>
+                  <td
+                    style={
+                      s === "red"
+                        ? { color: "var(--danger)", fontWeight: 600 }
+                        : s === "amber"
+                          ? { color: "var(--amber)", fontWeight: 600 }
+                          : undefined
+                    }
+                  >
+                    {t.expiry_date ? COMPLIANCE_STATUS_LABELS[s] : "Valid"}
+                  </td>
+                  <td>
+                    {t.certificate_name && (
+                      <Link href={`/training/${t.id}/certificate`}>
+                        Certificate
+                      </Link>
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      )}
+    </div>,
+  );
 
   return <>{panels}</>;
 }
