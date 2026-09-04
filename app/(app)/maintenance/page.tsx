@@ -289,7 +289,7 @@ export default async function MaintenanceReportsPage({
                       </td>
                       <td className="muted">
                         {r.status === "draft" ? (
-                          <span className="blocked">Draft</span>
+                          <span className="badge">Draft</span>
                         ) : followOpen ? (
                           <span
                             style={{ color: "var(--amber)", fontWeight: 600 }}

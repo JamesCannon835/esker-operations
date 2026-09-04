@@ -36,9 +36,8 @@ type Item = {
 
 const RANK: Record<ComplianceStatus, number> = { red: 0, amber: 1, green: 2 };
 
+// Overdue is flagged as a black/yellow badge (no red); due-soon stays amber text.
 function tone(status: ComplianceStatus) {
-  if (status === "red")
-    return { color: "var(--danger)", bg: "var(--danger-bg)", weight: 700 };
   if (status === "amber")
     return { color: "var(--amber)", bg: "var(--amber-bg)", weight: 600 };
   return { color: "var(--green)", bg: undefined, weight: 600 };
@@ -60,6 +59,22 @@ function Cell({ item, addHref }: { item: Item | undefined; addHref: string }) {
   const t = tone(status);
   // Only show the countdown when it matters — keeps healthy rows clean.
   const showCountdown = status !== "green" || d <= 30;
+
+  if (status === "red") {
+    return (
+      <Link
+        href={`/compliance/${item.id}/edit`}
+        style={{ textDecoration: "none", display: "block" }}
+      >
+        <span className="blocked">{fmtDate(item.due_date)}</span>
+        {showCountdown && (
+          <span style={{ display: "block", fontSize: 11, color: "var(--ink)", marginTop: 2 }}>
+            {Math.abs(d)}d overdue
+          </span>
+        )}
+      </Link>
+    );
+  }
 
   return (
     <Link

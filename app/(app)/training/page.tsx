@@ -8,7 +8,6 @@ import { COMPLIANCE_STATUS_LABELS } from "@/lib/compliance";
 export const dynamic = "force-dynamic";
 
 function cellStyle(status: "red" | "amber" | "green") {
-  if (status === "red") return { color: "var(--danger)", fontWeight: 600 };
   if (status === "amber") return { color: "var(--amber)", fontWeight: 600 };
   return undefined;
 }
@@ -124,9 +123,14 @@ export default async function TrainingRegisterPage() {
                           </td>
                         );
                       const s = trainingStatus(hit.expiry);
+                      const label = hit.expiry ? fmtDate(hit.expiry) : "✓";
                       return (
-                        <td key={c} style={cellStyle(s)}>
-                          {hit.expiry ? fmtDate(hit.expiry) : "✓"}
+                        <td key={c}>
+                          {s === "red" ? (
+                            <span className="blocked">{label}</span>
+                          ) : (
+                            <span style={cellStyle(s)}>{label}</span>
+                          )}
                         </td>
                       );
                     })}
@@ -140,7 +144,7 @@ export default async function TrainingRegisterPage() {
 
       <p className="field-hint">
         Cells show the <strong>expiry date</strong> (or ✓ if the course has no
-        expiry). Red = expired, amber = due within 14 days ·{" "}
+        expiry). A flagged date is expired, amber = due within 14 days ·{" "}
         {COMPLIANCE_STATUS_LABELS.green} otherwise. Click a name for detail.
       </p>
     </>

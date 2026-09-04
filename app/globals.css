@@ -10,19 +10,22 @@
   --border: #ddd8d0;
   --text: #201d1a;
   --muted: #6b635b;
-  /* Esker Readymix brand: orange centre, black ring, yellow lettering */
-  --brand: #b8410e; /* deep orange — passes contrast for white button text */
+  /* Esker Readymix brand: RAL 2000 orange centre, black ring, yellow lettering.
+     No red anywhere — "danger" states are a black-and-yellow flag instead. */
+  --brand: #ed7b00; /* RAL 2000 "Yellow Orange" (sRGB approximation) */
   --brand-fg: #ffffff;
-  --accent: #ec8b2e; /* logo orange — top bar, hovers, highlights */
-  --yellow: #ffce1f; /* logo lettering yellow — active markers */
+  --accent: #f59a2e; /* a lighter tint of the brand orange — hovers, highlights */
+  --yellow: #ffce1f; /* logo lettering yellow */
   --ink: #1b1a18; /* near-black from the logo ring */
   --ink-2: #0e0d0c;
   --green: #15803d;
   --green-bg: #e6f0e8;
   --amber: #a15c00; /* gold, distinct from the brand orange */
   --amber-bg: #f8edd3;
-  --danger: #c0271a; /* real red for overdue / unsafe / errors — needed on a compliance tool */
-  --danger-bg: #f8e6e3;
+  --danger: #1b1a18; /* plain "serious" text — same ink black, no red */
+  --danger-bg: #efe9e2; /* light neutral tint for error/warning boxes */
+  --alarm-bg: #1b1a18; /* solid black flag background — overdue, unsafe, defects */
+  --alarm-fg: #ffce1f; /* yellow flag text, same as the logo lettering */
   --radius: 10px;
 }
 
@@ -203,8 +206,14 @@ th {
 }
 
 .blocked {
-  color: var(--danger);
+  display: inline-block;
+  background: var(--alarm-bg);
+  color: var(--alarm-fg);
   font-weight: 700;
+  font-size: 0.86em;
+  padding: 2px 8px;
+  border-radius: 5px;
+  line-height: 1.5;
 }
 
 .btn {
@@ -814,9 +823,10 @@ th {
   font-weight: 600;
 }
 .status.on.danger {
-  border-color: var(--danger);
-  background: var(--danger-bg);
-  color: var(--danger);
+  border-color: var(--alarm-bg);
+  background: var(--alarm-bg);
+  color: var(--alarm-fg);
+  font-weight: 700;
 }
 
 .signoff {
@@ -956,9 +966,9 @@ th {
   color: #fff;
 }
 .vi-btn.defect.on {
-  background: var(--danger);
-  border-color: var(--danger);
-  color: #fff;
+  background: var(--alarm-bg);
+  border-color: var(--alarm-bg);
+  color: var(--alarm-fg);
 }
 .vi-btn.na.on {
   background: var(--ink);
@@ -1004,9 +1014,9 @@ th {
 }
 .vi-pill.critical.on,
 .vi-pill.no.on {
-  background: var(--danger);
-  border-color: var(--danger);
-  color: #fff;
+  background: var(--alarm-bg);
+  border-color: var(--alarm-bg);
+  color: var(--alarm-fg);
 }
 .vi-pill.urgent.on {
   background: var(--amber);

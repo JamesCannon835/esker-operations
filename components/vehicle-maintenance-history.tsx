@@ -142,7 +142,7 @@ export async function VehicleMaintenanceHistory({
                   )}
                   <td>
                     {r.status === "draft" ? (
-                      <span className="blocked">Draft</span>
+                      <span className="badge">Draft</span>
                     ) : (
                       <span className={oos ? "blocked" : undefined}>
                         {vs ? MR_VEHICLE_STATUS_LABELS[vs] : "Completed"}

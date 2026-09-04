@@ -11,7 +11,6 @@ import { voidTrainingRecord } from "../../actions";
 export const dynamic = "force-dynamic";
 
 function statusStyle(status: "red" | "amber" | "green") {
-  if (status === "red") return { color: "var(--danger)", fontWeight: 600 };
   if (status === "amber") return { color: "var(--amber)", fontWeight: 600 };
   return undefined;
 }
@@ -96,10 +95,20 @@ export default async function PersonTrainingPage({
                     <td className="muted">
                       {r.expiry_date ? fmtDate(r.expiry_date) : "—"}
                     </td>
-                    <td style={statusStyle(s)}>
-                      {r.expiry_date
-                        ? COMPLIANCE_STATUS_LABELS[s]
-                        : "Valid"}
+                    <td>
+                      {r.expiry_date ? (
+                        s === "red" ? (
+                          <span className="blocked">
+                            {COMPLIANCE_STATUS_LABELS[s]}
+                          </span>
+                        ) : (
+                          <span style={statusStyle(s)}>
+                            {COMPLIANCE_STATUS_LABELS[s]}
+                          </span>
+                        )
+                      ) : (
+                        "Valid"
+                      )}
                     </td>
                     <td>
                       {r.certificate_name ? (

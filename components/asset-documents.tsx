@@ -74,14 +74,18 @@ export async function AssetDocuments({
                   <td className="muted">{fmtDate(d.uploaded_at)}</td>
                   <td
                     style={
-                      exp === "red"
-                        ? { color: "var(--danger)", fontWeight: 600 }
-                        : exp === "amber"
-                          ? { color: "var(--amber)", fontWeight: 600 }
-                          : undefined
+                      exp === "amber"
+                        ? { color: "var(--amber)", fontWeight: 600 }
+                        : undefined
                     }
                   >
-                    {d.expiry_date ? fmtDate(d.expiry_date) : "—"}
+                    {exp === "red" ? (
+                      <span className="blocked">{fmtDate(d.expiry_date)}</span>
+                    ) : d.expiry_date ? (
+                      fmtDate(d.expiry_date)
+                    ) : (
+                      "—"
+                    )}
                   </td>
                 </tr>
               );
