@@ -162,7 +162,10 @@ export default async function MaintenanceReportPage({
           {followAction?.due_date
             ? ` — due ${fmtDate(followAction.due_date)}`
             : ""}
-          .
+          .{" "}
+          <Link href={`/actions/${followAction!.id}`} style={{ color: "inherit" }}>
+            Open action →
+          </Link>
         </div>
       )}
 

@@ -58,7 +58,12 @@ export async function RolePanels({
   }
 
   if (hasRole(roles, "mechanic")) {
-    const [{ count: myJobs }, { count: unassigned }] = await Promise.all([
+    const [
+      { count: myJobs },
+      { count: unassigned },
+      { count: myActions },
+      { count: drafts },
+    ] = await Promise.all([
       supabase
         .from("faults")
         .select("*", { count: "exact", head: true })
@@ -69,6 +74,16 @@ export async function RolePanels({
         .select("*", { count: "exact", head: true })
         .is("assigned_mechanic_id", null)
         .eq("status", "reported"),
+      supabase
+        .from("actions")
+        .select("*", { count: "exact", head: true })
+        .eq("assigned_to", userId)
+        .in("status", ["open", "in_progress"]),
+      supabase
+        .from("maintenance_reports")
+        .select("*", { count: "exact", head: true })
+        .eq("created_by", userId)
+        .eq("status", "draft"),
     ]);
 
     panels.push(
@@ -83,6 +98,14 @@ export async function RolePanels({
           <Link className="tile" href="/faults">
             <div className="label">Unassigned faults</div>
             <div className="value">{unassigned ?? 0}</div>
+          </Link>
+          <Link className="tile" href="/maintenance?show=drafts">
+            <div className="label">Draft reports</div>
+            <div className="value">{drafts ?? 0}</div>
+          </Link>
+          <Link className="tile" href="/actions?show=mine">
+            <div className="label">My actions</div>
+            <div className="value">{myActions ?? 0}</div>
           </Link>
           <Link className="tile" href="/inspections/new">
             <div className="label">New inspection</div>
@@ -105,6 +128,8 @@ export async function RolePanels({
       { data: compliance },
       { data: svcVehicles },
       { data: svcPlant },
+      { count: openActions },
+      { count: offRoad },
     ] = await Promise.all([
       supabase.from("vehicles").select("*", { count: "exact", head: true }),
       supabase.from("plant").select("*", { count: "exact", head: true }),
@@ -120,6 +145,15 @@ export async function RolePanels({
       supabase
         .from("plant")
         .select("next_service_date, next_service_hours, current_hours")
+        .eq("voided", false),
+      supabase
+        .from("actions")
+        .select("*", { count: "exact", head: true })
+        .in("status", ["open", "in_progress"]),
+      supabase
+        .from("vehicles")
+        .select("*", { count: "exact", head: true })
+        .eq("status", "off_road")
         .eq("voided", false),
     ]);
 
@@ -166,6 +200,8 @@ export async function RolePanels({
           <Link href="/compliance">Compliance</Link> ·{" "}
           <Link href="/checklists">Checklists</Link> ·{" "}
           <Link href="/faults">Faults</Link> ·{" "}
+          <Link href="/maintenance">Maintenance</Link> ·{" "}
+          <Link href="/actions">Actions</Link> ·{" "}
           <Link href="/inspections">Inspections</Link> ·{" "}
           <Link href="/documents">Documents</Link> ·{" "}
           <Link href="/training">Training</Link> ·{" "}
@@ -183,6 +219,19 @@ export async function RolePanels({
           <Link className="tile" href="/faults">
             <div className="label">Open faults</div>
             <div className="value">{openFaults ?? 0}</div>
+          </Link>
+          <Link className="tile" href="/maintenance?show=oos">
+            <div className="label">Vehicles off road</div>
+            <div
+              className="value"
+              style={{ color: (offRoad ?? 0) > 0 ? "var(--danger)" : undefined }}
+            >
+              {offRoad ?? 0}
+            </div>
+          </Link>
+          <Link className="tile" href="/actions?show=open">
+            <div className="label">Open actions</div>
+            <div className="value">{openActions ?? 0}</div>
           </Link>
           <Link className="tile" href="/compliance?status=red">
             <div className="label">Compliance overdue</div>

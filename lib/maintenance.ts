@@ -103,6 +103,22 @@ export const ACTION_PRIORITY_LABELS: Record<ActionPriority, string> = {
   low: "Low",
 };
 
+export const ACTION_STATUSES = [
+  "open",
+  "in_progress",
+  "done",
+  "cancelled",
+] as const;
+export type ActionStatus = (typeof ACTION_STATUSES)[number];
+export const ACTION_STATUS_LABELS: Record<ActionStatus, string> = {
+  open: "Open",
+  in_progress: "In progress",
+  done: "Done",
+  cancelled: "Cancelled",
+};
+
+export const ACTION_OPEN: ActionStatus[] = ["open", "in_progress"];
+
 export const MAINTENANCE_BUCKET = "documents";
 export const MAINTENANCE_PREFIX = "maintenance";
 
