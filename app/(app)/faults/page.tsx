@@ -9,8 +9,6 @@ import {
 } from "@/lib/inspections";
 import { resolveAssetLabels } from "@/lib/asset-labels";
 import { fmtDate } from "@/lib/format";
-import { ConfirmButton } from "@/components/confirm-button";
-import { closeFault } from "./[id]/actions";
 
 export const dynamic = "force-dynamic";
 
@@ -100,14 +98,6 @@ export default async function FaultsPage({
                     {FAULT_STATUS_LABELS[f.status] ?? f.status}
                   </td>
                   <td style={{ textAlign: "right", whiteSpace: "nowrap" }}>
-                    {seeAll && f.status !== "closed" && (
-                      <ConfirmButton
-                        action={closeFault.bind(null, f.id)}
-                        label="Mark fixed"
-                        className="btn small"
-                        confirmText="Mark this fault as fixed? It moves out of the open list."
-                      />
-                    )}{" "}
                     <Link className="btn ghost small" href={`/faults/${f.id}`}>
                       Open
                     </Link>

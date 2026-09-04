@@ -55,6 +55,7 @@ export default async function FaultDetailPage({
   const mechanic = hasRole(roles, "mechanic");
   const canWork = manager || mechanic;
   const isClosed = fault.status === "closed";
+  const isVehicleFault = fault.asset_type === "vehicle";
 
   const [{ data: reporter }, { data: assignee }, labels] = await Promise.all([
     fault.reported_by
@@ -202,17 +203,24 @@ export default async function FaultDetailPage({
         <div className="card">
           <h2>Maintenance report</h2>
           {linkedReport ? (
-            <Link className="btn" href={`/maintenance/${linkedReport.id}`}>
-              {linkedReport.status === "draft"
-                ? "Continue maintenance report"
-                : `View ${linkedReport.report_number ?? "report"}`}
-            </Link>
+            <>
+              <p className="hint" style={{ marginTop: 0 }}>
+                {linkedReport.status === "draft"
+                  ? "This fault closes when the report is completed."
+                  : `Closed off on ${linkedReport.report_number ?? "the report"}.`}
+              </p>
+              <Link className="btn" href={`/maintenance/${linkedReport.id}`}>
+                {linkedReport.status === "draft"
+                  ? "Continue maintenance report"
+                  : `View ${linkedReport.report_number ?? "report"}`}
+              </Link>
+            </>
           ) : (
             <>
               <p className="hint" style={{ marginTop: 0 }}>
-                Record the work — jobs, parts, labour, vehicle status, sign-off.
-                The fault closes automatically when you complete the report
-                (unless it needs follow-up).
+                Fill out a maintenance report to record the work and close this
+                fault — jobs, parts, labour, vehicle status, sign-off. This is
+                the only way a fault is fixed.
               </p>
               <form action={openReportForFault.bind(null, id)}>
                 <button className="btn" type="submit">
@@ -224,19 +232,13 @@ export default async function FaultDetailPage({
         </div>
       )}
 
-      {canWork && !isClosed && (
+      {canWork && !isVehicleFault && !isClosed && (
         <div className="card">
-          <h2>Fixed it?</h2>
-          <p className="hint" style={{ marginTop: 0 }}>
-            One click closes this fault without a maintenance report. Logging
-            diagnosis, time and parts below is optional.
+          <p className="hint" style={{ margin: 0 }}>
+            Maintenance reports cover vehicles. For plant and trailers, log the
+            diagnosis, time and parts below, then use <em>Close job</em> in the
+            Status section.
           </p>
-          <ConfirmButton
-            action={closeFault.bind(null, id)}
-            label="✓ Mark as fixed"
-            className="btn"
-            confirmText="Mark this fault as fixed? It moves out of the open list."
-          />
         </div>
       )}
 
@@ -444,14 +446,8 @@ export default async function FaultDetailPage({
                   className="btn ghost"
                 />
               )}
-              {!isClosed && fault.status !== "completed" && (
-                <ConfirmButton
-                  action={setFaultStatus.bind(null, id, "completed")}
-                  label="Mark completed"
-                  className="btn ghost"
-                />
-              )}
-              {!isClosed && (
+              {/* Vehicle faults close only via a completed maintenance report. */}
+              {!isClosed && !isVehicleFault && (
                 <ConfirmButton
                   action={closeFault.bind(null, id)}
                   label="Close job"
@@ -467,6 +463,11 @@ export default async function FaultDetailPage({
                 />
               )}
             </div>
+            {!isClosed && isVehicleFault && (
+              <p className="field-hint" style={{ marginTop: 10 }}>
+                This fault closes when its maintenance report is completed.
+              </p>
+            )}
           </div>
         </>
       )}
