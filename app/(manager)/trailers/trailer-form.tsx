@@ -8,6 +8,10 @@ import {
   TextAreaField,
   FormSection,
 } from "@/components/form-fields";
+import {
+  ComplianceDateFields,
+  type ComplianceItemLite,
+} from "@/components/compliance-date-fields";
 import type { FormState } from "./actions";
 
 type Defaults = Record<string, string | number | null | undefined>;
@@ -16,12 +20,14 @@ export function TrailerForm({
   action,
   vehicles,
   defaults = {},
+  compliance = [],
   submitLabel,
   cancelHref,
 }: {
   action: (prev: FormState, fd: FormData) => Promise<FormState>;
   vehicles: { id: string; label: string }[];
   defaults?: Defaults;
+  compliance?: ComplianceItemLite[];
   submitLabel: string;
   cancelHref: string;
 }) {
@@ -62,6 +68,8 @@ export function TrailerForm({
         />
         <Field label="VIN" name="vin" defaultValue={defaults.vin as string} />
       </FormSection>
+
+      <ComplianceDateFields assetType="trailer" items={compliance} />
 
       <FormSection title="Assignment">
         <SelectField

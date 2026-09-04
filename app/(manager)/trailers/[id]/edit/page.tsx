@@ -15,9 +15,15 @@ export default async function EditTrailerPage({
   const { id } = await params;
   const supabase = await createClient();
 
-  const [{ data: trailer }, vehicles] = await Promise.all([
+  const [{ data: trailer }, vehicles, { data: compliance }] = await Promise.all([
     supabase.from("trailers").select("*").eq("id", id).maybeSingle(),
     getVehiclesForAssignment(),
+    supabase
+      .from("compliance_items")
+      .select("id, compliance_type, due_date")
+      .eq("asset_type", "trailer")
+      .eq("asset_id", id)
+      .eq("voided", false),
   ]);
 
   if (!trailer) notFound();
@@ -35,6 +41,7 @@ export default async function EditTrailerPage({
           action={updateTrailer.bind(null, id)}
           vehicles={vehicles}
           defaults={trailer}
+          compliance={compliance ?? []}
           submitLabel="Save changes"
           cancelHref={`/trailers/${id}`}
         />

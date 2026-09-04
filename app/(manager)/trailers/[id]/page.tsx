@@ -3,12 +3,13 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AssetQr } from "@/components/qr-code";
 import { VoidControl } from "@/components/void-control";
+import { ConfirmButton } from "@/components/confirm-button";
 import { AssetCompliancePanel } from "@/components/asset-compliance-panel";
 import { AssetTimeline } from "@/components/asset-timeline";
 import { AssetDocuments } from "@/components/asset-documents";
 import { AssetCostSummary } from "@/components/asset-cost-summary";
 import { vehicleName } from "@/lib/asset-name";
-import { setTrailerVoided } from "../actions";
+import { setTrailerVoided, deleteTrailer } from "../actions";
 
 export const dynamic = "force-dynamic";
 
@@ -116,6 +117,25 @@ export default async function TrailerDetailPage({
           voided={trailer.voided}
           noun="trailer"
         />
+        <div
+          style={{
+            marginTop: 16,
+            borderTop: "1px solid var(--border)",
+            paddingTop: 14,
+          }}
+        >
+          <p className="hint">
+            Or permanently delete this trailer and everything attached to it —
+            compliance dates, faults, inspections, services, documents. Cannot be
+            undone.
+          </p>
+          <ConfirmButton
+            action={deleteTrailer.bind(null, id)}
+            label="Delete permanently"
+            className="btn danger"
+            confirmText={`Permanently delete ${trailer.registration} and all its history? This cannot be undone.`}
+          />
+        </div>
       </div>
     </>
   );

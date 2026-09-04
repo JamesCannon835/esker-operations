@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { STATUS_LABELS, type AssetStatus } from "@/lib/assets";
 import { AssetQr } from "@/components/qr-code";
 import { VoidControl } from "@/components/void-control";
+import { ConfirmButton } from "@/components/confirm-button";
 import { AssetServicePanel } from "@/components/asset-service-panel";
 import { AssetCompliancePanel } from "@/components/asset-compliance-panel";
 import { AssetTimeline } from "@/components/asset-timeline";
@@ -11,7 +12,7 @@ import { AssetDocuments } from "@/components/asset-documents";
 import { AssetCostSummary } from "@/components/asset-cost-summary";
 import { vehicleName } from "@/lib/asset-name";
 import { fmtNumber as fmtNum } from "@/lib/format";
-import { setVehicleVoided } from "../actions";
+import { setVehicleVoided, deleteVehicle } from "../actions";
 
 export const dynamic = "force-dynamic";
 
@@ -140,6 +141,28 @@ export default async function VehicleDetailPage({
           voided={vehicle.voided}
           noun="vehicle"
         />
+        <div
+          style={{
+            marginTop: 16,
+            borderTop: "1px solid var(--border)",
+            paddingTop: 14,
+          }}
+        >
+          <p className="hint">
+            Or permanently delete this vehicle and everything attached to it —
+            compliance dates, faults, inspections, services, documents. Cannot be
+            undone.
+          </p>
+          <ConfirmButton
+            action={deleteVehicle.bind(null, id)}
+            label="Delete permanently"
+            className="btn danger"
+            confirmText={`Permanently delete ${vehicleName(
+              vehicle.fleet_number,
+              vehicle.registration,
+            )} and all its history? This cannot be undone.`}
+          />
+        </div>
       </div>
     </>
   );

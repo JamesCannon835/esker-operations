@@ -10,7 +10,7 @@ import {
   PasswordForm,
   AccessCodeForm,
 } from "../user-edit";
-import { setActive } from "../actions";
+import { setActive, deleteUser } from "../actions";
 
 export const dynamic = "force-dynamic";
 
@@ -99,6 +99,25 @@ export default async function EditUserPage({
               : undefined
           }
         />
+        <div
+          style={{
+            marginTop: 16,
+            borderTop: "1px solid var(--border)",
+            paddingTop: 14,
+          }}
+        >
+          <p className="hint">
+            Or delete this person entirely — removes their login, profile and
+            roles. Only works if they have no activity yet (faults, checks,
+            uploads); otherwise deactivate.
+          </p>
+          <ConfirmButton
+            action={deleteUser.bind(null, id)}
+            label="Delete permanently"
+            className="btn danger"
+            confirmText={`Permanently delete ${profile.full_name}? This removes their login and cannot be undone.`}
+          />
+        </div>
       </div>
     </>
   );

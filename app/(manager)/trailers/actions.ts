@@ -4,6 +4,9 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { orNull, numOrNull, friendlyDbError } from "@/lib/assets";
+import { requireManager } from "@/lib/auth";
+import { syncComplianceDates } from "@/lib/compliance-server";
+import { hardDeleteAsset } from "@/lib/asset-delete";
 
 export type FormState = { error?: string };
 
@@ -38,7 +41,10 @@ export async function createTrailer(
 
   if (error) return { error: friendlyDbError(error.message) };
 
+  await syncComplianceDates("trailer", data.id, formData);
+
   revalidatePath("/trailers");
+  revalidatePath("/compliance");
   redirect(`/trailers/${data.id}`);
 }
 
@@ -60,9 +66,20 @@ export async function updateTrailer(
 
   if (error) return { error: friendlyDbError(error.message) };
 
+  await syncComplianceDates("trailer", id, formData);
+
   revalidatePath("/trailers");
   revalidatePath(`/trailers/${id}`);
+  revalidatePath("/compliance");
   redirect(`/trailers/${id}`);
+}
+
+export async function deleteTrailer(id: string) {
+  await requireManager();
+  await hardDeleteAsset("trailer", id);
+  revalidatePath("/trailers");
+  revalidatePath("/compliance");
+  redirect("/trailers");
 }
 
 export async function setTrailerVoided(id: string, voided: boolean) {

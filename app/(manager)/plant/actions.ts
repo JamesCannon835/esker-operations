@@ -4,7 +4,9 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { orNull, numOrNull, friendlyDbError } from "@/lib/assets";
+import { requireManager } from "@/lib/auth";
 import { syncComplianceDates } from "@/lib/compliance-server";
+import { hardDeleteAsset } from "@/lib/asset-delete";
 
 export type FormState = { error?: string };
 
@@ -81,6 +83,14 @@ export async function updatePlant(
   revalidatePath(`/plant/${id}`);
   revalidatePath("/compliance");
   redirect(`/plant/${id}`);
+}
+
+export async function deletePlant(id: string) {
+  await requireManager();
+  await hardDeleteAsset("plant", id);
+  revalidatePath("/plant");
+  revalidatePath("/compliance");
+  redirect("/plant");
 }
 
 export async function setPlantVoided(id: string, voided: boolean) {

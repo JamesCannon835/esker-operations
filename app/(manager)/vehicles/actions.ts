@@ -3,10 +3,11 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { requireStaff } from "@/lib/auth";
+import { requireStaff, requireManager } from "@/lib/auth";
 import { orNull, numOrNull, friendlyDbError } from "@/lib/assets";
 import { syncComplianceDates } from "@/lib/compliance-server";
 import { COMPLIANCE_TYPES, type ComplianceType } from "@/lib/compliance";
+import { hardDeleteAsset } from "@/lib/asset-delete";
 
 export type FormState = { error?: string };
 
@@ -179,6 +180,14 @@ export async function updateVehicle(
   revalidatePath(`/vehicles/${id}`);
   revalidatePath("/compliance");
   redirect(`/vehicles/${id}`);
+}
+
+export async function deleteVehicle(id: string) {
+  await requireManager();
+  await hardDeleteAsset("vehicle", id);
+  revalidatePath("/vehicles");
+  revalidatePath("/compliance");
+  redirect("/vehicles");
 }
 
 export async function setVehicleVoided(id: string, voided: boolean) {

@@ -225,6 +225,42 @@ export async function setActive(id: string, active: boolean) {
   revalidatePath("/admin/users");
 }
 
+export async function deleteUser(id: string) {
+  await requireAdmin();
+  const admin = createAdminClient();
+
+  // Refuse if the person has activity that would be orphaned.
+  const checks = await Promise.all([
+    admin.from("faults").select("id", { count: "exact", head: true }).or(`reported_by.eq.${id},assigned_mechanic_id.eq.${id},closed_by.eq.${id}`),
+    admin.from("inspections").select("id", { count: "exact", head: true }).eq("completed_by", id),
+    admin.from("labour_entries").select("id", { count: "exact", head: true }).eq("mechanic_id", id),
+    admin.from("services").select("id", { count: "exact", head: true }).eq("performed_by", id),
+    admin.from("documents").select("id", { count: "exact", head: true }).eq("uploaded_by", id),
+  ]);
+  const activity = checks.reduce((n, r) => n + (r.count ?? 0), 0);
+  if (activity > 0) {
+    throw new Error(
+      "This person has activity in the system (faults, checks, services or uploads). Use Deactivate instead — it blocks their login and keeps the records.",
+    );
+  }
+
+  // Clear harmless current-assignment pointers so the delete isn't blocked.
+  await admin.from("vehicles").update({ assigned_driver_id: null }).eq("assigned_driver_id", id);
+  await admin.from("plant").update({ assigned_operator_id: null }).eq("assigned_operator_id", id);
+  await admin.from("training_records").update({ created_by: null }).eq("created_by", id);
+
+  // Cascades public.users -> user_roles and training_records(user_id).
+  const { error } = await admin.auth.admin.deleteUser(id);
+  if (error) {
+    throw new Error(
+      "Could not delete this person — they have linked records. Use Deactivate instead.",
+    );
+  }
+
+  revalidatePath("/admin/users");
+  redirect("/admin/users");
+}
+
 export async function toggleRole(id: string, role: Role, add: boolean) {
   await requireAdmin();
   const admin = createAdminClient();
