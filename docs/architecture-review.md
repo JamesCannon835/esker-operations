@@ -213,6 +213,57 @@ Every row above is `CREATE TABLE` or `ADD COLUMN`. Nothing drops. Transport keep
 
 ---
 
+## Getting reports out
+
+Reporting is a strength of this setup, not something bolted on afterwards. A relational
+database exists to be queried; every screen in the app already computes figures
+(compliance counts, cost totals, fault counts) and those same numbers can be sliced any
+way you want.
+
+**Three levels, all available:**
+
+1. **Report screens in the app.** `/reports` already does cost + downtime by asset with a
+   period filter. Each module gets its own. Because compliance dates, actions, documents
+   and costs live in *shared* tables, the cross-cutting reports are easy:
+   - one **compliance report across the whole company** — fleet, training, insurance, EPA,
+     calibration — everything due in the next 30 / 60 / 90 days, from the one date engine
+   - one **open-actions report** — by owner, by area, by age — from the one actions table
+   - **spend per asset / per job / per supplier / per cost centre** once Procurement is in
+
+2. **Export.** Any list → CSV / Excel, for the accountant, an auditor, or the EPA.
+
+3. **Live dashboards / BI.** The Supabase database can be pointed straight at a reporting
+   tool (Power BI, Looker Studio, Metabase — most have a free tier) for charts and
+   year-on-year trends, with zero change to the app. This is where multi-year analysis
+   lives: fuel cost per truck over three years, incident frequency rate, training
+   compliance %, waste tonnage by month.
+
+**The six foundation changes make reporting better, not harder:**
+
+- `sites` / `org_units` → report by depot, quarry, or cost centre
+- person-separate-from-login → HR and training reports cover *everyone*, including subbies
+- `compliance_types` lookup → group and filter by authority (RSA / EPA / insurer / internal)
+- `actions` table → a single management view of every outstanding action in the business
+- consistent audit logging → "what changed, when, by whom" is itself reportable
+
+**Example reports by area:**
+
+| Area | Reports you'd get |
+|---|---|
+| Fleet | cost per truck per month, downtime, faults by type, service-interval adherence |
+| Compliance | everything due in 30/60/90 days, overdue by area, renewals calendar |
+| Training | % of drivers with valid Safe Pass, matrix gaps, expiries next quarter |
+| Safety | incident frequency rate, near-miss trend, open actions ageing, toolbox-talk attendance |
+| Quality | cube-test pass rate, NCRs by cause, deliveries per day, calibration status |
+| Environmental | monitoring results vs limits over time, complaints trend, waste tonnage |
+| Procurement | spend by supplier / cost centre / job, committed vs actual |
+| HR | headcount, turnover, absence, leave taken vs entitlement |
+
+None of this needs a data warehouse at Esker's scale. If aggregate queries ever get heavy,
+Postgres materialised views handle it — additive, no rebuild.
+
+---
+
 ## Also worth doing (not blockers)
 
 - **Automatic audit-log triggers** on the tables regulators care about (H&S, environmental,
