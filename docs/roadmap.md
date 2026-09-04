@@ -20,10 +20,20 @@ dashboard (green/amber/red) · document storage · asset history & cost reportin
 - **Bulk import** — people and vehicles (with compliance dates) from pasted spreadsheet rows
 - **Per-asset time & money view** + documents/photos section on every vehicle/plant/trailer
 - **Admin settings** — yard labour rate
-- Simplified driver walkaround · one-click "mark fixed" · vehicle categories (Mixers /
-  Pump Truck / Block Trucks / Cars & Vans / Tippers) · named document uploads
+- Simplified driver walkaround · one-click "mark fixed" · job time as hours+minutes ·
+  vehicle categories · named document uploads · red overdue on Compliance ·
+  permanent delete for assets and people
 - **Email notifications** (fault reported, inspection completed) — built, waiting on a
   verified sender address before it delivers reliably
+- **Vehicle Maintenance Report module** (`supabase/maintenance_reports.sql`) — the
+  digitised paper report and the mechanic's main workspace. Relational: `maintenance_reports`,
+  `_work_items`, `_parts`, `_labour`, `_attachments`. From a fault → Create report →
+  auto-fills vehicle + fault + logged labour → phone-first editor that auto-saves every
+  field → add jobs/parts/labour/photos → vehicle status → sign-off → `VMR-YYYY-NNNN`,
+  read-only, fault closes (or stays open), follow-up becomes an Action, "not safe" =
+  OUT OF SERVICE. Vehicle "Maintenance history" tab; Transport-Manager search/filter.
+- **Central Actions table** (foundation change #3, done early) — `actions` table +
+  `/actions` screen. Feeds off maintenance follow-ups now; later Safety/Quality/Environmental.
 
 ---
 
@@ -93,11 +103,20 @@ tax/CVRT, applied to the site.
 
 ---
 
+## Foundation v2 — still recommended (see architecture-review.md)
+`actions` (#3) is done. Still worth doing before the next big module: broaden
+`asset_type` → `entity_type` (#1), `compliance_types` lookup (#2), split people from
+logins (#4), `org_units`/`sites` (#5), lookup-tables convention (#6).
+
 ## Parked / cross-cutting
 - **Email notifications** — needs `updates.eskerreadymix.ie` verified in Resend
   (one DNS record) or a Gmail sender; then flip `NOTIFY_FROM` and redeploy.
 - **Inspection checklist rework** — pending a sit-down with the mechanic.
 - **Plant & trailer bulk import** — same pattern as vehicles, not yet built.
+  Trailers were entered manually.
+- **Maintenance report analytics** — the tables carry every column needed
+  (cost per vehicle, mechanic hours, repeat faults, downtime, avg repair time);
+  report screens not built yet.
 - **Offline mode** — poor signal on sites; the single biggest technical job. Treat as
   its own project with real on-site testing.
 - **Native app** (Capacitor wrapper of the same code) — for app-store install and
