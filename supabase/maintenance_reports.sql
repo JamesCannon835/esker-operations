@@ -64,6 +64,13 @@ create table if not exists public.maintenance_reports (
                                            -- awaiting_parts | awaiting_external |
                                            -- further_investigation
 
+  followup_required boolean not null default false,
+  followup_detail text,
+  followup_priority text,                  -- critical | high | normal | low
+  followup_assigned_to uuid references public.users(id),
+  followup_due_date date,
+  followup_action_id uuid references public.actions(id) on delete set null,
+
   created_by uuid references public.users(id),
   status text not null default 'draft',    -- draft | completed
   completed_at timestamptz,

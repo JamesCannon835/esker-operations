@@ -26,6 +26,7 @@ import {
   deleteLabour,
   deletePart,
 } from "./actions";
+import { openReportForFault } from "@/app/(app)/maintenance/actions";
 
 export const dynamic = "force-dynamic";
 
@@ -119,6 +120,17 @@ export default async function FaultDetailPage({
     0,
   );
 
+  const { data: linkedReport } =
+    fault.asset_type === "vehicle"
+      ? await supabase
+          .from("maintenance_reports")
+          .select("id, status, report_number")
+          .eq("fault_id", id)
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .maybeSingle()
+      : { data: null };
+
   return (
     <>
       <Link className="link-back" href="/faults">
@@ -186,12 +198,38 @@ export default async function FaultDetailPage({
         </div>
       </div>
 
+      {canWork && fault.asset_type === "vehicle" && (
+        <div className="card">
+          <h2>Maintenance report</h2>
+          {linkedReport ? (
+            <Link className="btn" href={`/maintenance/${linkedReport.id}`}>
+              {linkedReport.status === "draft"
+                ? "Continue maintenance report"
+                : `View ${linkedReport.report_number ?? "report"}`}
+            </Link>
+          ) : (
+            <>
+              <p className="hint" style={{ marginTop: 0 }}>
+                Record the work — jobs, parts, labour, vehicle status, sign-off.
+                The fault closes automatically when you complete the report
+                (unless it needs follow-up).
+              </p>
+              <form action={openReportForFault.bind(null, id)}>
+                <button className="btn" type="submit">
+                  Create maintenance report
+                </button>
+              </form>
+            </>
+          )}
+        </div>
+      )}
+
       {canWork && !isClosed && (
         <div className="card">
           <h2>Fixed it?</h2>
           <p className="hint" style={{ marginTop: 0 }}>
-            One click closes this fault. Logging diagnosis, time and parts
-            below is optional.
+            One click closes this fault without a maintenance report. Logging
+            diagnosis, time and parts below is optional.
           </p>
           <ConfirmButton
             action={closeFault.bind(null, id)}
