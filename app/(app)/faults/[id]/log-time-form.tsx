@@ -1,11 +1,9 @@
-import { LABOUR_TYPES, LABOUR_TYPE_LABELS } from "@/lib/inspections";
-
 const HOURS = Array.from({ length: 13 }, (_, i) => i); // 0–12
 const MINUTES = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55];
 
 const today = () => new Date().toISOString().slice(0, 10);
 
-/** Enter labour as hours + minutes — no running timer. */
+/** Enter labour as hours + minutes — no running timer, nothing else. */
 export function LogTimeForm({
   action,
 }: {
@@ -13,17 +11,6 @@ export function LogTimeForm({
 }) {
   return (
     <form action={action} className="log-time">
-      <div className="field">
-        <label htmlFor="lt-type">Work</label>
-        <select id="lt-type" name="entry_type" defaultValue="repair">
-          {LABOUR_TYPES.map((t) => (
-            <option key={t} value={t}>
-              {LABOUR_TYPE_LABELS[t]}
-            </option>
-          ))}
-        </select>
-      </div>
-
       <div className="field">
         <label htmlFor="lt-hours">Hours</label>
         <select id="lt-hours" name="hours" defaultValue="0">

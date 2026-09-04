@@ -7,10 +7,8 @@ import { getMechanics } from "@/lib/assets-server";
 import {
   FAULT_STATUS_LABELS,
   FAULT_SEVERITY_LABELS,
-  LABOUR_TYPE_LABELS,
   formatDuration,
   type FaultSeverity,
-  type LabourType,
 } from "@/lib/inspections";
 import { resolveAssetLabels, assetHref } from "@/lib/asset-labels";
 import { fmtDate, fmtDateTime } from "@/lib/format";
@@ -288,9 +286,8 @@ export default async function FaultDetailPage({
               <table className="list-table">
                 <thead>
                   <tr>
-                    <th>Work</th>
-                    {manager && <th>Mechanic</th>}
                     <th>Date</th>
+                    {manager && <th>Mechanic</th>}
                     <th>Time</th>
                     <th />
                   </tr>
@@ -306,18 +303,12 @@ export default async function FaultDetailPage({
                     const mine = l.mechanic_id === user.id;
                     return (
                       <tr key={l.id}>
-                        <td>
-                          {LABOUR_TYPE_LABELS[l.entry_type as LabourType] ??
-                            l.entry_type}
-                        </td>
+                        <td className="muted">{fmtDate(l.start_time)}</td>
                         {manager && (
                           <td className="muted">
                             {labourNames.get(l.mechanic_id ?? "") ?? "—"}
                           </td>
                         )}
-                        <td className="muted">
-                          {fmtDate(l.start_time)}
-                        </td>
                         <td>{dur}</td>
                         <td>
                           {!isClosed && (manager || mine) && (

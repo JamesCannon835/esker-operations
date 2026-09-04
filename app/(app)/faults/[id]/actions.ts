@@ -4,7 +4,6 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { orNull, numOrNull, friendlyDbError } from "@/lib/assets";
-import { LABOUR_TYPES, type LabourType } from "@/lib/inspections";
 
 export type FormState = { error?: string };
 
@@ -107,11 +106,6 @@ export async function reopenFault(id: string) {
 export async function logTime(id: string, formData: FormData) {
   const { supabase, user } = await client();
 
-  const rawType = String(formData.get("entry_type") ?? "repair");
-  const entry_type: LabourType = LABOUR_TYPES.includes(rawType as LabourType)
-    ? (rawType as LabourType)
-    : "repair";
-
   const hours = Math.max(0, Math.min(24, Math.floor(Number(formData.get("hours") ?? 0))));
   const minutes = Math.max(0, Math.min(59, Math.floor(Number(formData.get("minutes") ?? 0))));
   const totalMinutes = hours * 60 + minutes;
@@ -130,7 +124,7 @@ export async function logTime(id: string, formData: FormData) {
     mechanic_id: user.id,
     start_time: start.toISOString(),
     stop_time: stop.toISOString(),
-    entry_type,
+    entry_type: "repair",
   });
   if (error) throw new Error(friendlyDbError(error.message));
   refresh(id);
