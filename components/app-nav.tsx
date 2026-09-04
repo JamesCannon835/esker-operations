@@ -1,75 +1,137 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { isManager, hasRole, type Role } from "@/lib/roles";
 
 type NavLink = { href: string; label: string };
+type NavGroup = { label: string; links: NavLink[] };
+type NavEntry = NavLink | NavGroup;
+
+function isGroup(e: NavEntry): e is NavGroup {
+  return "links" in e;
+}
 
 const DASHBOARD: NavLink = { href: "/dashboard", label: "Dashboard" };
 
-const MANAGER_LINKS: NavLink[] = [
+const WORKSHOP: NavGroup = {
+  label: "Workshop",
+  links: [
+    { href: "/faults", label: "Faults" },
+    { href: "/vehicle-inspections", label: "Inspections" },
+    { href: "/maintenance", label: "Maintenance" },
+    { href: "/actions", label: "Actions" },
+  ],
+};
+
+const MANAGER_LINKS: NavEntry[] = [
   DASHBOARD,
   { href: "/vehicles", label: "Vehicles" },
   { href: "/plant", label: "Plant" },
   { href: "/trailers", label: "Trailers" },
   { href: "/compliance", label: "Compliance" },
-  { href: "/faults", label: "Faults" },
-  { href: "/vehicle-inspections", label: "Inspections" },
-  { href: "/maintenance", label: "Maintenance" },
-  { href: "/actions", label: "Actions" },
+  WORKSHOP,
   { href: "/training", label: "Training" },
   { href: "/reports", label: "Reports" },
 ];
 
-const MECHANIC_LINKS: NavLink[] = [
+const MECHANIC_LINKS: NavEntry[] = [
   DASHBOARD,
   { href: "/vehicles", label: "Vehicles" },
   { href: "/plant", label: "Plant" },
   { href: "/trailers", label: "Trailers" },
-  { href: "/faults", label: "Faults" },
-  { href: "/vehicle-inspections", label: "Inspections" },
-  { href: "/maintenance", label: "Maintenance" },
-  { href: "/actions", label: "Actions" },
+  WORKSHOP,
   { href: "/compliance", label: "Compliance" },
 ];
 
 // Drivers and plant operators — kept deliberately minimal.
-const BASIC_LINKS: NavLink[] = [
+const BASIC_LINKS: NavEntry[] = [
   DASHBOARD,
   { href: "/check", label: "Daily Check" },
   { href: "/faults", label: "My Faults" },
 ];
 
+const ADMIN_GROUP: NavGroup = {
+  label: "Admin",
+  links: [
+    { href: "/admin/users", label: "Users" },
+    { href: "/admin/settings", label: "Settings" },
+  ],
+};
+
 export function AppNav({ roles }: { roles: Role[] }) {
   const pathname = usePathname();
+  const [open, setOpen] = useState<string | null>(null);
+  const navRef = useRef<HTMLDivElement>(null);
 
-  const links = isManager(roles)
+  useEffect(() => setOpen(null), [pathname]);
+
+  useEffect(() => {
+    if (!open) return;
+    const onClick = (e: MouseEvent) => {
+      if (navRef.current && !navRef.current.contains(e.target as Node)) {
+        setOpen(null);
+      }
+    };
+    document.addEventListener("click", onClick);
+    return () => document.removeEventListener("click", onClick);
+  }, [open]);
+
+  const links: NavEntry[] = isManager(roles)
     ? [...MANAGER_LINKS]
     : hasRole(roles, "mechanic")
       ? [...MECHANIC_LINKS]
       : [...BASIC_LINKS];
 
   if (roles.includes("admin")) {
-    links.push({ href: "/admin/users", label: "Users" });
-    links.push({ href: "/admin/settings", label: "Settings" });
+    links.push(ADMIN_GROUP);
   }
+
+  const isActive = (href: string) =>
+    href === "/dashboard" ? pathname === "/dashboard" : pathname.startsWith(href);
 
   return (
     <nav className="nav">
-      <div className="nav-inner">
-        {links.map((link) => {
-          const active =
-            link.href === "/dashboard"
-              ? pathname === "/dashboard"
-              : pathname.startsWith(link.href);
+      <div className="nav-inner" ref={navRef}>
+        {links.map((entry) => {
+          if (isGroup(entry)) {
+            const active = entry.links.some((l) => isActive(l.href));
+            const isOpen = open === entry.label;
+            return (
+              <div className="nav-group" key={entry.label}>
+                <button
+                  type="button"
+                  className={active ? "active" : undefined}
+                  aria-expanded={isOpen}
+                  onClick={() => setOpen(isOpen ? null : entry.label)}
+                >
+                  {entry.label}
+                  <span className="nav-caret">▾</span>
+                </button>
+                {isOpen && (
+                  <div className="nav-dropdown">
+                    {entry.links.map((l) => (
+                      <Link
+                        key={l.href}
+                        href={l.href}
+                        className={isActive(l.href) ? "active" : undefined}
+                      >
+                        {l.label}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          }
           return (
             <Link
-              key={link.href}
-              href={link.href}
-              className={active ? "active" : undefined}
+              key={entry.href}
+              href={entry.href}
+              className={isActive(entry.href) ? "active" : undefined}
             >
-              {link.label}
+              {entry.label}
             </Link>
           );
         })}

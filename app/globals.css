@@ -332,22 +332,88 @@ th {
   margin: 0 auto;
   padding: 0 20px;
   display: flex;
+  align-items: stretch;
   gap: 4px;
   flex-wrap: wrap;
+  position: relative;
 }
 
 .nav-inner a {
   display: block;
-  padding: 10px 14px;
+  padding: 13px 16px;
   color: rgba(255, 255, 255, 0.8);
   text-decoration: none;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
   border-bottom: 3px solid transparent;
 }
 
 .nav-inner a:hover {
   color: #fff;
+}
+
+/* Grouped nav items ("Workshop", "Admin") */
+.nav-group {
+  position: relative;
+}
+
+.nav-group > button {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  height: 100%;
+  padding: 13px 16px;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 16px;
+  font-family: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.nav-group > button:hover {
+  color: #fff;
+}
+
+.nav-group > button.active {
+  color: #fff;
+  border-bottom-color: var(--yellow);
+}
+
+.nav-caret {
+  font-size: 11px;
+  opacity: 0.85;
+}
+
+.nav-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 20;
+  min-width: 190px;
+  background: var(--ink);
+  border-radius: 0 0 10px 10px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+}
+
+.nav-dropdown a {
+  padding: 11px 14px;
+  border-radius: 6px;
+  border-bottom: none;
+  font-size: 15px;
+}
+
+.nav-dropdown a:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.nav-dropdown a.active {
+  color: var(--yellow);
 }
 
 .nav-inner a.active {

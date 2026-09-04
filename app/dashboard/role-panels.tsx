@@ -218,14 +218,18 @@ export async function RolePanels({
           <Link href="/reports">Reports</Link>
         </p>
         <div className="grid">
-          <div className="tile">
+          <Link className="tile" href="/vehicles">
             <div className="label">Vehicles</div>
             <div className="value">{vehicles ?? 0}</div>
-          </div>
-          <div className="tile">
+          </Link>
+          <Link className="tile" href="/plant">
             <div className="label">Plant</div>
             <div className="value">{plant ?? 0}</div>
-          </div>
+          </Link>
+          <Link className="tile" href="/trailers">
+            <div className="label">Trailers</div>
+            <div className="value">View</div>
+          </Link>
           <Link className="tile" href="/faults">
             <div className="label">Open faults</div>
             <div className="value">{openFaults ?? 0}</div>
