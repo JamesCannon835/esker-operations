@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { isManager, hasRole, type Role } from "@/lib/roles";
 
-type NavLink = { href: string; label: string };
+type NavLink = { href: string; label: string; alsoActive?: string[] };
 type NavGroup = { label: string; links: NavLink[] };
 type NavEntry = NavLink | NavGroup;
 
@@ -14,6 +14,12 @@ function isGroup(e: NavEntry): e is NavGroup {
 }
 
 const DASHBOARD: NavLink = { href: "/dashboard", label: "Dashboard" };
+
+const FLEET: NavLink = {
+  href: "/vehicles",
+  label: "Vehicles",
+  alsoActive: ["/plant", "/trailers"],
+};
 
 const WORKSHOP: NavGroup = {
   label: "Workshop",
@@ -27,9 +33,7 @@ const WORKSHOP: NavGroup = {
 
 const MANAGER_LINKS: NavEntry[] = [
   DASHBOARD,
-  { href: "/vehicles", label: "Vehicles" },
-  { href: "/plant", label: "Plant" },
-  { href: "/trailers", label: "Trailers" },
+  FLEET,
   { href: "/compliance", label: "Compliance" },
   WORKSHOP,
   { href: "/training", label: "Training" },
@@ -38,9 +42,7 @@ const MANAGER_LINKS: NavEntry[] = [
 
 const MECHANIC_LINKS: NavEntry[] = [
   DASHBOARD,
-  { href: "/vehicles", label: "Vehicles" },
-  { href: "/plant", label: "Plant" },
-  { href: "/trailers", label: "Trailers" },
+  FLEET,
   WORKSHOP,
   { href: "/compliance", label: "Compliance" },
 ];
@@ -88,8 +90,11 @@ export function AppNav({ roles }: { roles: Role[] }) {
     links.push(ADMIN_GROUP);
   }
 
-  const isActive = (href: string) =>
-    href === "/dashboard" ? pathname === "/dashboard" : pathname.startsWith(href);
+  const isActive = (href: string, alsoActive?: string[]) =>
+    href === "/dashboard"
+      ? pathname === "/dashboard"
+      : pathname.startsWith(href) ||
+        (alsoActive?.some((p) => pathname.startsWith(p)) ?? false);
 
   return (
     <nav className="nav">
@@ -129,7 +134,9 @@ export function AppNav({ roles }: { roles: Role[] }) {
             <Link
               key={entry.href}
               href={entry.href}
-              className={isActive(entry.href) ? "active" : undefined}
+              className={
+                isActive(entry.href, entry.alsoActive) ? "active" : undefined
+              }
             >
               {entry.label}
             </Link>

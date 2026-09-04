@@ -204,9 +204,7 @@ export async function RolePanels({
         </h2>
         <p className="hint">
           Full fleet visibility. Manage:{" "}
-          <Link href="/vehicles">Vehicles</Link> ·{" "}
-          <Link href="/plant">Plant</Link> ·{" "}
-          <Link href="/trailers">Trailers</Link> ·{" "}
+          <Link href="/vehicles">Vehicles</Link> (incl. Plant &amp; Trailers) ·{" "}
           <Link href="/compliance">Compliance</Link> ·{" "}
           <Link href="/checklists">Checklists</Link> ·{" "}
           <Link href="/faults">Faults</Link> ·{" "}
