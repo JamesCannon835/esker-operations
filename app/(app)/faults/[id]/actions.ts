@@ -104,43 +104,34 @@ export async function reopenFault(id: string) {
   refresh(id);
 }
 
-export async function startTimer(id: string, formData: FormData) {
+export async function logTime(id: string, formData: FormData) {
   const { supabase, user } = await client();
+
   const rawType = String(formData.get("entry_type") ?? "repair");
   const entry_type: LabourType = LABOUR_TYPES.includes(rawType as LabourType)
     ? (rawType as LabourType)
     : "repair";
 
-  const { data: running } = await supabase
-    .from("labour_entries")
-    .select("id")
-    .eq("fault_id", id)
-    .eq("mechanic_id", user.id)
-    .is("stop_time", null)
-    .maybeSingle();
-  if (running) {
+  const hours = Math.max(0, Math.min(24, Math.floor(Number(formData.get("hours") ?? 0))));
+  const minutes = Math.max(0, Math.min(59, Math.floor(Number(formData.get("minutes") ?? 0))));
+  const totalMinutes = hours * 60 + minutes;
+  if (totalMinutes <= 0) {
     refresh(id);
     return;
   }
 
+  // Store the duration as start/stop so every existing total keeps working.
+  const dateStr = orNull(formData.get("work_date"));
+  const start = dateStr ? new Date(`${dateStr}T08:00:00`) : new Date();
+  const stop = new Date(start.getTime() + totalMinutes * 60_000);
+
   const { error } = await supabase.from("labour_entries").insert({
     fault_id: id,
     mechanic_id: user.id,
-    start_time: new Date().toISOString(),
+    start_time: start.toISOString(),
+    stop_time: stop.toISOString(),
     entry_type,
   });
-  if (error) throw new Error(friendlyDbError(error.message));
-  refresh(id);
-}
-
-export async function stopTimer(id: string, labourId: string) {
-  const { supabase, user } = await client();
-  const { error } = await supabase
-    .from("labour_entries")
-    .update({ stop_time: new Date().toISOString() })
-    .eq("id", labourId)
-    .eq("mechanic_id", user.id)
-    .is("stop_time", null);
   if (error) throw new Error(friendlyDbError(error.message));
   refresh(id);
 }

@@ -13,9 +13,9 @@ import {
   type LabourType,
 } from "@/lib/inspections";
 import { resolveAssetLabels, assetHref } from "@/lib/asset-labels";
-import { fmtDateTime } from "@/lib/format";
+import { fmtDate, fmtDateTime } from "@/lib/format";
 import { ConfirmButton } from "@/components/confirm-button";
-import { JobTimer } from "./job-timer";
+import { LogTimeForm } from "./log-time-form";
 import { DiagnosisForm } from "./diagnosis-form";
 import { AddPartForm } from "./add-part-form";
 import {
@@ -24,8 +24,7 @@ import {
   setFaultStatus,
   closeFault,
   reopenFault,
-  startTimer,
-  stopTimer,
+  logTime,
   deleteLabour,
   deletePart,
 } from "./actions";
@@ -108,11 +107,6 @@ export default async function FaultDetailPage({
       for (const p of data ?? []) labourNames.set(p.id, p.full_name);
     }
   }
-
-  const running =
-    labourRows.find(
-      (l) => l.mechanic_id === user.id && l.stop_time == null,
-    ) ?? null;
 
   const totalLabourMs = labourRows
     .filter((l) => l.stop_time)
@@ -284,14 +278,8 @@ export default async function FaultDetailPage({
           <div className="card">
             <h2>Job time</h2>
             {mechanic && !isClosed && (
-              <div style={{ marginBottom: 12 }}>
-                <JobTimer
-                  running={running}
-                  startAction={startTimer.bind(null, id)}
-                  stopAction={
-                    running ? stopTimer.bind(null, id, running.id) : undefined
-                  }
-                />
+              <div style={{ marginBottom: 14 }}>
+                <LogTimeForm action={logTime.bind(null, id)} />
               </div>
             )}
             {labourRows.length === 0 ? (
@@ -300,10 +288,10 @@ export default async function FaultDetailPage({
               <table className="list-table">
                 <thead>
                   <tr>
-                    <th>Type</th>
+                    <th>Work</th>
                     {manager && <th>Mechanic</th>}
-                    <th>Start</th>
-                    <th>Duration</th>
+                    <th>Date</th>
+                    <th>Time</th>
                     <th />
                   </tr>
                 </thead>
@@ -314,7 +302,7 @@ export default async function FaultDetailPage({
                           new Date(l.stop_time).getTime() -
                             new Date(l.start_time).getTime(),
                         )
-                      : "running…";
+                      : "—";
                     const mine = l.mechanic_id === user.id;
                     return (
                       <tr key={l.id}>
@@ -328,7 +316,7 @@ export default async function FaultDetailPage({
                           </td>
                         )}
                         <td className="muted">
-                          {fmtDateTime(l.start_time)}
+                          {fmtDate(l.start_time)}
                         </td>
                         <td>{dur}</td>
                         <td>

@@ -598,29 +598,40 @@ th {
   color: #fff;
 }
 
-.timer-box {
+.log-time {
   display: flex;
-  gap: 10px;
-  align-items: center;
+  gap: 12px;
+  align-items: flex-end;
   flex-wrap: wrap;
-  padding: 12px 14px;
+  padding: 14px;
   border: 1px solid var(--border);
   border-radius: 8px;
   background: #fbfaf8;
 }
 
-.timer-clock {
-  font-variant-numeric: tabular-nums;
-  font-size: 22px;
-  font-weight: 700;
-  letter-spacing: 0.02em;
+.log-time .field {
+  margin: 0;
 }
 
-.timer-box select {
+.log-time .field label {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+
+.log-time select,
+.log-time input[type="date"] {
   padding: 8px 10px;
   border: 1px solid var(--border);
   border-radius: 8px;
   font-size: 14px;
+  background: #fff;
+}
+
+.log-time select[name="hours"],
+.log-time select[name="minutes"] {
+  min-width: 64px;
 }
 
 .severity-pill {
