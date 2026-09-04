@@ -34,6 +34,14 @@ dashboard (green/amber/red) · document storage · asset history & cost reportin
   OUT OF SERVICE. Vehicle "Maintenance history" tab; Transport-Manager search/filter.
 - **Central Actions table** (foundation change #3, done early) — `actions` table +
   `/actions` screen. Feeds off maintenance follow-ups now; later Safety/Quality/Environmental.
+- **Vehicle Inspection & Rectification Report** (`supabase/vehicle_inspection.sql`) — an
+  iPad checklist engine (`inspection_checklists` master, 65-item vehicle checklist).
+  Big OK/DEFECT/N-A buttons, per-section progress, defect panel (photo/severity/safe),
+  auto-save. Each defect → a fault in the Fault Hub (source "Vehicle Inspection"),
+  "not safe" → vehicle OUT OF SERVICE. It IS the 13-week/CVRT inspection: a clean pass
+  advances the 13-week compliance date; when every defect is rectified via its
+  maintenance report the inspection flips to "passed" and the vehicle returns to
+  service. Replaced the old Pass/Fail/N-A vehicle inspection template.
 
 ---
 
