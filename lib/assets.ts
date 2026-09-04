@@ -23,8 +23,9 @@ export const VEHICLE_CATEGORIES = [
   "Mixers",
   "Pump Truck",
   "Block Trucks",
-  "Cars & Vans",
+  "Artics",
   "Tippers",
+  "Cars & Vans",
 ] as const;
 
 export type VehicleCategory = (typeof VEHICLE_CATEGORIES)[number];
