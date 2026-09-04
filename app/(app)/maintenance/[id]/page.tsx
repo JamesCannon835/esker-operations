@@ -11,14 +11,17 @@ import {
   MR_REASON_LABELS,
   MR_VEHICLE_STATUS_LABELS,
   MR_OUT_OF_SERVICE,
+  MR_ATTACHMENT_KIND_LABELS,
   WORK_CATEGORIES,
   minutesToHm,
   type MrReason,
   type MrVehicleStatus,
+  type MrAttachmentKind,
 } from "@/lib/maintenance";
 import { ConfirmButton } from "@/components/confirm-button";
 import { ReportEditor } from "../report-editor";
 import { CompleteButton, ReopenForm } from "../complete-button";
+import { AttachmentUpload } from "../attachments";
 import {
   saveReportFields,
   completeReport,
@@ -29,6 +32,8 @@ import {
   removePart,
   addLabour,
   removeLabour,
+  registerAttachment,
+  removeAttachment,
 } from "../actions";
 
 export const dynamic = "force-dynamic";
@@ -60,6 +65,7 @@ export default async function MaintenanceReportPage({
     { data: workItems },
     { data: parts },
     { data: labour },
+    { data: attachments },
     { data: followAction },
     mechanics,
     { data: people },
@@ -89,6 +95,11 @@ export default async function MaintenanceReportPage({
       .select("*")
       .eq("report_id", id)
       .order("created_at"),
+    supabase
+      .from("maintenance_attachments")
+      .select("id, kind, file_name")
+      .eq("report_id", id)
+      .order("uploaded_at"),
     r.followup_action_id
       ? supabase
           .from("actions")
@@ -422,6 +433,52 @@ export default async function MaintenanceReportPage({
           totalParts={totalParts}
         />
       )}
+
+      <div className="card">
+        <h2>Photos &amp; attachments</h2>
+        {(attachments ?? []).length === 0 ? (
+          <p className="hint" style={{ marginBottom: editable ? 12 : 0 }}>
+            {editable
+              ? "Before / after photos, damaged parts, supplier documents, invoices."
+              : "None."}
+          </p>
+        ) : (
+          <ul className="mr-items">
+            {(attachments ?? []).map((at) => (
+              <li key={at.id}>
+                <span>
+                  <a
+                    href={`/maintenance/attachment/${at.id}`}
+                    target="_blank"
+                    rel="noopener"
+                  >
+                    {at.file_name ?? "file"}
+                  </a>
+                  {at.kind
+                    ? ` · ${
+                        MR_ATTACHMENT_KIND_LABELS[at.kind as MrAttachmentKind] ??
+                        at.kind
+                      }`
+                    : ""}
+                </span>
+                {editable && (
+                  <ConfirmButton
+                    action={removeAttachment.bind(null, id, at.id)}
+                    label="✕"
+                    className="btn ghost small"
+                  />
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
+        {editable && (
+          <AttachmentUpload
+            reportId={id}
+            register={registerAttachment.bind(null, id)}
+          />
+        )}
+      </div>
 
       {!draft && manager && (
         <div className="card">

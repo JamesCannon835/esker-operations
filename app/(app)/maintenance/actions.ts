@@ -9,6 +9,7 @@ import { orNull, numOrNull, friendlyDbError } from "@/lib/assets";
 import {
   MR_STATUS_BLOCKS_CLOSE,
   MR_OUT_OF_SERVICE,
+  MAINTENANCE_BUCKET,
   formatReportNumber,
   type MrVehicleStatus,
 } from "@/lib/maintenance";
@@ -255,6 +256,38 @@ export async function removeLabour(reportId: string, labourId: string) {
   await requireWorkshop();
   const supabase = await createClient();
   await supabase.from("maintenance_labour").delete().eq("id", labourId);
+  touch(reportId);
+}
+
+// ---- attachments ----
+export async function registerAttachment(
+  reportId: string,
+  a: { path: string; name: string; kind: string },
+) {
+  const { user } = await requireWorkshop();
+  const supabase = await createClient();
+  await supabase.from("maintenance_attachments").insert({
+    report_id: reportId,
+    kind: a.kind,
+    file_path: a.path,
+    file_name: a.name,
+    uploaded_by: user.id,
+  });
+  touch(reportId);
+}
+
+export async function removeAttachment(reportId: string, attachmentId: string) {
+  await requireWorkshop();
+  const supabase = await createClient();
+  const { data: att } = await supabase
+    .from("maintenance_attachments")
+    .select("file_path")
+    .eq("id", attachmentId)
+    .maybeSingle();
+  await supabase.from("maintenance_attachments").delete().eq("id", attachmentId);
+  if (att?.file_path) {
+    await supabase.storage.from(MAINTENANCE_BUCKET).remove([att.file_path]);
+  }
   touch(reportId);
 }
 
