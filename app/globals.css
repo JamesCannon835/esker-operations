@@ -18,9 +18,11 @@
   --ink: #1b1a18; /* near-black from the logo ring */
   --ink-2: #0e0d0c;
   --green: #15803d;
-  --amber: #b45309;
-  --danger: #201d1a; /* no red in the brand — serious states read as black */
-  --danger-bg: #efe9e2;
+  --green-bg: #e6f0e8;
+  --amber: #a15c00; /* gold, distinct from the brand orange */
+  --amber-bg: #f8edd3;
+  --danger: #c0271a; /* real red for overdue / unsafe / errors — needed on a compliance tool */
+  --danger-bg: #f8e6e3;
   --radius: 10px;
 }
 

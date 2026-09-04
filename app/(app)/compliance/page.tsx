@@ -8,12 +8,23 @@ import { fmtDate } from "@/lib/format";
 import {
   complianceStatus,
   daysUntil,
-  COMPLIANCE_TYPE_LABELS,
   COMPLIANCE_COLUMNS as COLUMNS,
   type ComplianceType,
+  type ComplianceStatus,
 } from "@/lib/compliance";
 
 export const dynamic = "force-dynamic";
+
+// Tighter column headings for the grid.
+const SHORT_LABEL: Record<ComplianceType, string> = {
+  tax: "Tax",
+  cvrt_test: "CVRT",
+  insurance: "Insurance",
+  thirteen_week_inspection: "Inspection",
+  tacho_calibration: "Tacho",
+  service: "Service",
+  other: "Other",
+};
 
 type Item = {
   id: string;
@@ -23,43 +34,58 @@ type Item = {
   due_date: string;
 };
 
-function Cell({
-  item,
-  addHref,
-}: {
-  item: Item | undefined;
-  addHref: string;
-}) {
+const RANK: Record<ComplianceStatus, number> = { red: 0, amber: 1, green: 2 };
+
+function tone(status: ComplianceStatus) {
+  if (status === "red")
+    return { color: "var(--danger)", bg: "var(--danger-bg)", weight: 700 };
+  if (status === "amber")
+    return { color: "var(--amber)", bg: "var(--amber-bg)", weight: 600 };
+  return { color: "var(--green)", bg: undefined, weight: 600 };
+}
+
+function Cell({ item, addHref }: { item: Item | undefined; addHref: string }) {
   if (!item) {
     return (
-      <Link className="muted" href={addHref}>
+      <Link
+        href={addHref}
+        style={{ fontSize: 12, color: "var(--muted)", opacity: 0.65 }}
+      >
         + set
       </Link>
     );
   }
   const status = complianceStatus(item.due_date);
   const d = daysUntil(item.due_date);
-  const cls =
-    status === "red" ? "blocked" : status === "green" ? "ok" : undefined;
+  const t = tone(status);
+  // Only show the countdown when it matters — keeps healthy rows clean.
+  const showCountdown = status !== "green" || d <= 30;
+
   return (
     <Link
       href={`/compliance/${item.id}/edit`}
-      style={{ textDecoration: "none" }}
+      style={{ textDecoration: "none", display: "block" }}
     >
-      <span
-        className={cls}
-        style={
-          status === "amber"
-            ? { color: "var(--amber)", fontWeight: 600 }
-            : undefined
-        }
-      >
+      <span style={{ color: t.color, fontWeight: t.weight }}>
         {fmtDate(item.due_date)}
       </span>
-      <br />
-      <span className="muted" style={{ fontSize: 12 }}>
-        {d < 0 ? `${Math.abs(d)}d overdue` : d === 0 ? "today" : `in ${d}d`}
-      </span>
+      {showCountdown && (
+        <span
+          style={{
+            display: "block",
+            fontSize: 11,
+            color: t.color,
+            opacity: 0.85,
+            marginTop: 1,
+          }}
+        >
+          {d < 0
+            ? `${Math.abs(d)}d overdue`
+            : d === 0
+              ? "due today"
+              : `in ${d}d`}
+        </span>
+      )}
     </Link>
   );
 }
@@ -83,12 +109,26 @@ function Section({
 }) {
   if (assets.length === 0) return null;
   const cols = COLUMNS[assetType];
+
   const byKey = new Map<string, Item>();
   for (const it of items) {
     if (it.asset_type === assetType) {
       byKey.set(`${it.asset_id}:${it.compliance_type}`, it);
     }
   }
+
+  // Worst status per asset — problems float to the top of the section.
+  const worst = (assetId: string): number => {
+    let w = 3;
+    for (const c of cols) {
+      const it = byKey.get(`${assetId}:${c}`);
+      if (it) w = Math.min(w, RANK[complianceStatus(it.due_date)]);
+    }
+    return w;
+  };
+  const ordered = [...assets].sort(
+    (a, b) => worst(a.id) - worst(b.id) || a.name.localeCompare(b.name),
+  );
 
   return (
     <div className="card">
@@ -99,22 +139,29 @@ function Section({
             <tr>
               <th>{ROW_LABEL[assetType]}</th>
               {cols.map((c) => (
-                <th key={c}>{COMPLIANCE_TYPE_LABELS[c]}</th>
+                <th key={c}>{SHORT_LABEL[c]}</th>
               ))}
             </tr>
           </thead>
           <tbody>
-            {assets.map((a) => (
+            {ordered.map((a) => (
               <tr key={a.id}>
-                <td>{a.name}</td>
-                {cols.map((c) => (
-                  <td key={c} style={{ whiteSpace: "nowrap" }}>
-                    <Cell
-                      item={byKey.get(`${a.id}:${c}`)}
-                      addHref={`/compliance/new?type=${assetType}&id=${a.id}&ct=${c}`}
-                    />
-                  </td>
-                ))}
+                <td style={{ fontWeight: 600 }}>{a.name}</td>
+                {cols.map((c) => {
+                  const it = byKey.get(`${a.id}:${c}`);
+                  const bg = it ? tone(complianceStatus(it.due_date)).bg : undefined;
+                  return (
+                    <td
+                      key={c}
+                      style={{ whiteSpace: "nowrap", background: bg }}
+                    >
+                      <Cell
+                        item={it}
+                        addHref={`/compliance/new?type=${assetType}&id=${a.id}&ct=${c}`}
+                      />
+                    </td>
+                  );
+                })}
               </tr>
             ))}
           </tbody>
@@ -213,8 +260,8 @@ export default async function CompliancePage() {
       />
 
       <p className="field-hint">
-        Click a date to change it, or “+ set” to add one. When a job&apos;s done,
-        update the date here.
+        Rows with a problem sit at the top. Click any date to change it, or “+ set”
+        to add one. Countdowns show only when a date is within 30 days or overdue.
       </p>
     </>
   );
