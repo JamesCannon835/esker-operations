@@ -50,6 +50,8 @@ create table if not exists public.vehicle_inspections (
   completed_at timestamptz,
   completed_by uuid references public.users(id),
   notes text,
+  service_done boolean not null default false,
+  service_notes text,
   reopened_count int not null default 0,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()

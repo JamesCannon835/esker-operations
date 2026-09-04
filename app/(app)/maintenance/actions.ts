@@ -13,6 +13,7 @@ import {
   formatReportNumber,
   type MrVehicleStatus,
 } from "@/lib/maintenance";
+import { refreshInspectionFromFaults } from "@/lib/vehicle-inspection-server";
 
 export type FormState = { error?: string; ok?: boolean };
 
@@ -392,6 +393,12 @@ export async function completeReport(
   if (r.fault_id) {
     const blocks =
       MR_STATUS_BLOCKS_CLOSE.includes(status) || r.followup_required;
+    const { data: linkedFault } = await supabase
+      .from("faults")
+      .select("source_vehicle_inspection_id")
+      .eq("id", r.fault_id)
+      .maybeSingle();
+
     if (blocks) {
       await supabase
         .from("faults")
@@ -407,6 +414,18 @@ export async function completeReport(
           diagnosis: r.work_summary ?? null,
         })
         .eq("id", r.fault_id);
+      // If this fault came from a vehicle inspection, re-check whether that
+      // inspection is now fully rectified (advances the 13-week date, etc.).
+      if (linkedFault?.source_vehicle_inspection_id) {
+        await refreshInspectionFromFaults(
+          linkedFault.source_vehicle_inspection_id,
+        );
+        revalidatePath(
+          `/vehicle-inspections/${linkedFault.source_vehicle_inspection_id}`,
+        );
+        revalidatePath("/vehicle-inspections");
+        revalidatePath("/compliance");
+      }
     }
     revalidatePath(`/faults/${r.fault_id}`);
     revalidatePath("/faults");

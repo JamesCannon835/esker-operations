@@ -15,6 +15,7 @@ const MANAGER_LINKS: NavLink[] = [
   { href: "/trailers", label: "Trailers" },
   { href: "/compliance", label: "Compliance" },
   { href: "/faults", label: "Faults" },
+  { href: "/vehicle-inspections", label: "Inspections" },
   { href: "/maintenance", label: "Maintenance" },
   { href: "/actions", label: "Actions" },
   { href: "/training", label: "Training" },
@@ -27,9 +28,9 @@ const MECHANIC_LINKS: NavLink[] = [
   { href: "/plant", label: "Plant" },
   { href: "/trailers", label: "Trailers" },
   { href: "/faults", label: "Faults" },
+  { href: "/vehicle-inspections", label: "Inspections" },
   { href: "/maintenance", label: "Maintenance" },
   { href: "/actions", label: "Actions" },
-  { href: "/inspections", label: "Inspections" },
   { href: "/compliance", label: "Compliance" },
 ];
 

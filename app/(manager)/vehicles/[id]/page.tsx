@@ -11,6 +11,7 @@ import { AssetTimeline } from "@/components/asset-timeline";
 import { AssetDocuments } from "@/components/asset-documents";
 import { AssetCostSummary } from "@/components/asset-cost-summary";
 import { VehicleMaintenanceHistory } from "@/components/vehicle-maintenance-history";
+import { VehicleInspectionHistory } from "@/components/vehicle-inspection-history";
 import { vehicleName } from "@/lib/asset-name";
 import { fmtNumber as fmtNum } from "@/lib/format";
 import { setVehicleVoided, deleteVehicle } from "../actions";
@@ -56,7 +57,7 @@ export default async function VehicleDetailPage({
           </Link>
           <Link
             className="btn small ghost"
-            href={`/inspections/new?asset=vehicle:${id}`}
+            href={`/vehicle-inspections/new?vehicle=${id}`}
           >
             Inspection
           </Link>
@@ -112,6 +113,8 @@ export default async function VehicleDetailPage({
       />
 
       <AssetCompliancePanel assetType="vehicle" assetId={id} />
+
+      <VehicleInspectionHistory vehicleId={id} />
 
       <VehicleMaintenanceHistory vehicleId={id} />
 

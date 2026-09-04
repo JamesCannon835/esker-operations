@@ -803,3 +803,176 @@ th {
 .mr-add button {
   flex: none;
 }
+
+/* ---- Vehicle Inspection runner (iPad) ---- */
+.vi-progress {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: var(--card);
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 15px;
+}
+.vi-bar {
+  height: 8px;
+  background: var(--border);
+  border-radius: 999px;
+  margin-top: 6px;
+  overflow: hidden;
+}
+.vi-bar span {
+  display: block;
+  height: 100%;
+  background: var(--green);
+  transition: width 0.2s;
+}
+.vi-section {
+  margin-top: 22px;
+}
+.vi-section > h2 {
+  font-size: 14px;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  border-bottom: 2px solid var(--ink);
+  padding-bottom: 6px;
+  margin-bottom: 10px;
+}
+.vi-sec-count {
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+}
+.vi-item {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+.vi-item.answered {
+  opacity: 0.72;
+}
+.vi-item-name {
+  font-size: 16px;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+.vi-ref {
+  display: inline-block;
+  min-width: 26px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 700;
+  background: var(--border);
+  color: var(--text);
+  border-radius: 5px;
+  padding: 1px 6px;
+  margin-right: 8px;
+}
+.vi-choices {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.vi-btn {
+  padding: 14px 0;
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  background: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+}
+.vi-btn.ok.on {
+  background: var(--green);
+  border-color: var(--green);
+  color: #fff;
+}
+.vi-btn.defect.on {
+  background: var(--danger);
+  border-color: var(--danger);
+  color: #fff;
+}
+.vi-btn.na.on {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: #fff;
+}
+.vi-defect {
+  margin-top: 10px;
+  padding: 12px;
+  border: 1px solid var(--danger);
+  border-radius: 10px;
+  background: var(--danger-bg);
+  display: grid;
+  gap: 10px;
+}
+.vi-defect textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 16px;
+  font-family: inherit;
+}
+.vi-sev,
+.vi-safe {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+.vi-safe span {
+  font-weight: 600;
+  margin-right: 4px;
+}
+.vi-pill {
+  padding: 10px 16px;
+  border: 2px solid var(--border);
+  border-radius: 999px;
+  background: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.vi-pill.critical.on,
+.vi-pill.no.on {
+  background: var(--danger);
+  border-color: var(--danger);
+  color: #fff;
+}
+.vi-pill.urgent.on {
+  background: var(--amber);
+  border-color: var(--amber);
+  color: #fff;
+}
+.vi-pill.normal.on,
+.vi-pill.yes.on {
+  background: var(--green);
+  border-color: var(--green);
+  color: #fff;
+}
+.vi-photo {
+  display: inline-block;
+  padding: 10px 14px;
+  border: 2px dashed var(--border);
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  justify-self: start;
+}
+.vi-finish h2 {
+  border-bottom-color: var(--brand);
+}
+.vi-summary {
+  display: flex;
+  gap: 20px;
+  font-size: 15px;
+  margin: 8px 0 12px;
+}
+.vi-summary strong {
+  font-size: 22px;
+  display: block;
+}

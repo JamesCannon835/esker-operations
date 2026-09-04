@@ -63,6 +63,7 @@ export async function RolePanels({
       { count: unassigned },
       { count: myActions },
       { count: drafts },
+      { count: inspDrafts },
     ] = await Promise.all([
       supabase
         .from("faults")
@@ -83,6 +84,11 @@ export async function RolePanels({
         .from("maintenance_reports")
         .select("*", { count: "exact", head: true })
         .eq("created_by", userId)
+        .eq("status", "draft"),
+      supabase
+        .from("vehicle_inspections")
+        .select("*", { count: "exact", head: true })
+        .eq("inspector_id", userId)
         .eq("status", "draft"),
     ]);
 
@@ -107,7 +113,11 @@ export async function RolePanels({
             <div className="label">My actions</div>
             <div className="value">{myActions ?? 0}</div>
           </Link>
-          <Link className="tile" href="/inspections/new">
+          <Link className="tile" href="/vehicle-inspections">
+            <div className="label">Inspections in progress</div>
+            <div className="value">{inspDrafts ?? 0}</div>
+          </Link>
+          <Link className="tile" href="/vehicle-inspections/new">
             <div className="label">New inspection</div>
             <div className="value">Start</div>
           </Link>
@@ -200,9 +210,9 @@ export async function RolePanels({
           <Link href="/compliance">Compliance</Link> ·{" "}
           <Link href="/checklists">Checklists</Link> ·{" "}
           <Link href="/faults">Faults</Link> ·{" "}
+          <Link href="/vehicle-inspections">Inspections</Link> ·{" "}
           <Link href="/maintenance">Maintenance</Link> ·{" "}
           <Link href="/actions">Actions</Link> ·{" "}
-          <Link href="/inspections">Inspections</Link> ·{" "}
           <Link href="/documents">Documents</Link> ·{" "}
           <Link href="/training">Training</Link> ·{" "}
           <Link href="/reports">Reports</Link>
