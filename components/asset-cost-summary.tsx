@@ -23,26 +23,49 @@ export async function AssetCostSummary({
     .eq("voided", false);
   const faultIds = (faults ?? []).map((f) => f.id);
 
-  const [{ data: labour }, { data: parts }, { data: services }] =
-    await Promise.all([
-      faultIds.length
-        ? supabase
-            .from("labour_entries")
-            .select("start_time, stop_time")
-            .in("fault_id", faultIds)
-        : Promise.resolve({ data: [] as { start_time: string; stop_time: string | null }[] }),
-      faultIds.length
-        ? supabase
-            .from("parts_used")
-            .select("total_cost")
-            .in("fault_id", faultIds)
-        : Promise.resolve({ data: [] as { total_cost: number | null }[] }),
-      supabase
-        .from("services")
-        .select("labour_hours, cost")
-        .eq("asset_type", assetType)
-        .eq("asset_id", assetId),
-    ]);
+  // Maintenance reports (vehicles only) — their labour/parts are authoritative.
+  const { data: reports } =
+    assetType === "vehicle"
+      ? await supabase
+          .from("maintenance_reports")
+          .select("id, fault_id")
+          .eq("vehicle_id", assetId)
+      : { data: [] as { id: string; fault_id: string | null }[] };
+  const reportIds = (reports ?? []).map((r) => r.id);
+  // Faults already covered by a report — don't count their raw labour/parts too.
+  const faultsWithReport = new Set(
+    (reports ?? []).map((r) => r.fault_id).filter(Boolean),
+  );
+  const looseFaultIds = faultIds.filter((f) => !faultsWithReport.has(f));
+
+  const [
+    { data: labour },
+    { data: parts },
+    { data: services },
+    { data: mLabour },
+    { data: mParts },
+  ] = await Promise.all([
+    looseFaultIds.length
+      ? supabase
+          .from("labour_entries")
+          .select("start_time, stop_time")
+          .in("fault_id", looseFaultIds)
+      : Promise.resolve({ data: [] as { start_time: string; stop_time: string | null }[] }),
+    looseFaultIds.length
+      ? supabase.from("parts_used").select("total_cost").in("fault_id", looseFaultIds)
+      : Promise.resolve({ data: [] as { total_cost: number | null }[] }),
+    supabase
+      .from("services")
+      .select("labour_hours, cost")
+      .eq("asset_type", assetType)
+      .eq("asset_id", assetId),
+    reportIds.length
+      ? supabase.from("maintenance_labour").select("minutes").in("report_id", reportIds)
+      : Promise.resolve({ data: [] as { minutes: number }[] }),
+    reportIds.length
+      ? supabase.from("maintenance_parts").select("total_cost").in("report_id", reportIds)
+      : Promise.resolve({ data: [] as { total_cost: number | null }[] }),
+  ]);
 
   const rate = await getLabourRate();
 
@@ -54,16 +77,17 @@ export async function AssetCostSummary({
     }
   }
   const faultLabourHours = labourMs / 3_600_000;
+  const mLabourHours =
+    (mLabour ?? []).reduce((a, l) => a + (l.minutes ?? 0), 0) / 60;
   const serviceLabourHours = (services ?? []).reduce(
     (a, s) => a + Number(s.labour_hours ?? 0),
     0,
   );
-  const workshopHours = faultLabourHours + serviceLabourHours;
+  const workshopHours = faultLabourHours + mLabourHours + serviceLabourHours;
 
-  const partsCost = (parts ?? []).reduce(
-    (a, p) => a + Number(p.total_cost ?? 0),
-    0,
-  );
+  const partsCost =
+    (parts ?? []).reduce((a, p) => a + Number(p.total_cost ?? 0), 0) +
+    (mParts ?? []).reduce((a, p) => a + Number(p.total_cost ?? 0), 0);
   const serviceCost = (services ?? []).reduce(
     (a, s) => a + Number(s.cost ?? 0),
     0,

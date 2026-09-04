@@ -10,6 +10,7 @@ import { AssetCompliancePanel } from "@/components/asset-compliance-panel";
 import { AssetTimeline } from "@/components/asset-timeline";
 import { AssetDocuments } from "@/components/asset-documents";
 import { AssetCostSummary } from "@/components/asset-cost-summary";
+import { VehicleMaintenanceHistory } from "@/components/vehicle-maintenance-history";
 import { vehicleName } from "@/lib/asset-name";
 import { fmtNumber as fmtNum } from "@/lib/format";
 import { setVehicleVoided, deleteVehicle } from "../actions";
@@ -111,6 +112,8 @@ export default async function VehicleDetailPage({
       />
 
       <AssetCompliancePanel assetType="vehicle" assetId={id} />
+
+      <VehicleMaintenanceHistory vehicleId={id} />
 
       <AssetTimeline assetType="vehicle" assetId={id} />
 
