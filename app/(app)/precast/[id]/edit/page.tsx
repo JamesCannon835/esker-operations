@@ -73,6 +73,7 @@ export default async function EditPrecastOrderPage({
             customer: order.customer,
             phone: order.phone,
             required_date: order.required_date,
+            required_time: order.required_time,
             assigned_to: order.assigned_to,
             notes: order.notes,
             lines: rows,

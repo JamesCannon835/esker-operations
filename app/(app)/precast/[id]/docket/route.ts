@@ -64,7 +64,11 @@ export async function GET(
   );
   text(
     `Order date: ${order.order_date}` +
-      (order.required_date ? `    Required: ${order.required_date}` : ""),
+      (order.required_date || order.required_time
+        ? `    Required: ${[order.required_date, order.required_time]
+            .filter(Boolean)
+            .join(" ")}`
+        : ""),
     10,
     font,
     GREY,

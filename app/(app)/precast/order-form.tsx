@@ -40,6 +40,7 @@ export function OrderForm({
     customer?: string | null;
     phone?: string | null;
     required_date?: string | null;
+    required_time?: string | null;
     assigned_to?: string | null;
     notes?: string | null;
     lines?: Row[];
@@ -77,11 +78,19 @@ export function OrderForm({
           <input name="phone" type="tel" defaultValue={d.phone ?? ""} />
         </label>
         <label>
-          Needed by
+          Needed by (date)
           <input
             name="required_date"
             type="date"
             defaultValue={d.required_date ?? ""}
+          />
+        </label>
+        <label>
+          Time / when
+          <input
+            name="required_time"
+            defaultValue={d.required_time ?? ""}
+            placeholder='"first round", "8am", "second load"'
           />
         </label>
         <label>

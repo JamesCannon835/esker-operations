@@ -18,7 +18,7 @@ export default async function PrecastPage() {
     supabase
       .from("precast_orders")
       .select(
-        "id, order_number, customer, required_date, status, order_date",
+        "id, order_number, customer, required_date, required_time, status, order_date",
       )
       .order("order_date", { ascending: false }),
     supabase
@@ -88,7 +88,12 @@ export default async function PrecastPage() {
                   </td>
                   <td className="muted">{o.customer ?? "—"}</td>
                   <td className="muted">
-                    {o.required_date ? fmtDate(o.required_date) : "—"}
+                    {[
+                      o.required_date ? fmtDate(o.required_date) : null,
+                      o.required_time,
+                    ]
+                      .filter(Boolean)
+                      .join(" ") || "—"}
                   </td>
                   {manager && (
                     <td className="muted">

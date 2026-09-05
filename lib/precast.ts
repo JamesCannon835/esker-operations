@@ -21,6 +21,7 @@ export type PrecastOrder = {
   phone: string | null;
   order_date: string;
   required_date: string | null;
+  required_time: string | null;
   status: string;
   assigned_to: string | null;
   notes: string | null;

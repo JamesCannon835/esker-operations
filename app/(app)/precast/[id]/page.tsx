@@ -84,7 +84,14 @@ export default async function PrecastOrderPage({
         {[
           order.customer,
           order.phone,
-          order.required_date ? `needed ${fmtDate(order.required_date)}` : null,
+          order.required_date || order.required_time
+            ? `needed ${[
+                order.required_date ? fmtDate(order.required_date) : null,
+                order.required_time,
+              ]
+                .filter(Boolean)
+                .join(" ")}`
+            : null,
           `${PRECAST_STATUS_LABELS[order.status] ?? order.status}`,
         ]
           .filter(Boolean)
