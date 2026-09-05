@@ -43,11 +43,11 @@ export default async function LoadPage({
       .maybeSingle(),
     supabase
       .from("verti_load_lines")
-      .select("id, load_id, block_type_id, quantity, weight_kg")
+      .select("id, load_id, block_type_id, quantity, weight_kg, unit_price")
       .eq("load_id", id),
     supabase
       .from("verti_block_types")
-      .select("id, name, sort_order, active, weight_kg")
+      .select("id, name, sort_order, active, weight_kg, unit_price")
       .eq("active", true)
       .order("sort_order")
       .order("name"),

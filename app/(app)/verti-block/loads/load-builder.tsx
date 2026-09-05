@@ -2,6 +2,7 @@
 
 import { useActionState, useState } from "react";
 import Link from "next/link";
+import { fmtMoney } from "@/lib/format";
 import { fmtKg, type VbType, type VbLoad, type VbLoadLine } from "@/lib/verti-block";
 import { saveLoadLines, type FormState } from "./actions";
 
@@ -28,6 +29,7 @@ export function LoadBuilder({
 
   let totalBlocks = 0;
   let totalKg = 0;
+  let totalValue = 0;
   let missingWeight = false;
   for (const t of types) {
     const n = Number(qty[t.id]) || 0;
@@ -35,6 +37,7 @@ export function LoadBuilder({
     if (n > 0) {
       if (t.weight_kg == null) missingWeight = true;
       else totalKg += n * Number(t.weight_kg);
+      if (t.unit_price != null) totalValue += n * Number(t.unit_price);
     }
   }
 
@@ -56,6 +59,10 @@ export function LoadBuilder({
           <div className="tile">
             <div className="label">Total weight</div>
             <div className="value">{fmtKg(totalKg)}</div>
+          </div>
+          <div className="tile">
+            <div className="label">Load value</div>
+            <div className="value">{fmtMoney(totalValue)}</div>
           </div>
           {cap != null && (
             <div className="tile">
@@ -98,6 +105,8 @@ export function LoadBuilder({
           {types.map((t) => {
             const n = Number(qty[t.id]) || 0;
             const lineKg = t.weight_kg != null ? n * Number(t.weight_kg) : null;
+            const lineVal =
+              t.unit_price != null ? n * Number(t.unit_price) : null;
             return (
               <div className="vb-load-line" key={t.id}>
                 <div className="vb-load-name">
@@ -107,6 +116,7 @@ export function LoadBuilder({
                     {t.weight_kg != null
                       ? `${fmtKg(t.weight_kg)} each`
                       : "no weight"}
+                    {t.unit_price != null ? ` · ${fmtMoney(t.unit_price)}` : ""}
                   </span>
                 </div>
                 <input
@@ -120,7 +130,8 @@ export function LoadBuilder({
                   }
                 />
                 <div className="muted vb-load-linekg">
-                  {lineKg != null && n > 0 ? fmtKg(lineKg) : ""}
+                  {n > 0 && lineKg != null ? fmtKg(lineKg) : ""}
+                  {n > 0 && lineVal != null ? ` · ${fmtMoney(lineVal)}` : ""}
                 </div>
               </div>
             );

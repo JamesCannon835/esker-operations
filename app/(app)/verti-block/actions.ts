@@ -147,6 +147,7 @@ export async function saveType(
     name,
     sort_order: numOrNull(formData.get("sort_order")) ?? 100,
     weight_kg: numOrNull(formData.get("weight_kg")),
+    unit_price: numOrNull(formData.get("unit_price")),
     active: formData.get("active") !== null,
   };
   const { error } = id

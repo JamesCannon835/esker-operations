@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth";
 import { isManager, canProduction } from "@/lib/roles";
 import { createClient } from "@/lib/supabase/server";
-import { fmtDate } from "@/lib/format";
+import { fmtDate, fmtMoney } from "@/lib/format";
 import { fmtKg, LOAD_STATUS_LABELS } from "@/lib/verti-block";
 
 export const dynamic = "force-dynamic";
@@ -15,26 +15,23 @@ export default async function LoadsPage() {
   }
   const supabase = await createClient();
 
-  const [{ data: loads }, { data: lines }, { data: types }] = await Promise.all([
+  const [{ data: loads }, { data: lines }] = await Promise.all([
     supabase
       .from("verti_loads")
       .select("id, reference, customer, load_date, truck_reg, max_payload_kg, status")
       .order("load_date", { ascending: false }),
     supabase
       .from("verti_load_lines")
-      .select("load_id, quantity, weight_kg"),
-    supabase.from("verti_block_types").select("id, weight_kg"),
+      .select("load_id, quantity, weight_kg, unit_price"),
   ]);
 
-  const weightOf = new Map(
-    (types ?? []).map((t) => [t.id, t.weight_kg as number | null]),
-  );
-  const agg = new Map<string, { blocks: number; kg: number }>();
+  const agg = new Map<string, { blocks: number; kg: number; value: number }>();
   for (const l of lines ?? []) {
-    const a = agg.get(l.load_id) ?? { blocks: 0, kg: 0 };
-    a.blocks += Number(l.quantity) || 0;
-    const w = l.weight_kg ?? null;
-    if (w != null) a.kg += (Number(l.quantity) || 0) * Number(w);
+    const a = agg.get(l.load_id) ?? { blocks: 0, kg: 0, value: 0 };
+    const q = Number(l.quantity) || 0;
+    a.blocks += q;
+    if (l.weight_kg != null) a.kg += q * Number(l.weight_kg);
+    if (l.unit_price != null) a.value += q * Number(l.unit_price);
     agg.set(l.load_id, a);
   }
 
@@ -63,12 +60,13 @@ export default async function LoadsPage() {
                 <th>Date</th>
                 <th>Blocks</th>
                 <th>Weight</th>
+                <th>Value</th>
                 <th>Status</th>
               </tr>
             </thead>
             <tbody>
               {loads.map((l) => {
-                const a = agg.get(l.id) ?? { blocks: 0, kg: 0 };
+                const a = agg.get(l.id) ?? { blocks: 0, kg: 0, value: 0 };
                 const over =
                   l.max_payload_kg != null && a.kg > l.max_payload_kg;
                 return (
@@ -91,6 +89,9 @@ export default async function LoadsPage() {
                       ) : (
                         fmtKg(a.kg)
                       )}
+                    </td>
+                    <td className="muted">
+                      {a.value > 0 ? fmtMoney(a.value) : "—"}
                     </td>
                     <td className="muted">
                       {LOAD_STATUS_LABELS[l.status] ?? l.status}

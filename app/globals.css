@@ -1506,7 +1506,7 @@ th {
 }
 .vb-load-line {
   display: grid;
-  grid-template-columns: 1fr 90px 90px;
+  grid-template-columns: 1fr 80px 150px;
   gap: 10px;
   align-items: center;
   padding: 8px 0;

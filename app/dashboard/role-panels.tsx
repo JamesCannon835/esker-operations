@@ -158,6 +158,7 @@ export async function RolePanels({
 
   if (isManager(roles)) {
     panels.push(<AreaHub key="hub" isAdmin={hasRole(roles, "admin")} />);
+    panels.push(<DashboardCalendar key="cal" />);
 
     const [
       { count: vehicles },
@@ -282,8 +283,6 @@ export async function RolePanels({
         </div>
       </div>,
     );
-
-    panels.push(<DashboardCalendar key="cal" />);
   }
 
   if (hasRole(roles, "admin")) {

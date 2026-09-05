@@ -4,6 +4,7 @@ export type VbType = {
   sort_order: number;
   active: boolean;
   weight_kg?: number | null;
+  unit_price?: number | null;
 };
 
 export type VbLoad = {
@@ -23,6 +24,7 @@ export type VbLoadLine = {
   block_type_id: string;
   quantity: number;
   weight_kg: number | null;
+  unit_price: number | null;
 };
 
 export const LOAD_STATUS_LABELS: Record<string, string> = {

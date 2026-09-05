@@ -84,7 +84,7 @@ export async function saveLoadLines(
 
   const { data: types } = await supabase
     .from("verti_block_types")
-    .select("id, weight_kg");
+    .select("id, weight_kg, unit_price");
 
   await supabase.from("verti_load_lines").delete().eq("load_id", id);
 
@@ -94,6 +94,7 @@ export async function saveLoadLines(
       block_type_id: t.id,
       quantity: numOrNull(formData.get(`qty_${t.id}`)) ?? 0,
       weight_kg: t.weight_kg,
+      unit_price: t.unit_price,
     }))
     .filter((r) => r.quantity > 0);
 

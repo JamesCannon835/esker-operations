@@ -16,7 +16,7 @@ export default async function VbTypesPage() {
 
   const { data: types } = await supabase
     .from("verti_block_types")
-    .select("id, name, sort_order, active, weight_kg")
+    .select("id, name, sort_order, active, weight_kg, unit_price")
     .order("sort_order")
     .order("name");
 
@@ -29,8 +29,10 @@ export default async function VbTypesPage() {
         <h1>Block types</h1>
       </div>
       <p className="hint">
-        These are the columns on the production sheet. Order controls how they
-        appear.
+        These are the rows on the production sheet and the load builder. Set a
+        weight and a price on each so the load builder can total both.
+        &ldquo;List position&rdquo; just sets the order they appear in (lower
+        first).
       </p>
 
       <div className="card">
@@ -40,8 +42,8 @@ export default async function VbTypesPage() {
               <summary>
                 <strong>{t.name}</strong>{" "}
                 <span className="muted">
-                  {t.weight_kg != null ? `${t.weight_kg} kg · ` : "no weight · "}
-                  order {t.sort_order}
+                  {t.weight_kg != null ? `${t.weight_kg} kg` : "no weight"}
+                  {t.unit_price != null ? ` · €${t.unit_price}` : " · no price"}
                   {t.active ? "" : " · off"}
                 </span>
               </summary>

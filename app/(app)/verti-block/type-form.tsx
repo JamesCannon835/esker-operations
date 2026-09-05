@@ -14,6 +14,7 @@ export function TypeForm({
     sort_order?: number;
     active?: boolean;
     weight_kg?: number | null;
+    unit_price?: number | null;
   };
   submitLabel: string;
 }) {
@@ -45,11 +46,22 @@ export function TypeForm({
         />
       </label>
       <label>
-        Order
+        Price each (€)
+        <input
+          name="unit_price"
+          type="number"
+          step="0.01"
+          inputMode="decimal"
+          defaultValue={d.unit_price ?? ""}
+        />
+      </label>
+      <label>
+        List position
         <input
           name="sort_order"
           type="number"
           defaultValue={d.sort_order ?? 100}
+          title="Lower numbers appear first on the sheet"
         />
       </label>
       <label className="tb-confirm">
