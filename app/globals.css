@@ -14,7 +14,7 @@
      No red anywhere — "danger" states are a black-and-yellow flag instead. */
   --brand: #ed7b00; /* RAL 2000 "Yellow Orange" (sRGB approximation) */
   --brand-fg: #ffffff;
-  --accent: #f59a2e; /* a lighter tint of the brand orange — hovers, highlights */
+  --accent: #ed7b00; /* same RAL 2000 orange — top bar matches the nav */
   --yellow: #ffce1f; /* logo lettering yellow */
   --ink: #1b1a18; /* near-black from the logo ring */
   --ink-2: #0e0d0c;
