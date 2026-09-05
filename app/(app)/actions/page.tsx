@@ -1,7 +1,5 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth";
-import { hasRole, isManager } from "@/lib/roles";
 import { createClient } from "@/lib/supabase/server";
 import { fmtDate } from "@/lib/format";
 import {
@@ -11,6 +9,7 @@ import {
   type ActionPriority,
   type ActionStatus,
 } from "@/lib/maintenance";
+import { canSeeAllTasks, canAssignTasks } from "@/lib/tasks";
 import { ConfirmButton } from "@/components/confirm-button";
 import { markActionDone } from "./actions";
 
@@ -41,10 +40,10 @@ export default async function ActionsPage({
   searchParams: Promise<{ show?: string }>;
 }) {
   const { user, roles } = await requireUser();
-  if (!hasRole(roles, "mechanic") && !isManager(roles)) redirect("/dashboard");
+  const workshop = canSeeAllTasks(roles);
 
   const { show } = await searchParams;
-  const filter = show ?? "open";
+  const filter = show ?? (workshop ? "open" : "mine");
 
   const supabase = await createClient();
   let q = supabase
@@ -55,7 +54,12 @@ export default async function ActionsPage({
     .order("created_at", { ascending: false })
     .limit(300);
 
-  if (filter === "mine") q = q.eq("assigned_to", user.id).in("status", ACTION_OPEN);
+  if (!workshop) {
+    q = q.eq("assigned_to", user.id);
+    if (filter === "done") q = q.eq("status", "done");
+    else q = q.in("status", ACTION_OPEN);
+  } else if (filter === "mine")
+    q = q.eq("assigned_to", user.id).in("status", ACTION_OPEN);
   else if (filter === "open") q = q.in("status", ACTION_OPEN);
   else if (filter === "done") q = q.eq("status", "done");
 
@@ -65,7 +69,10 @@ export default async function ActionsPage({
   const today = new Date().toISOString().slice(0, 10);
   if (filter === "overdue")
     rows = rows.filter(
-      (r) => ACTION_OPEN.includes(r.status as ActionStatus) && r.due_date && r.due_date < today,
+      (r) =>
+        ACTION_OPEN.includes(r.status as ActionStatus) &&
+        r.due_date &&
+        r.due_date < today,
     );
 
   rows.sort(
@@ -75,8 +82,9 @@ export default async function ActionsPage({
       (a.due_date ?? "9999").localeCompare(b.due_date ?? "9999"),
   );
 
-  // resolve assignees + linked maintenance reports
-  const userIds = [...new Set(rows.map((r) => r.assigned_to).filter(Boolean))] as string[];
+  const userIds = [
+    ...new Set(rows.map((r) => r.assigned_to).filter(Boolean)),
+  ] as string[];
   const uMap = new Map<string, string>();
   if (userIds.length) {
     const { data: us } = await supabase
@@ -92,28 +100,37 @@ export default async function ActionsPage({
         .map((r) => r.entity_id),
     ),
   ];
-  const rMap = new Map<string, { number: string | null; vehicleId: string }>();
+  const rMap = new Map<string, string | null>();
   if (reportIds.length) {
     const { data: reps } = await supabase
       .from("maintenance_reports")
-      .select("id, report_number, vehicle_id")
+      .select("id, report_number")
       .in("id", reportIds);
-    for (const rep of reps ?? [])
-      rMap.set(rep.id, { number: rep.report_number, vehicleId: rep.vehicle_id });
+    for (const rep of reps ?? []) rMap.set(rep.id, rep.report_number);
   }
 
-  const TABS = [
-    { key: "open", label: "Open" },
-    { key: "mine", label: "Mine" },
-    { key: "overdue", label: "Overdue" },
-    { key: "done", label: "Done" },
-    { key: "all", label: "All" },
-  ];
+  const TABS = workshop
+    ? [
+        { key: "open", label: "Open" },
+        { key: "mine", label: "Mine" },
+        { key: "overdue", label: "Overdue" },
+        { key: "done", label: "Done" },
+        { key: "all", label: "All" },
+      ]
+    : [
+        { key: "mine", label: "To do" },
+        { key: "done", label: "Done" },
+      ];
 
   return (
     <>
       <div className="page-head">
-        <h1>Actions</h1>
+        <h1>Tasks</h1>
+        {canAssignTasks(roles) && (
+          <Link className="btn small" href="/actions/new">
+            + New task
+          </Link>
+        )}
       </div>
 
       <div className="nav-inner" style={{ padding: 0, marginBottom: 14 }}>
@@ -144,9 +161,9 @@ export default async function ActionsPage({
               <thead>
                 <tr>
                   <th>Priority</th>
-                  <th>Action</th>
-                  <th>From</th>
-                  <th>Owner</th>
+                  <th>Task</th>
+                  {workshop && <th>From</th>}
+                  {workshop && <th>Owner</th>}
                   <th>Due</th>
                   <th>Status</th>
                   <th />
@@ -158,7 +175,7 @@ export default async function ActionsPage({
                     r.due_date &&
                     r.due_date < today &&
                     ACTION_OPEN.includes(r.status as ActionStatus);
-                  const rep =
+                  const repNum =
                     r.entity_type === "maintenance_report"
                       ? rMap.get(r.entity_id)
                       : null;
@@ -172,25 +189,32 @@ export default async function ActionsPage({
                               : undefined
                           }
                         >
-                          {ACTION_PRIORITY_LABELS[r.priority as ActionPriority] ??
-                            r.priority}
+                          {ACTION_PRIORITY_LABELS[
+                            r.priority as ActionPriority
+                          ] ?? r.priority}
                         </span>
                       </td>
                       <td>
                         <Link href={`/actions/${r.id}`}>{r.title}</Link>
                       </td>
-                      <td className="muted">
-                        {rep ? (
-                          <Link href={`/maintenance/${r.entity_id}`}>
-                            {rep.number ?? "Maintenance report"}
-                          </Link>
-                        ) : (
-                          r.entity_type.replace("_", " ")
-                        )}
-                      </td>
-                      <td className="muted">
-                        {uMap.get(r.assigned_to ?? "") ?? "—"}
-                      </td>
+                      {workshop && (
+                        <td className="muted">
+                          {r.entity_type === "maintenance_report" ? (
+                            <Link href={`/maintenance/${r.entity_id}`}>
+                              {repNum ?? "Maintenance"}
+                            </Link>
+                          ) : r.entity_type === "task" ? (
+                            "Task"
+                          ) : (
+                            r.entity_type.replace("_", " ")
+                          )}
+                        </td>
+                      )}
+                      {workshop && (
+                        <td className="muted">
+                          {uMap.get(r.assigned_to ?? "") ?? "—"}
+                        </td>
+                      )}
                       <td
                         className={overdue ? "blocked" : "muted"}
                         style={{ whiteSpace: "nowrap" }}
@@ -206,9 +230,9 @@ export default async function ActionsPage({
                         {ACTION_OPEN.includes(r.status as ActionStatus) && (
                           <ConfirmButton
                             action={markActionDone.bind(null, r.id)}
-                            label="Mark done"
+                            label="Done"
                             className="btn small"
-                            confirmText="Mark this action done?"
+                            confirmText="Mark this task done?"
                           />
                         )}
                       </td>

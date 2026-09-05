@@ -312,6 +312,47 @@ export async function RolePanels({
     );
   }
 
+  // Everyone: tasks assigned to me.
+  const { data: myTasks } = await supabase
+    .from("actions")
+    .select("id, title, due_date, priority")
+    .eq("assigned_to", userId)
+    .in("status", ["open", "in_progress"])
+    .order("due_date", { nullsFirst: false })
+    .limit(8);
+  if (myTasks && myTasks.length > 0) {
+    const today = new Date().toISOString().slice(0, 10);
+    panels.push(
+      <div className="card" key="my-tasks">
+        <div className="page-head" style={{ marginBottom: 8 }}>
+          <h2>Your tasks</h2>
+          <Link className="btn ghost small" href="/actions">
+            All
+          </Link>
+        </div>
+        <table className="list-table">
+          <tbody>
+            {myTasks.map((t) => (
+              <tr key={t.id}>
+                <td>
+                  <Link href={`/actions/${t.id}`}>{t.title}</Link>
+                </td>
+                <td
+                  className={
+                    t.due_date && t.due_date < today ? "blocked" : "muted"
+                  }
+                  style={{ whiteSpace: "nowrap", textAlign: "right" }}
+                >
+                  {t.due_date ? fmtDate(t.due_date) : ""}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>,
+    );
+  }
+
   // Everyone: outstanding toolbox talks to read & sign.
   const { data: tbRows } = await supabase
     .from("toolbox_talk_recipients")

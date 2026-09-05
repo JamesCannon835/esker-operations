@@ -27,7 +27,7 @@ const WORKSHOP: NavGroup = {
     { href: "/faults", label: "Faults" },
     { href: "/vehicle-inspections", label: "Inspections" },
     { href: "/maintenance", label: "Maintenance" },
-    { href: "/actions", label: "Actions" },
+    { href: "/actions", label: "Tasks" },
   ],
 };
 
@@ -81,6 +81,7 @@ const BASIC_LINKS: NavEntry[] = [
   DASHBOARD,
   { href: "/check", label: "Daily Check" },
   { href: "/faults", label: "My Faults" },
+  { href: "/actions", label: "My Tasks" },
   TOOLBOX,
   TIME_OFF,
 ];

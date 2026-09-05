@@ -32,8 +32,14 @@ dashboard (green/amber/red) · document storage · asset history & cost reportin
   field → add jobs/parts/labour/photos → vehicle status → sign-off → `VMR-YYYY-NNNN`,
   read-only, fault closes (or stays open), follow-up becomes an Action, "not safe" =
   OUT OF SERVICE. Vehicle "Maintenance history" tab; Transport-Manager search/filter.
-- **Central Actions table** (foundation change #3, done early) — `actions` table +
-  `/actions` screen. Feeds off maintenance follow-ups now; later Safety/Quality/Environmental.
+- **Tasks** (`/actions`, was "Actions") — the `actions` table + `/actions` screen.
+  Feeds off maintenance follow-ups, and now anyone workshop/management can raise a
+  manual task (`entity_type='task'`): short description (with browser speech-to-text
+  via `components/mic-textarea.tsx`), assign to a person, due date, priority, and
+  **photos** (`action_attachments`, `supabase/tasks.sql`, files under `actions/` in
+  the `documents` bucket). The assigned person sees it in nav ("My Tasks"), on their
+  dashboard, marks it done and can add photos. `lib/tasks.ts` gates who sees all vs
+  own.
 - **Document library** (`/library/[section]`, `supabase/health_safety_docs.sql` +
   `doc_library_sections.sql`) — folder tree + upload/scan/rename/move/delete, in the
   `documents` bucket, management only. Three sections: Health & Safety (mirrors the
