@@ -1272,3 +1272,50 @@ th {
   border-radius: 6px;
   background: #fff;
 }
+
+/* ---- Dashboard area hub (management) ------------------------------- */
+.hub {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+}
+.hub-tile {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 108px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  color: #fff;
+  text-decoration: none;
+  background: var(--hub, #3f3a34);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+  transition: transform 0.08s ease, filter 0.08s ease;
+}
+.hub-tile:hover {
+  filter: brightness(1.08);
+  transform: translateY(-2px);
+}
+.hub-emoji {
+  font-size: 26px;
+  line-height: 1;
+}
+.hub-label {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+.hub-sub {
+  font-size: 12px;
+  font-weight: 500;
+  opacity: 0.82;
+  margin-top: 1px;
+}
+@media (max-width: 480px) {
+  .hub {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .hub-tile {
+    min-height: 92px;
+  }
+}

@@ -5,6 +5,7 @@ import { fmtDate } from "@/lib/format";
 import { trainingStatus } from "@/lib/training";
 import { COMPLIANCE_STATUS_LABELS } from "@/lib/compliance";
 import { getLeaveBalance } from "@/lib/leave-server";
+import { AreaHub } from "./area-hub";
 
 /**
  * Placeholder "home screen" per role, matching sections 7-8 of the
@@ -132,6 +133,8 @@ export async function RolePanels({
   }
 
   if (isManager(roles)) {
+    panels.push(<AreaHub key="hub" isAdmin={hasRole(roles, "admin")} />);
+
     const [
       { count: vehicles },
       { count: plant },
@@ -199,23 +202,8 @@ export async function RolePanels({
 
     panels.push(
       <div className="card" key="manager">
-        <h2>
-          {hasRole(roles, "admin") ? "Admin / Management" : "Transport Manager"} —
-          Fleet Overview
-        </h2>
-        <p className="hint">
-          Full fleet visibility. Manage:{" "}
-          <Link href="/vehicles">Vehicles</Link> (incl. Plant &amp; Trailers) ·{" "}
-          <Link href="/compliance">Compliance</Link> ·{" "}
-          <Link href="/checklists">Checklists</Link> ·{" "}
-          <Link href="/faults">Faults</Link> ·{" "}
-          <Link href="/vehicle-inspections">Inspections</Link> ·{" "}
-          <Link href="/maintenance">Maintenance</Link> ·{" "}
-          <Link href="/actions">Actions</Link> ·{" "}
-          <Link href="/documents">Documents</Link> ·{" "}
-          <Link href="/training">Training</Link> ·{" "}
-          <Link href="/reports">Reports</Link>
-        </p>
+        <h2>At a glance</h2>
+        <p className="hint">Where things stand right now — tap a number to jump in.</p>
         <div className="grid">
           <Link className="tile" href="/vehicles">
             <div className="label">Vehicles</div>
