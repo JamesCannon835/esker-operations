@@ -27,6 +27,9 @@ export default async function SuppliersPage() {
       </Link>
       <div className="page-head">
         <h1>Suppliers</h1>
+        <a className="btn small ghost" href="/deliveries/suppliers/export">
+          Download CSV
+        </a>
       </div>
 
       <div className="card">

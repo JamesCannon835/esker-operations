@@ -42,12 +42,20 @@ export default async function SupplierPage({
       </Link>
       <div className="page-head">
         <h1>{supplier.name}</h1>
-        <ConfirmButton
-          action={deleteSupplier.bind(null, id)}
-          label="Delete supplier"
-          className="btn small ghost"
-          confirmText="Delete this supplier? If it has deliveries it will just be marked inactive."
-        />
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          <a
+            className="btn small ghost"
+            href={`/deliveries/export?supplier=${id}`}
+          >
+            Download goods-in (CSV)
+          </a>
+          <ConfirmButton
+            action={deleteSupplier.bind(null, id)}
+            label="Delete supplier"
+            className="btn small ghost"
+            confirmText="Delete this supplier? If it has deliveries it will just be marked inactive."
+          />
+        </div>
       </div>
 
       <div className="card">

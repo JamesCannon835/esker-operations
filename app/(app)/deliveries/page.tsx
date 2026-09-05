@@ -3,6 +3,8 @@ import { requireManager } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { fmtDate, fmtMoney, fmtNumber } from "@/lib/format";
 import { lineTotal } from "@/lib/deliveries";
+import { ConfirmButton } from "@/components/confirm-button";
+import { deleteTicket } from "./actions";
 
 export const dynamic = "force-dynamic";
 
@@ -61,6 +63,16 @@ export default async function DeliveriesPage({
           <Link className="btn small ghost" href="/deliveries/suppliers">
             Suppliers
           </Link>
+          <a
+            className="btn small ghost"
+            href={`/deliveries/export?${new URLSearchParams({
+              ...(sp.supplier ? { supplier: sp.supplier } : {}),
+              from,
+              to,
+            }).toString()}`}
+          >
+            Download CSV
+          </a>
         </div>
       </div>
 
@@ -122,6 +134,7 @@ export default async function DeliveriesPage({
                   <th>Price</th>
                   <th>Total</th>
                   <th>Docket</th>
+                  <th />
                 </tr>
               </thead>
               <tbody>
@@ -142,6 +155,22 @@ export default async function DeliveriesPage({
                       {fmtMoney(lineTotal(r.quantity, r.unit_price))}
                     </td>
                     <td className="muted">{r.docket_number ?? "—"}</td>
+                    <td style={{ textAlign: "right", whiteSpace: "nowrap" }}>
+                      <Link
+                        className="btn ghost small"
+                        href={`/deliveries/${r.id}/edit`}
+                      >
+                        Edit
+                      </Link>{" "}
+                      <ConfirmButton
+                        action={deleteTicket.bind(null, r.id)}
+                        label="Delete"
+                        className="btn ghost small"
+                        confirmText={`Delete this ${r.product_name} ticket (${fmtDate(
+                          r.delivered_on,
+                        )})?`}
+                      />
+                    </td>
                   </tr>
                 ))}
               </tbody>
