@@ -122,6 +122,9 @@ Live at `/leave`. Tables `leave_requests` + `leave_allowances` (`supabase/leave.
 - Entitlement per person at `/leave/allowances`: company default (Settings →
   "Annual leave default"), editable per person; shows taken / left for the year.
 - Balance shown on every user's dashboard and at the top of `/leave`.
+- Manager dashboard shows a "Calendar — next 2 weeks" agenda
+  (`app/dashboard/dashboard-calendar.tsx`): leave + diary entries + upcoming
+  vehicle test/tax dates, with a link to the full month calendar.
 - Leave year = calendar year (Jan–Dec).
 
 Privacy: drivers only ever see their own bookings (`/leave` shows own requests

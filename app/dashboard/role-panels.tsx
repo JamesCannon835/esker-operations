@@ -6,6 +6,7 @@ import { trainingStatus } from "@/lib/training";
 import { COMPLIANCE_STATUS_LABELS } from "@/lib/compliance";
 import { getLeaveBalance } from "@/lib/leave-server";
 import { AreaHub } from "./area-hub";
+import { DashboardCalendar } from "./dashboard-calendar";
 
 /**
  * Placeholder "home screen" per role, matching sections 7-8 of the
@@ -258,6 +259,8 @@ export async function RolePanels({
         </div>
       </div>,
     );
+
+    panels.push(<DashboardCalendar key="cal" />);
   }
 
   if (hasRole(roles, "admin")) {

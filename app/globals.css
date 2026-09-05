@@ -1373,3 +1373,52 @@ th {
 .del-product > summary::-webkit-details-marker {
   display: none;
 }
+
+/* ---- Dashboard calendar strip ------------------------------------ */
+.dash-cal {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.dash-cal-day {
+  display: grid;
+  grid-template-columns: 92px 1fr;
+  gap: 12px;
+  align-items: start;
+}
+.dash-cal-date {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--muted);
+  padding-top: 2px;
+}
+.dash-cal-day ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.dash-cal-day li {
+  font-size: 14px;
+  padding-left: 12px;
+  border-left: 3px solid var(--border);
+}
+.dash-cal-day li.dash-cal-leave {
+  border-left-color: var(--brand);
+}
+.dash-cal-day li.dash-cal-event {
+  border-left-color: var(--ink);
+}
+.dash-cal-day li.dash-cal-compliance {
+  border-left-color: var(--amber);
+  color: var(--amber);
+  font-weight: 600;
+}
+@media (max-width: 480px) {
+  .dash-cal-day {
+    grid-template-columns: 1fr;
+    gap: 3px;
+  }
+}
