@@ -6,6 +6,7 @@ export const dynamic = "force-dynamic";
 
 export default async function AdminSettingsPage() {
   const rate = (await getSetting("labour_rate_per_hour")) ?? "0";
+  const leaveDefaultDays = (await getSetting("leave_default_days")) ?? "21";
 
   return (
     <>
@@ -16,7 +17,7 @@ export default async function AdminSettingsPage() {
         <h1>Settings</h1>
       </div>
       <div className="card">
-        <SettingsForm rate={rate} />
+        <SettingsForm rate={rate} leaveDefaultDays={leaveDefaultDays} />
       </div>
     </>
   );

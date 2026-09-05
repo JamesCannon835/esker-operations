@@ -31,6 +31,8 @@ const WORKSHOP: NavGroup = {
   ],
 };
 
+const TIME_OFF: NavLink = { href: "/leave", label: "Time Off" };
+
 const MANAGER_LINKS: NavEntry[] = [
   DASHBOARD,
   FLEET,
@@ -38,6 +40,7 @@ const MANAGER_LINKS: NavEntry[] = [
   WORKSHOP,
   { href: "/training", label: "Training" },
   { href: "/health-safety", label: "H&S" },
+  TIME_OFF,
   { href: "/reports", label: "Reports" },
 ];
 
@@ -47,6 +50,7 @@ const MECHANIC_LINKS: NavEntry[] = [
   WORKSHOP,
   { href: "/compliance", label: "Compliance" },
   { href: "/health-safety", label: "H&S" },
+  TIME_OFF,
 ];
 
 // Drivers and plant operators — kept deliberately minimal.
@@ -54,6 +58,7 @@ const BASIC_LINKS: NavEntry[] = [
   DASHBOARD,
   { href: "/check", label: "Daily Check" },
   { href: "/faults", label: "My Faults" },
+  TIME_OFF,
 ];
 
 const ADMIN_GROUP: NavGroup = {

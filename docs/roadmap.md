@@ -72,15 +72,25 @@ Slot onto the same asset / document / people / audit structure.
 
 ## Phases 15–17 — new areas (added 2026-09-03)
 
-### 15 · Time off / leave
-- Each person requests time off from their dashboard: type (annual / sick / unpaid /
-  other), dates, half-days, reason.
-- Transport manager / admin approves or declines; requester is notified.
-- Leave calendar — who is off, and when — plus a clash warning when too many drivers
-  are off the same day.
-- Entitlement tracking per person: allowance, taken, booked, remaining (leave year
-  configurable).
-- Ties directly to the people already in the system; no separate HR list.
+### 15 · Time off / leave — BUILT 2026-09-05
+
+Live at `/leave`. Tables `leave_requests` + `leave_allowances` (`supabase/leave.sql`).
+
+- Each person books time off at `/leave`: type (annual / sick), dates, note. Full
+  days only; working days = Mon–Fri in the range.
+- Annual leave starts as "awaiting approval"; a manager approves/declines at
+  `/leave/approvals` (with an optional note back to the person).
+- Managers can record time off for someone directly (`/leave/approvals`) — approved
+  straight away.
+- Team calendar at `/leave/calendar` — month grid of who is off (managers).
+- Entitlement per person at `/leave/allowances`: company default (Settings →
+  "Annual leave default"), editable per person; shows taken / left for the year.
+- Balance shown on every user's dashboard and at the top of `/leave`.
+- Leave year = calendar year (Jan–Dec).
+
+Not yet done: half-days, unpaid/compassionate types, notification emails on
+request/decision, clash warning when too many drivers are off the same day,
+public-holiday awareness.
 
 ### 16 · Procurement / purchase orders
 - Raise a purchase order → system issues an **order number**.

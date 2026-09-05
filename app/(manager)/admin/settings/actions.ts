@@ -21,17 +21,30 @@ export async function saveSettings(
     return { error: "Enter the hourly rate as a number (0 to turn it off)." };
   }
 
+  const leaveDefault = numOrNull(formData.get("leave_default_days"));
+  if (leaveDefault == null || leaveDefault < 0) {
+    return { error: "Enter the annual leave default as a number of days." };
+  }
+
   const supabase = await createClient();
   const { error } = await supabase.from("app_settings").upsert(
-    {
-      key: "labour_rate_per_hour",
-      value: String(rate),
-      updated_at: new Date().toISOString(),
-    },
+    [
+      {
+        key: "labour_rate_per_hour",
+        value: String(rate),
+        updated_at: new Date().toISOString(),
+      },
+      {
+        key: "leave_default_days",
+        value: String(leaveDefault),
+        updated_at: new Date().toISOString(),
+      },
+    ],
     { onConflict: "key" },
   );
   if (error) return { error: friendlyDbError(error.message) };
 
   revalidatePath("/admin/settings");
+  revalidatePath("/leave", "layout");
   return { ok: "Saved." };
 }

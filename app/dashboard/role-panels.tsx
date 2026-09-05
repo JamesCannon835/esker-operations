@@ -4,6 +4,7 @@ import { isManager, hasRole, type Role } from "@/lib/roles";
 import { fmtDate } from "@/lib/format";
 import { trainingStatus } from "@/lib/training";
 import { COMPLIANCE_STATUS_LABELS } from "@/lib/compliance";
+import { getLeaveBalance } from "@/lib/leave-server";
 
 /**
  * Placeholder "home screen" per role, matching sections 7-8 of the
@@ -297,6 +298,37 @@ export async function RolePanels({
       </div>,
     );
   }
+
+  // Everyone sees their own time-off balance.
+  const leave = await getLeaveBalance(userId);
+  panels.push(
+    <div className="card" key="my-leave">
+      <h2>Your time off</h2>
+      <div className="grid">
+        <Link className="tile" href="/leave">
+          <div className="label">Days left {leave.year}</div>
+          <div className="value">{leave.remaining}</div>
+        </Link>
+        <Link className="tile" href="/leave">
+          <div className="label">Booked / taken</div>
+          <div className="value">{leave.approved}</div>
+        </Link>
+        <Link className="tile" href="/leave">
+          <div className="label">Awaiting approval</div>
+          <div
+            className="value"
+            style={{ color: leave.pending > 0 ? "var(--amber)" : undefined }}
+          >
+            {leave.pending}
+          </div>
+        </Link>
+        <Link className="tile" href="/leave">
+          <div className="label">Book time off</div>
+          <div className="value">Open</div>
+        </Link>
+      </div>
+    </div>,
+  );
 
   // Everyone sees their own safety training.
   const { data: training } = await supabase
