@@ -53,6 +53,7 @@ function readLines(formData: FormData): LineInput[] {
   const pids = formData.getAll("product_id").map(String);
   const names = formData.getAll("product_name").map(String);
   const lens = formData.getAll("length_text").map(String);
+  const customs = formData.getAll("length_custom").map(String);
   const qtys = formData.getAll("quantity").map(String);
   const notes = formData.getAll("line_notes").map(String);
 
@@ -63,7 +64,9 @@ function readLines(formData: FormData): LineInput[] {
     const q = Math.max(0, Math.round(Number(qtys[i]) || 0));
     if (!name && !pid) continue;
     if (q <= 0) continue;
-    const lenText = lens[i]?.trim() || null;
+    const sel = lens[i]?.trim() || "";
+    const lenText =
+      sel === "__other" ? customs[i]?.trim() || null : sel || null;
     out.push({
       product_id: pid,
       product_name: name,

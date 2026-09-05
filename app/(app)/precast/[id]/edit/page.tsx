@@ -49,6 +49,7 @@ export default async function EditPrecastOrderPage({
     productId: l.product_id ?? "",
     name: l.product_name,
     length: l.length_text ?? (l.length_ft != null ? String(l.length_ft) : ""),
+    other: false,
     qty: String(l.quantity),
     notes: l.notes ?? "",
   }));

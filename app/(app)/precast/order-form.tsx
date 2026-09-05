@@ -2,7 +2,13 @@
 
 import { useActionState, useState } from "react";
 import Link from "next/link";
-import { parseFeet, feetLabel, fmtM, FT_TO_M } from "@/lib/precast";
+import {
+  parseFeet,
+  feetLabel,
+  fmtM,
+  FT_TO_M,
+  PRECAST_LENGTHS,
+} from "@/lib/precast";
 import type { FormState } from "./actions";
 
 type Product = { id: string; name: string };
@@ -12,6 +18,7 @@ type Row = {
   productId: string;
   name: string;
   length: string;
+  other: boolean;
   qty: string;
   notes: string;
 };
@@ -22,6 +29,7 @@ const blankRow = (): Row => ({
   productId: "",
   name: "",
   length: "",
+  other: false,
   qty: "1",
   notes: "",
 });
@@ -107,15 +115,19 @@ export function OrderForm({
       </div>
 
       <p className="hint" style={{ margin: "14px 0 6px" }}>
-        Order lines — type lengths in feet the way the customer says them
-        (&ldquo;6ft6&rdquo;, &ldquo;10ft&rdquo;, &ldquo;8&rdquo;)
+        Order lines — pick the product and length as the customer gives them (in
+        feet); the docket total comes out in metres.
       </p>
 
       <div className="del-rows">
         {rows.map((r, i) => {
+          const other =
+            r.other || (r.length !== "" && !PRECAST_LENGTHS.includes(r.length));
           const ft = parseFeet(r.length);
           const q = Number(r.qty) || 0;
           const lineM = ft != null ? ft * FT_TO_M * q : null;
+          const productName =
+            products.find((p) => p.id === r.productId)?.name ?? r.name;
           return (
             <div className="del-row" key={r.key}>
               <div className="del-row-head">
@@ -143,48 +155,52 @@ export function OrderForm({
                   )}
                 </div>
               </div>
+              <input type="hidden" name="product_name" value={productName} />
               <div className="del-grid">
                 <label>
                   Product
-                  {products.length > 0 ? (
-                    <select
-                      name="product_id"
-                      value={r.productId}
-                      onChange={(e) => {
-                        const p = products.find((x) => x.id === e.target.value);
-                        patch(r.key, {
-                          productId: e.target.value,
-                          name: p?.name ?? r.name,
-                        });
-                      }}
-                    >
-                      <option value="">— choose / type —</option>
-                      {products.map((p) => (
-                        <option key={p.id} value={p.id}>
-                          {p.name}
-                        </option>
-                      ))}
-                    </select>
-                  ) : (
-                    <input type="hidden" name="product_id" value="" />
-                  )}
+                  <select
+                    name="product_id"
+                    value={r.productId}
+                    onChange={(e) =>
+                      patch(r.key, { productId: e.target.value })
+                    }
+                  >
+                    <option value="">— choose —</option>
+                    {products.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.name}
+                      </option>
+                    ))}
+                  </select>
                 </label>
                 <label>
-                  Product name / spec
-                  <input
-                    name="product_name"
-                    value={r.name}
-                    onChange={(e) => patch(r.key, { name: e.target.value })}
-                    placeholder={'e.g. 2" face window sill'}
-                  />
-                </label>
-                <label>
-                  Length (feet)
-                  <input
+                  Length
+                  <select
                     name="length_text"
-                    value={r.length}
+                    value={other ? "__other" : r.length}
+                    onChange={(e) =>
+                      patch(r.key, {
+                        length: e.target.value === "__other" ? "" : e.target.value,
+                        other: e.target.value === "__other",
+                      })
+                    }
+                  >
+                    <option value="">— length —</option>
+                    {PRECAST_LENGTHS.map((l) => (
+                      <option key={l} value={l}>
+                        {l}
+                      </option>
+                    ))}
+                    <option value="__other">Other…</option>
+                  </select>
+                  <input
+                    name="length_custom"
+                    value={other ? r.length : ""}
                     onChange={(e) => patch(r.key, { length: e.target.value })}
-                    placeholder="6ft6"
+                    placeholder="e.g. 13ft6"
+                    hidden={!other}
+                    style={{ marginTop: 4 }}
                   />
                 </label>
                 <label>
@@ -209,7 +225,7 @@ export function OrderForm({
               </div>
               <div className="muted" style={{ fontSize: 13, marginTop: 4 }}>
                 {ft != null
-                  ? `${feetLabel(ft)} each · = ${fmtM(ft * FT_TO_M)} each`
+                  ? `${feetLabel(ft)} each = ${fmtM(ft * FT_TO_M)}`
                   : r.length
                     ? "can't read that length"
                     : ""}

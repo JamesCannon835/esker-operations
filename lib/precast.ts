@@ -1,5 +1,15 @@
 export const FT_TO_M = 0.3048;
 
+/** Standard order lengths: 2ft to 12ft in half-foot steps. */
+export const PRECAST_LENGTHS: string[] = (() => {
+  const out: string[] = [];
+  for (let ft = 2; ft <= 12; ft++) {
+    out.push(`${ft}ft`);
+    if (ft < 12) out.push(`${ft}ft6`);
+  }
+  return out;
+})();
+
 export const PRECAST_STATUS_LABELS: Record<string, string> = {
   new: "New",
   in_progress: "In progress",
