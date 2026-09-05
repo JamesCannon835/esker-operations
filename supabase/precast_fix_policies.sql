@@ -1,14 +1,9 @@
 -- =====================================================================
--- PRECAST ORDERS
--- Phone orders for made-to-order precast (sills, lintels, padstones…).
--- Management raise the order in feet; yard staff work it in feet; the
--- customer docket shows metres. Sold per metre.
+-- Precast — fix "can't add products/orders", and set the real product list.
+-- Rebuilds the tables if missing, recreates the access policies without
+-- depending on the 'yard_staff' enum value, and loads Esker's products.
 --
---   precast_products      — the editable product list
---   precast_orders        — one order (customer, status, who it's for)
---   precast_order_lines   — product + length (ft) + quantity
---
--- Run once in the Supabase SQL editor. Safe to re-run.
+-- Safe to re-run.
 -- =====================================================================
 
 create table if not exists public.precast_products (
@@ -26,8 +21,8 @@ create table if not exists public.precast_orders (
   phone text,
   order_date date not null default current_date,
   required_date date,
-  required_time text,                        -- free text: "first round", "8am"
-  status text not null default 'new',        -- new | in_progress | done | cancelled
+  required_time text,
+  status text not null default 'new',
   assigned_to uuid references public.users(id),
   notes text,
   taken_by uuid references public.users(id),
@@ -42,27 +37,22 @@ create table if not exists public.precast_order_lines (
   id uuid primary key default gen_random_uuid(),
   order_id uuid not null references public.precast_orders(id) on delete cascade,
   product_id uuid references public.precast_products(id) on delete set null,
-  product_name text not null,               -- snapshot
-  length_ft numeric,                        -- length in feet (decimal, e.g. 6.5 = 6ft6)
-  length_text text,                         -- as typed, e.g. "6ft6"
+  product_name text not null,
+  length_ft numeric,
+  length_text text,
   quantity integer not null default 1,
   notes text,
   sort_order int not null default 0
 );
 create index if not exists precast_order_lines_order_idx on public.precast_order_lines (order_id);
 
-alter table public.precast_products enable row level security;
-alter table public.precast_orders enable row level security;
-alter table public.precast_order_lines enable row level security;
-
--- role::text so this never errors even if the 'yard_staff' enum value
--- hasn't been added yet.
 do $$
 declare t text;
 begin
   foreach t in array array[
     'precast_products', 'precast_orders', 'precast_order_lines'
   ] loop
+    execute format('alter table public.%1$s enable row level security', t);
     execute format('drop policy if exists "yard staff manage %1$s" on public.%1$s', t);
     execute format(
       'create policy "yard staff manage %1$s" on public.%1$s
@@ -87,6 +77,12 @@ begin
     );
   end loop;
 end $$;
+
+-- Clear any placeholder products that aren't on an order yet, then load the real list.
+delete from public.precast_products p
+where not exists (
+  select 1 from public.precast_order_lines l where l.product_id = p.id
+);
 
 insert into public.precast_products (name, sort_order) values
   ('4" Face Sill', 10),
