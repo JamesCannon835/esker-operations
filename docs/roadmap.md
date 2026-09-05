@@ -98,7 +98,13 @@ Slot onto the same asset / document / people / audit structure.
 - **13 · Quality** — concrete-specific: delivery dockets, batch records, cube-test
   results (7/28-day strengths, pass/fail vs spec), non-conformance reports, calibration
   records for the batching plant and test equipment.
-- **14 · Verti-Block** — the block product line (production runs, QC, stock).
+- **14 · Verti-Block** — weekly production record BUILT 2026-09-05 (`/verti-block`,
+  `supabase/verti_block.sql`). Digitises the paper weekly sheet: per week an
+  operator + Mon–Fri, each day concrete ordered (m³), a count for each of 14
+  editable block types (`verti_block_types`, `counts` jsonb on the day), blocks
+  broken, and three inspection ticks (block visual / mould visual / weight).
+  Yard staff (plant_operator) + management fill it in; managers get block-type
+  admin, delete, and CSV export. Still to come: stock levels, QC test results.
 
 ---
 

@@ -1422,3 +1422,60 @@ th {
     gap: 3px;
   }
 }
+
+/* ---- Verti-Block production sheet -------------------------------- */
+.vb-day {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+  background: var(--card);
+}
+.vb-day > summary {
+  cursor: pointer;
+  list-style: none;
+}
+.vb-day > summary::-webkit-details-marker {
+  display: none;
+}
+.vb-counts {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 8px 12px;
+}
+.vb-counts label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 14px;
+}
+.vb-counts input {
+  width: 70px;
+  padding: 8px 8px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 15px;
+  text-align: right;
+}
+.vb-checks {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+.vb-checks label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.vb-checks select {
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 400;
+  background: #fff;
+}

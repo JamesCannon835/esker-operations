@@ -42,6 +42,7 @@ const LIBRARY: NavGroup = {
 
 const TIME_OFF: NavLink = { href: "/leave", label: "Time Off" };
 const TOOLBOX: NavLink = { href: "/toolbox", label: "Toolbox Talks" };
+const VERTI_BLOCK: NavLink = { href: "/verti-block", label: "Verti-Block" };
 
 const SAFETY: NavGroup = {
   label: "Safety",
@@ -60,6 +61,7 @@ const MANAGER_LINKS: NavEntry[] = [
   LIBRARY,
   { href: "/deliveries", label: "Goods In" },
   { href: "/blasting", label: "Blasting" },
+  VERTI_BLOCK,
   TIME_OFF,
   { href: "/reports", label: "Reports" },
 ];
@@ -114,6 +116,15 @@ export function AppNav({ roles }: { roles: Role[] }) {
     : hasRole(roles, "mechanic")
       ? [...MECHANIC_LINKS]
       : [...BASIC_LINKS];
+
+  // Plant / yard operators also get the Verti-Block production sheet.
+  if (
+    !isManager(roles) &&
+    !hasRole(roles, "mechanic") &&
+    hasRole(roles, "plant_operator")
+  ) {
+    links.splice(1, 0, VERTI_BLOCK);
+  }
 
   if (roles.includes("admin")) {
     links.push(ADMIN_GROUP);
