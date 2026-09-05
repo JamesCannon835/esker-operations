@@ -25,7 +25,7 @@ export default async function EditNotificationPage({
         .maybeSingle(),
       supabase
         .from("neighbours")
-        .select("id, name, address")
+        .select("id, name, address, phone, email")
         .eq("active", true)
         .order("name"),
       supabase.from("sms_templates").select("id, name, body").order("name"),

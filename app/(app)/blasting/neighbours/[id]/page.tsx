@@ -18,7 +18,7 @@ export default async function EditNeighbourPage({
 
   const { data: n } = await supabase
     .from("neighbours")
-    .select("id, name, phone, address, notes, active")
+    .select("id, name, phone, email, address, notes, active")
     .eq("id", id)
     .maybeSingle();
   if (!n) notFound();

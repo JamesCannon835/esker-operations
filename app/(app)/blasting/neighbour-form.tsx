@@ -13,7 +13,8 @@ export function NeighbourForm({
   action: (prev: FormState, fd: FormData) => Promise<FormState>;
   defaults?: {
     name?: string;
-    phone?: string;
+    phone?: string | null;
+    email?: string | null;
     address?: string | null;
     notes?: string | null;
     active?: boolean;
@@ -36,17 +37,28 @@ export function NeighbourForm({
       </div>
 
       <div className="field">
-        <label htmlFor="phone">
-          Mobile <span className="req">*</span>
-        </label>
+        <label htmlFor="phone">Mobile</label>
         <input
           id="phone"
           name="phone"
           type="tel"
-          required
           defaultValue={d.phone ?? ""}
           placeholder="087 123 4567"
         />
+      </div>
+
+      <div className="field">
+        <label htmlFor="email">Email</label>
+        <input
+          id="email"
+          name="email"
+          type="email"
+          defaultValue={d.email ?? ""}
+          placeholder="name@example.com"
+        />
+        <div className="field-hint">
+          Add a mobile, an email, or both — whatever you have for them.
+        </div>
       </div>
 
       <div className="field">

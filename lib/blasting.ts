@@ -22,6 +22,7 @@ export const RECIPIENT_STATUS_LABELS: Record<string, string> = {
   sent: "Sent",
   delivered: "Delivered",
   failed: "Failed",
+  skipped: "—",
 };
 
 /** Fill {date} / {time} tokens from a blast datetime (en-IE). */

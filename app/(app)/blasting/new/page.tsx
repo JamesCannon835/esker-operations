@@ -13,7 +13,7 @@ export default async function NewNotificationPage() {
   const [{ data: neighbours }, { data: templates }] = await Promise.all([
     supabase
       .from("neighbours")
-      .select("id, name, address")
+      .select("id, name, address, phone, email")
       .eq("active", true)
       .order("name"),
     supabase.from("sms_templates").select("id, name, body").order("name"),

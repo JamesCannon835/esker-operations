@@ -3,6 +3,7 @@ import { requireManager } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { fmtDate, fmtDateTime } from "@/lib/format";
 import { smsConfigured } from "@/lib/sms";
+import { emailConfigured } from "@/lib/notify";
 
 export const dynamic = "force-dynamic";
 
@@ -18,7 +19,7 @@ export default async function BlastingPage() {
         .order("created_at", { ascending: false }),
       supabase
         .from("blast_notification_recipients")
-        .select("notification_id, status"),
+        .select("notification_id, status, email_status"),
       supabase
         .from("neighbours")
         .select("*", { count: "exact", head: true })
@@ -29,8 +30,12 @@ export default async function BlastingPage() {
   for (const r of recips ?? []) {
     const s = stat.get(r.notification_id) ?? { total: 0, ok: 0, failed: 0 };
     s.total++;
-    if (r.status === "sent" || r.status === "delivered") s.ok++;
-    if (r.status === "failed") s.failed++;
+    const reached =
+      ["sent", "delivered"].includes(r.status) ||
+      ["sent", "delivered"].includes(r.email_status);
+    const failed = r.status === "failed" || r.email_status === "failed";
+    if (reached) s.ok++;
+    if (failed && !reached) s.failed++;
     stat.set(r.notification_id, s);
   }
 
@@ -51,13 +56,21 @@ export default async function BlastingPage() {
         </div>
       </div>
 
-      {!smsConfigured() && (
+      {!smsConfigured() && !emailConfigured() && (
         <div className="error">
-          No texting service is connected yet, so notifications can be drafted
-          and logged but not actually sent. Pick a provider (e.g. Twilio) and
-          add its keys to finish this off.
+          No texting service or email is connected yet, so notifications can be
+          drafted and logged but not actually sent. Connect a texting service
+          (e.g. Twilio) and/or email to finish this off.
         </div>
       )}
+      {(smsConfigured() || emailConfigured()) &&
+        !(smsConfigured() && emailConfigured()) && (
+          <p className="hint">
+            {smsConfigured()
+              ? "Texting is connected; email is not — neighbours with only an email won't be reached."
+              : "Email is connected; texting is not — neighbours with only a mobile won't be reached."}
+          </p>
+        )}
 
       <div className="card">
         {!notifs || notifs.length === 0 ? (

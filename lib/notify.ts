@@ -78,6 +78,44 @@ export async function notifyRoles(
   }
 }
 
+export function emailConfigured(): boolean {
+  return Boolean(
+    process.env.RESEND_API_KEY &&
+      (process.env.NOTIFY_FROM ?? process.env.REMINDER_FROM),
+  );
+}
+
+export type EmailResult = { ok: boolean; ref?: string; error?: string };
+
+/** Send one email to explicit recipients. Best-effort; returns a result. */
+export async function sendEmail(
+  to: string[],
+  subject: string,
+  text: string,
+): Promise<EmailResult> {
+  const key = process.env.RESEND_API_KEY;
+  const from = process.env.NOTIFY_FROM ?? process.env.REMINDER_FROM;
+  if (!key || !from) return { ok: false, error: "Email is not connected" };
+  if (to.length === 0) return { ok: false, error: "No email address" };
+  try {
+    const res = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${key}`,
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({ from, to, subject, text }),
+    });
+    if (!res.ok) {
+      return { ok: false, error: `Resend ${res.status}` };
+    }
+    const body = (await res.json().catch(() => null)) as { id?: string } | null;
+    return { ok: true, ref: body?.id };
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : "send failed" };
+  }
+}
+
 /** Transport managers + admins. */
 export function notifyManagers(subject: string, text: string): Promise<void> {
   return notifyRoles(["transport_manager", "admin"], subject, text);

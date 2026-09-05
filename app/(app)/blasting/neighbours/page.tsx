@@ -13,7 +13,7 @@ export default async function NeighboursPage() {
 
   const { data: neighbours } = await supabase
     .from("neighbours")
-    .select("id, name, phone, address, notes, active")
+    .select("id, name, phone, email, address, notes, active")
     .order("name");
 
   const rows = neighbours ?? [];
@@ -40,7 +40,7 @@ export default async function NeighboursPage() {
             <thead>
               <tr>
                 <th>Name</th>
-                <th>Mobile</th>
+                <th>Contact</th>
                 <th>Address</th>
                 <th>On list</th>
                 <th />
@@ -52,7 +52,9 @@ export default async function NeighboursPage() {
                   <td>
                     <Link href={`/blasting/neighbours/${n.id}`}>{n.name}</Link>
                   </td>
-                  <td className="muted">{n.phone}</td>
+                  <td className="muted">
+                    {[n.phone, n.email].filter(Boolean).join(" · ") || "—"}
+                  </td>
                   <td className="muted">{n.address ?? "—"}</td>
                   <td>
                     {n.active ? (

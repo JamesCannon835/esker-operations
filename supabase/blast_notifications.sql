@@ -15,7 +15,8 @@
 create table if not exists public.neighbours (
   id uuid primary key default gen_random_uuid(),
   name text not null,
-  phone text not null,
+  phone text,
+  email text,
   address text,
   notes text,
   active boolean not null default true,
@@ -23,6 +24,9 @@ create table if not exists public.neighbours (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+-- added after first release — safe to re-run
+alter table public.neighbours add column if not exists email text;
+alter table public.neighbours alter column phone drop not null;
 
 create table if not exists public.sms_templates (
   id uuid primary key default gen_random_uuid(),
@@ -49,14 +53,22 @@ create table if not exists public.blast_notification_recipients (
     references public.blast_notifications(id) on delete cascade,
   neighbour_id uuid references public.neighbours(id) on delete set null,
   name text,
-  phone text not null,
-  status text not null default 'pending', -- pending | sent | delivered | failed
+  phone text,
+  email text,
+  status text not null default 'pending',       -- SMS: pending | sent | delivered | failed | skipped
   provider_ref text,
   error text,
+  email_status text not null default 'pending', -- email: pending | sent | failed | skipped
+  email_error text,
   updated_at timestamptz not null default now()
 );
 create index if not exists bnr_notification_idx
   on public.blast_notification_recipients (notification_id);
+alter table public.blast_notification_recipients add column if not exists email text;
+alter table public.blast_notification_recipients
+  add column if not exists email_status text not null default 'pending';
+alter table public.blast_notification_recipients add column if not exists email_error text;
+alter table public.blast_notification_recipients alter column phone drop not null;
 
 alter table public.neighbours enable row level security;
 alter table public.sms_templates enable row level security;

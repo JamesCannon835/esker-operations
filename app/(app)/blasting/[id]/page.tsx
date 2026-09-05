@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { fmtDateTime } from "@/lib/format";
 import { RECIPIENT_STATUS_LABELS } from "@/lib/blasting";
 import { smsConfigured } from "@/lib/sms";
+import { emailConfigured } from "@/lib/notify";
 import { ConfirmButton } from "@/components/confirm-button";
 import {
   sendNotification,
@@ -13,6 +14,29 @@ import {
 } from "../actions";
 
 export const dynamic = "force-dynamic";
+
+function ChannelStatus({
+  contact,
+  status,
+  error,
+}: {
+  contact: string | null;
+  status: string;
+  error: string | null;
+}) {
+  if (!contact) return <span className="muted">—</span>;
+  if (status === "failed")
+    return (
+      <span className="blocked" title={error ?? ""}>
+        Failed
+      </span>
+    );
+  return (
+    <span className="muted">
+      {RECIPIENT_STATUS_LABELS[status] ?? status}
+    </span>
+  );
+}
 
 export default async function NotificationPage({
   params,
@@ -35,13 +59,16 @@ export default async function NotificationPage({
 
   const { data: recips } = await supabase
     .from("blast_notification_recipients")
-    .select("id, name, phone, status, error")
+    .select("id, name, phone, email, status, error, email_status, email_error")
     .eq("notification_id", id)
     .order("name");
 
   const rows = recips ?? [];
-  const failed = rows.filter((r) => r.status === "failed").length;
+  const failed = rows.filter(
+    (r) => r.status === "failed" || r.email_status === "failed",
+  ).length;
   const draft = n.status === "draft";
+  const noChannel = !smsConfigured() && !emailConfigured();
 
   return (
     <>
@@ -83,19 +110,17 @@ export default async function NotificationPage({
         </div>
       </div>
 
-      {e === "nosms" && (
+      {e === "nochannel" && (
         <div className="error">
-          Can&apos;t send yet — no texting service is connected. The draft and
-          recipient list are saved.
+          Can&apos;t send yet — neither a texting service nor email is connected.
+          The draft and recipient list are saved.
         </div>
       )}
 
       <p className="hint">
         {n.blast_at ? `Planned blast: ${fmtDateTime(n.blast_at)} · ` : ""}
-        {draft
-          ? "Draft"
-          : `Sent ${n.sent_at ? fmtDateTime(n.sent_at) : ""}`}
-        {!smsConfigured() && draft ? " · sending not connected" : ""}
+        {draft ? "Draft" : `Sent ${n.sent_at ? fmtDateTime(n.sent_at) : ""}`}
+        {noChannel && draft ? " · sending not connected" : ""}
       </p>
 
       <div className="card">
@@ -104,32 +129,32 @@ export default async function NotificationPage({
       </div>
 
       <div className="card">
-        <h2>
-          Neighbours ({rows.length})
-        </h2>
+        <h2>Neighbours ({rows.length})</h2>
         <table className="list-table">
           <thead>
             <tr>
               <th>Name</th>
-              <th>Mobile</th>
-              <th>Status</th>
+              <th>Text</th>
+              <th>Email</th>
             </tr>
           </thead>
           <tbody>
             {rows.map((r) => (
               <tr key={r.id}>
                 <td>{r.name}</td>
-                <td className="muted">{r.phone}</td>
                 <td>
-                  {r.status === "failed" ? (
-                    <span className="blocked" title={r.error ?? ""}>
-                      Failed
-                    </span>
-                  ) : (
-                    <span className="muted">
-                      {RECIPIENT_STATUS_LABELS[r.status] ?? r.status}
-                    </span>
-                  )}
+                  <ChannelStatus
+                    contact={r.phone}
+                    status={r.status}
+                    error={r.error}
+                  />
+                </td>
+                <td>
+                  <ChannelStatus
+                    contact={r.email}
+                    status={r.email_status}
+                    error={r.email_error}
+                  />
                 </td>
               </tr>
             ))}

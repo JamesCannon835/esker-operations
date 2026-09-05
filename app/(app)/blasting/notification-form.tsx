@@ -5,7 +5,13 @@ import Link from "next/link";
 import { fillTemplate, smsSegments } from "@/lib/blasting";
 import type { FormState } from "./actions";
 
-type Neighbour = { id: string; name: string; address: string | null };
+type Neighbour = {
+  id: string;
+  name: string;
+  address: string | null;
+  phone?: string | null;
+  email?: string | null;
+};
 type Template = { id: string; name: string; body: string };
 
 export function NotificationForm({
@@ -142,19 +148,27 @@ export function NotificationForm({
           </button>
         </div>
         <div className="tb-recipients">
-          {neighbours.map((n) => (
-            <label key={n.id} className="tb-recipient">
-              <input
-                type="checkbox"
-                name="recipient"
-                value={n.id}
-                checked={picked.has(n.id)}
-                onChange={() => toggle(n.id)}
-              />{" "}
-              {n.name}
-              {n.address ? ` · ${n.address}` : ""}
-            </label>
-          ))}
+          {neighbours.map((n) => {
+            const ch = [n.phone ? "text" : null, n.email ? "email" : null]
+              .filter(Boolean)
+              .join(" + ");
+            return (
+              <label key={n.id} className="tb-recipient">
+                <input
+                  type="checkbox"
+                  name="recipient"
+                  value={n.id}
+                  checked={picked.has(n.id)}
+                  onChange={() => toggle(n.id)}
+                />{" "}
+                {n.name}
+                <span className="muted" style={{ fontSize: 12 }}>
+                  {" "}
+                  {ch ? `(${ch})` : "(no contact)"}
+                </span>
+              </label>
+            );
+          })}
         </div>
         {neighbours.length === 0 && (
           <div className="field-hint">

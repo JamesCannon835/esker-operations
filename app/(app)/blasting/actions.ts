@@ -6,6 +6,7 @@ import { requireManager } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { orNull, friendlyDbError } from "@/lib/assets";
 import { smsConfigured, sendSms } from "@/lib/sms";
+import { emailConfigured, sendEmail } from "@/lib/notify";
 
 export type FormState = { error?: string };
 
@@ -26,12 +27,15 @@ export async function saveNeighbour(
 
   const name = orNull(formData.get("name"));
   const phone = orNull(formData.get("phone"));
+  const email = orNull(formData.get("email"));
   if (!name) return { error: "Enter a name." };
-  if (!phone) return { error: "Enter a mobile number." };
+  if (!phone && !email)
+    return { error: "Enter a mobile number, an email address, or both." };
 
   const row = {
     name,
     phone,
+    email,
     address: orNull(formData.get("address")),
     notes: orNull(formData.get("notes")),
     active: formData.get("active") !== null,
@@ -97,7 +101,7 @@ export async function createNotification(
 
   const { data: neighbours } = await supabase
     .from("neighbours")
-    .select("id, name, phone")
+    .select("id, name, phone, email")
     .in("id", recipientIds);
   if (!neighbours || neighbours.length === 0)
     return { error: "Those neighbours could not be found." };
@@ -123,6 +127,9 @@ export async function createNotification(
         neighbour_id: n.id,
         name: n.name,
         phone: n.phone,
+        email: n.email,
+        status: n.phone ? "pending" : "skipped",
+        email_status: n.email ? "pending" : "skipped",
       })),
     );
   if (rErr) return { error: friendlyDbError(rErr.message) };
@@ -167,7 +174,7 @@ export async function updateNotification(
 
   const { data: neighbours } = await supabase
     .from("neighbours")
-    .select("id, name, phone")
+    .select("id, name, phone, email")
     .in("id", recipientIds);
 
   // Draft only — nothing has been sent, so rebuild the recipient list.
@@ -181,6 +188,9 @@ export async function updateNotification(
       neighbour_id: n.id,
       name: n.name,
       phone: n.phone,
+      email: n.email,
+      status: n.phone ? "pending" : "skipped",
+      email_status: n.email ? "pending" : "skipped",
     })),
   );
 
@@ -196,41 +206,86 @@ export async function deleteNotification(id: string) {
   redirect("/blasting");
 }
 
-/** Send the texts. Blocked until a texting service is connected. */
-export async function sendNotification(id: string) {
-  await requireManager();
+type RecipientRow = {
+  id: string;
+  phone: string | null;
+  email: string | null;
+  status: string;
+  email_status: string;
+};
 
-  if (!smsConfigured()) {
-    redirect(`/blasting/${id}?e=nosms`);
+/** Text and/or email one neighbour, writing the per-channel result back. */
+async function deliverTo(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  r: RecipientRow,
+  message: string,
+  title: string | null,
+  retryOnly: boolean,
+) {
+  const patch: Record<string, unknown> = { updated_at: new Date().toISOString() };
+
+  const smsPending =
+    r.phone && (retryOnly ? r.status === "failed" : r.status === "pending");
+  if (smsPending) {
+    if (!smsConfigured()) {
+      patch.status = "failed";
+      patch.error = "No texting service connected";
+    } else {
+      const res = await sendSms(r.phone!, message);
+      patch.status = res.ok ? "sent" : "failed";
+      patch.provider_ref = res.ref ?? null;
+      patch.error = res.error ?? null;
+    }
   }
 
+  const emailPending =
+    r.email &&
+    (retryOnly ? r.email_status === "failed" : r.email_status === "pending");
+  if (emailPending) {
+    if (!emailConfigured()) {
+      patch.email_status = "failed";
+      patch.email_error = "Email is not connected";
+    } else {
+      const res = await sendEmail(
+        [r.email!],
+        title || "Esker Readymix Quarry — blast notification",
+        message,
+      );
+      patch.email_status = res.ok ? "sent" : "failed";
+      patch.email_error = res.error ?? null;
+    }
+  }
+
+  if (Object.keys(patch).length > 1) {
+    await supabase
+      .from("blast_notification_recipients")
+      .update(patch)
+      .eq("id", r.id);
+  }
+}
+
+/** Send. Blocked only if neither texting nor email is connected. */
+export async function sendNotification(id: string) {
   const { user } = await requireManager();
+  if (!smsConfigured() && !emailConfigured()) {
+    redirect(`/blasting/${id}?e=nochannel`);
+  }
   const supabase = await createClient();
 
   const { data: notif } = await supabase
     .from("blast_notifications")
-    .select("id, message, status")
+    .select("id, title, message, status")
     .eq("id", id)
     .maybeSingle();
   if (!notif || notif.status === "sent") redirect(`/blasting/${id}`);
 
   const { data: recips } = await supabase
     .from("blast_notification_recipients")
-    .select("id, phone, status")
+    .select("id, phone, email, status, email_status")
     .eq("notification_id", id);
 
-  for (const r of recips ?? []) {
-    if (r.status === "delivered" || r.status === "sent") continue;
-    const res = await sendSms(r.phone, notif.message);
-    await supabase
-      .from("blast_notification_recipients")
-      .update({
-        status: res.ok ? "sent" : "failed",
-        provider_ref: res.ref ?? null,
-        error: res.error ?? null,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", r.id);
+  for (const r of (recips ?? []) as RecipientRow[]) {
+    await deliverTo(supabase, r, notif.message, notif.title, false);
   }
 
   await supabase
@@ -244,33 +299,25 @@ export async function sendNotification(id: string) {
 
 export async function resendFailed(id: string) {
   await requireManager();
-  if (!smsConfigured()) redirect(`/blasting/${id}?e=nosms`);
+  if (!smsConfigured() && !emailConfigured())
+    redirect(`/blasting/${id}?e=nochannel`);
   const supabase = await createClient();
 
   const { data: notif } = await supabase
     .from("blast_notifications")
-    .select("message")
+    .select("title, message")
     .eq("id", id)
     .maybeSingle();
   if (!notif) redirect("/blasting");
 
   const { data: recips } = await supabase
     .from("blast_notification_recipients")
-    .select("id, phone")
+    .select("id, phone, email, status, email_status")
     .eq("notification_id", id)
-    .eq("status", "failed");
+    .or("status.eq.failed,email_status.eq.failed");
 
-  for (const r of recips ?? []) {
-    const res = await sendSms(r.phone, notif.message);
-    await supabase
-      .from("blast_notification_recipients")
-      .update({
-        status: res.ok ? "sent" : "failed",
-        provider_ref: res.ref ?? null,
-        error: res.error ?? null,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", r.id);
+  for (const r of (recips ?? []) as RecipientRow[]) {
+    await deliverTo(supabase, r, notif.message, notif.title, true);
   }
   refresh(id);
   redirect(`/blasting/${id}`);
