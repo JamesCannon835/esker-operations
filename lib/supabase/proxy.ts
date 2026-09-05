@@ -1,7 +1,12 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-const PUBLIC_PATHS = ["/login"];
+const PUBLIC_PATHS = [
+  "/login",
+  "/manifest.webmanifest",
+  "/sw.js",
+  "/offline.html",
+];
 
 /**
  * Refreshes the Supabase auth session on every request and enforces the
