@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { fmtDate } from "@/lib/format";
 import type { Role } from "@/lib/roles";
 import { ConfirmButton } from "@/components/confirm-button";
@@ -34,6 +35,14 @@ export default async function EditUserPage({
   if (!profile) notFound();
   const roles = (roleRows ?? []).map((r) => r.role as Role);
 
+  let email = "";
+  try {
+    const { data } = await createAdminClient().auth.admin.getUserById(id);
+    email = data.user?.email ?? "";
+  } catch {
+    /* service key not set — email box just shows blank */
+  }
+
   return (
     <>
       <Link className="link-back" href="/admin/users">
@@ -52,10 +61,11 @@ export default async function EditUserPage({
           userId={id}
           fullName={profile.full_name}
           phone={profile.phone}
+          email={email}
         />
         <p className="field-hint" style={{ marginTop: 10 }}>
-          Added {fmtDate(profile.created_at)}. Email is changed in the Supabase
-          dashboard.
+          Added {fmtDate(profile.created_at)}. The email is what they sign in
+          with.
         </p>
       </div>
 

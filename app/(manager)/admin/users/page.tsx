@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { ROLE_LABELS, type Role } from "@/lib/roles";
 
 export const dynamic = "force-dynamic";
@@ -14,6 +15,18 @@ export default async function AdminUsersPage() {
       .order("full_name"),
     supabase.from("user_roles").select("user_id, role"),
   ]);
+
+  const emailByUser = new Map<string, string>();
+  try {
+    const { data } = await createAdminClient().auth.admin.listUsers({
+      perPage: 1000,
+    });
+    for (const u of data?.users ?? []) {
+      if (u.email) emailByUser.set(u.id, u.email);
+    }
+  } catch {
+    /* service key not set — the email column just shows blanks */
+  }
 
   const rolesByUser = new Map<string, Role[]>();
   for (const r of roleRows ?? []) {
@@ -46,6 +59,7 @@ export default async function AdminUsersPage() {
             <thead>
               <tr>
                 <th>Name</th>
+                <th>Sign-in email</th>
                 <th>Phone</th>
                 <th>Roles</th>
                 <th>Status</th>
@@ -57,6 +71,7 @@ export default async function AdminUsersPage() {
                   <td>
                     <Link href={`/admin/users/${u.id}`}>{u.full_name}</Link>
                   </td>
+                  <td className="muted">{emailByUser.get(u.id) ?? "—"}</td>
                   <td className="muted">{u.phone ?? "—"}</td>
                   <td>
                     {(rolesByUser.get(u.id) ?? []).length === 0 ? (

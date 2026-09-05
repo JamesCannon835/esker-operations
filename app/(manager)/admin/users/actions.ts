@@ -197,9 +197,31 @@ export async function updateProfile(
   await requireAdmin();
   const full_name = orNull(formData.get("full_name"));
   const phone = orNull(formData.get("phone"));
+  const email = orNull(formData.get("email"))?.toLowerCase();
   if (!full_name) return { error: "Full name is required." };
+  if (email && !looksLikeEmail(email)) {
+    return { error: "That doesn't look like a valid email address." };
+  }
 
   const admin = createAdminClient();
+
+  if (email) {
+    const { data: current } = await admin.auth.admin.getUserById(id);
+    if ((current.user?.email ?? "").toLowerCase() !== email) {
+      const { error: emailErr } = await admin.auth.admin.updateUserById(id, {
+        email,
+        email_confirm: true,
+      });
+      if (emailErr) {
+        return {
+          error: /already|registered|exists|duplicate/i.test(emailErr.message)
+            ? "That email is already used by another person."
+            : emailErr.message,
+        };
+      }
+    }
+  }
+
   const { error } = await admin
     .from("users")
     .update({ full_name, phone })

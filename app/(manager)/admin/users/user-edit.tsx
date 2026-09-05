@@ -14,10 +14,12 @@ export function ProfileForm({
   userId,
   fullName,
   phone,
+  email,
 }: {
   userId: string;
   fullName: string;
   phone: string | null;
+  email: string;
 }) {
   const action = updateProfile.bind(null, userId);
   const [state, formAction, pending] = useActionState<FormState, FormData>(
@@ -32,6 +34,16 @@ export function ProfileForm({
         <div className="field">
           <label htmlFor="full_name">Full name</label>
           <input id="full_name" name="full_name" defaultValue={fullName} required />
+        </div>
+        <div className="field">
+          <label htmlFor="email">Sign-in email</label>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            defaultValue={email}
+            placeholder="name@example.com"
+          />
         </div>
         <div className="field">
           <label htmlFor="phone">Phone</label>
