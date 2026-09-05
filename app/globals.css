@@ -1319,3 +1319,57 @@ th {
     min-height: 92px;
   }
 }
+
+/* ---- Deliveries in (goods received) ------------------------------- */
+.del-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.del-row {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  background: #fbfcfd;
+}
+.del-row-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.del-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+}
+.del-grid label {
+  display: flex;
+  flex-direction: column;
+  font-size: 13px;
+  font-weight: 600;
+  gap: 4px;
+}
+.del-grid input,
+.del-grid select {
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 400;
+  background: #fff;
+  font-family: inherit;
+}
+.del-product {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 14px;
+  background: #fbfcfd;
+}
+.del-product > summary {
+  cursor: pointer;
+  list-style: none;
+}
+.del-product > summary::-webkit-details-marker {
+  display: none;
+}

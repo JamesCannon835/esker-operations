@@ -51,6 +51,14 @@ const SAFETY: NavGroup = {
   ],
 };
 
+const YARD: NavGroup = {
+  label: "Yard",
+  links: [
+    { href: "/deliveries", label: "Deliveries in" },
+    { href: "/blasting", label: "Blasting" },
+  ],
+};
+
 const MANAGER_LINKS: NavEntry[] = [
   DASHBOARD,
   FLEET,
@@ -58,7 +66,7 @@ const MANAGER_LINKS: NavEntry[] = [
   WORKSHOP,
   SAFETY,
   LIBRARY,
-  { href: "/blasting", label: "Blasting" },
+  YARD,
   TIME_OFF,
   { href: "/reports", label: "Reports" },
 ];

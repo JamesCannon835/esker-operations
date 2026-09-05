@@ -49,6 +49,14 @@ dashboard (green/amber/red) · document storage · asset history & cost reportin
   (same blocker as the fault/inspection emails). Send is blocked only while
   *neither* channel is connected; otherwise it sends on whatever is available and
   logs the rest. One-way only.
+- **Deliveries in** (`/deliveries`, `supabase/deliveries.sql`) — goods received at
+  the yard. `suppliers` (cement/sand/stone, our account ref), `supplier_products`
+  (name, unit, unit price), `delivery_tickets` (supplier, product, tonnage, price
+  snapshot, docket no., date, truck reg). Batch entry screen — one line per load,
+  Duplicate a line or +Add line, all save as separate tickets; Clone an existing
+  ticket. List with supplier/date filters + tonnage & value totals. Management
+  only. A slice of roadmap phase 16 (procurement) — purchase orders / order
+  numbers / invoice matching still to come.
 - **Toolbox talks** (`/toolbox`, `supabase/toolbox_talks.sql`) — a manager writes a
   weekly talk (typed text and/or a PDF picked from the H&S Toolbox folder), chooses
   recipients, sends it. Each person reads it and signs on-screen with a finger; the
