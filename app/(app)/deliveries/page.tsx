@@ -53,7 +53,7 @@ export default async function DeliveriesPage({
   return (
     <>
       <div className="page-head">
-        <h1>Deliveries in</h1>
+        <h1>Goods in</h1>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
           <Link className="btn small" href="/deliveries/new">
             + New ticket(s)

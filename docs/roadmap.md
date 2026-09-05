@@ -49,7 +49,7 @@ dashboard (green/amber/red) · document storage · asset history & cost reportin
   (same blocker as the fault/inspection emails). Send is blocked only while
   *neither* channel is connected; otherwise it sends on whatever is available and
   logs the rest. One-way only.
-- **Deliveries in** (`/deliveries`, `supabase/deliveries.sql`) — goods received at
+- **Goods in** (`/deliveries`, `supabase/deliveries.sql`) — goods received at
   the yard. `suppliers` (cement/sand/stone, our account ref), `supplier_products`
   (name, unit, unit price), `delivery_tickets` (supplier, product, tonnage, price
   snapshot, docket no., date, truck reg). Batch entry screen — one line per load,

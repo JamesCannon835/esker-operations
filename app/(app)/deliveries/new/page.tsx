@@ -54,7 +54,7 @@ export default async function NewDeliveryPage({
   return (
     <>
       <Link className="link-back" href="/deliveries">
-        ← Deliveries in
+        ← Goods in
       </Link>
       <div className="page-head">
         <h1>{c ? "New ticket (from a copy)" : "New delivery ticket(s)"}</h1>

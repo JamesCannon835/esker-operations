@@ -48,7 +48,7 @@ export default async function TicketPage({
   return (
     <>
       <Link className="link-back" href="/deliveries">
-        ← Deliveries in
+        ← Goods in
       </Link>
       <div className="page-head">
         <h1>{t.product_name}</h1>

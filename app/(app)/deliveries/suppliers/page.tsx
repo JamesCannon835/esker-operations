@@ -23,7 +23,7 @@ export default async function SuppliersPage() {
   return (
     <>
       <Link className="link-back" href="/deliveries">
-        ← Deliveries in
+        ← Goods in
       </Link>
       <div className="page-head">
         <h1>Suppliers</h1>
