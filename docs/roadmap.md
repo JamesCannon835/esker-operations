@@ -97,9 +97,14 @@ only; RLS `user_id = auth.uid() or is_manager()`). Calendar, approvals and
 allowances are `requireManager` (admin / transport_manager) — mechanics included
 out.
 
-Not yet done: half-days, unpaid/compassionate types, notification emails on
-request/decision, clash warning when too many drivers are off the same day,
-public-holiday awareness.
+Not yet done: half-days, unpaid/compassionate types, clash warning when too many
+drivers are off the same day, public-holiday awareness.
+
+**Email (blocked on the Resend sender-domain fix — see email notifications):**
+once email works, notify management when a leave request is submitted / approved /
+declined, and when company-calendar entries are added or changed (plus a weekly
+"what's on this week" digest covering diary entries and upcoming vehicle test
+dates). Reuse `lib/notify.ts` (`notifyManagers`).
 
 ### 16 · Procurement / purchase orders
 - Raise a purchase order → system issues an **order number**.
