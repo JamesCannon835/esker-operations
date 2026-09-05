@@ -169,3 +169,20 @@ export async function setCourseActive(id: string, active: boolean) {
   refresh();
   redirect("/training/courses");
 }
+
+/** Link (or clear) the person's Health & Safety records folder. */
+export async function setPersonFolder(userId: string, formData: FormData) {
+  await requireManager();
+  const supabase = await createClient();
+  const folderId = orNull(formData.get("folder_id"));
+  if (folderId) {
+    await supabase.from("hs_person_folders").upsert({
+      user_id: userId,
+      folder_id: folderId,
+      updated_at: new Date().toISOString(),
+    });
+  } else {
+    await supabase.from("hs_person_folders").delete().eq("user_id", userId);
+  }
+  refresh(userId);
+}

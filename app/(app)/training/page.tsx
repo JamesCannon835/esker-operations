@@ -16,23 +16,33 @@ export default async function TrainingRegisterPage() {
   await requireManager();
   const supabase = await createClient();
 
-  const [{ data: people }, { data: courses }, { data: records }] =
-    await Promise.all([
-      supabase
-        .from("users")
-        .select("id, full_name, active")
-        .eq("active", true)
-        .order("full_name"),
-      supabase
-        .from("training_courses")
-        .select("id, name, active")
-        .eq("active", true)
-        .order("name"),
-      supabase
-        .from("training_records")
-        .select("user_id, course_name, completed_date, expiry_date")
-        .eq("voided", false),
-    ]);
+  const [
+    { data: people },
+    { data: courses },
+    { data: records },
+    { data: folderRows },
+  ] = await Promise.all([
+    supabase
+      .from("users")
+      .select("id, full_name, active")
+      .eq("active", true)
+      .order("full_name"),
+    supabase
+      .from("training_courses")
+      .select("id, name, active")
+      .eq("active", true)
+      .order("name"),
+    supabase
+      .from("training_records")
+      .select("user_id, course_name, completed_date, expiry_date")
+      .eq("voided", false),
+    supabase.from("hs_person_folders").select("user_id, folder_id"),
+  ]);
+
+  const folderByUser = new Map<string, string>();
+  for (const r of folderRows ?? []) {
+    if (r.folder_id) folderByUser.set(r.user_id, r.folder_id);
+  }
 
   const courseNames = (courses ?? []).map((c) => c.name);
 
@@ -109,10 +119,19 @@ export default async function TrainingRegisterPage() {
               <tbody>
                 {people.map((p) => (
                   <tr key={p.id}>
-                    <td>
+                    <td style={{ whiteSpace: "nowrap" }}>
                       <Link href={`/training/person/${p.id}`}>
                         {p.full_name}
                       </Link>
+                      {folderByUser.has(p.id) && (
+                        <Link
+                          href={`/health-safety/f/${folderByUser.get(p.id)}`}
+                          title="Open records folder"
+                          style={{ marginLeft: 6, textDecoration: "none" }}
+                        >
+                          📁
+                        </Link>
+                      )}
                     </td>
                     {courseNames.map((c) => {
                       const hit = latest.get(`${p.id}::${c}`);
