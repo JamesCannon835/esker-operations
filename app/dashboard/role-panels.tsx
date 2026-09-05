@@ -62,10 +62,26 @@ export async function RolePanels({
   }
 
   if (hasRole(roles, "plant_operator") || hasRole(roles, "yard_staff")) {
+    const { count: precastOpen } = await supabase
+      .from("precast_orders")
+      .select("*", { count: "exact", head: true })
+      .in("status", ["new", "in_progress"]);
+
     panels.push(
       <div className="card" key="yard">
-        <h2>Verti-Block</h2>
-        <p className="hint">Weekly production sheet and load building.</p>
+        <h2>Yard</h2>
+        {(precastOpen ?? 0) > 0 && (
+          <Link
+            className="tile tile-alert"
+            href="/precast"
+            style={{ display: "block" }}
+          >
+            <div className="value">
+              {precastOpen} precast order{precastOpen === 1 ? "" : "s"} to make
+            </div>
+            <div className="label">Tap to open</div>
+          </Link>
+        )}
         <div className="grid">
           <Link className="tile" href="/verti-block/sheets">
             <div className="label">Production sheet</div>
@@ -77,7 +93,7 @@ export async function RolePanels({
           </Link>
           <Link className="tile" href="/precast">
             <div className="label">Precast orders</div>
-            <div className="value">View</div>
+            <div className="value">{precastOpen ?? 0}</div>
           </Link>
           <Link className="tile" href="/faults/new">
             <div className="label">Report a fault</div>

@@ -6,7 +6,8 @@ import { requireUser } from "@/lib/auth";
 import { isManager, canProduction } from "@/lib/roles";
 import { createClient } from "@/lib/supabase/server";
 import { orNull, numOrNull, friendlyDbError } from "@/lib/assets";
-import { parseFeet } from "@/lib/precast";
+import { parseFeet, feetLabel } from "@/lib/precast";
+import { notifyRoles, SITE_URL } from "@/lib/notify";
 
 export type FormState = { error?: string };
 
@@ -135,6 +136,30 @@ export async function createOrder(
   if (error) return { error: friendlyDbError(error.message) };
 
   await saveLines(supabase, order.id, lines);
+
+  // Tell the yard (best-effort; delivers once the email sender is set up).
+  const summary = lines
+    .map(
+      (l) =>
+        `• ${l.product_name} — ${l.length_text ?? feetLabel(l.length_ft)} × ${l.quantity}`,
+    )
+    .join("\n");
+  await notifyRoles(
+    ["yard_staff", "plant_operator", "transport_manager", "admin"],
+    `New precast order${orNull(formData.get("customer")) ? ` — ${orNull(formData.get("customer"))}` : ""}`,
+    `A new precast order has been raised.\n\n${summary}\n\n` +
+      (orNull(formData.get("required_date")) ||
+      orNull(formData.get("required_time"))
+        ? `Needed: ${[
+            orNull(formData.get("required_date")),
+            orNull(formData.get("required_time")),
+          ]
+            .filter(Boolean)
+            .join(" ")}\n\n`
+        : "") +
+      `Open it: ${SITE_URL}/precast/${order.id}\n`,
+  );
+
   refresh(order.id);
   redirect(`/precast/${order.id}`);
 }
