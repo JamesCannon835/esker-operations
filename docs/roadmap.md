@@ -82,11 +82,20 @@ Live at `/leave`. Tables `leave_requests` + `leave_allowances` (`supabase/leave.
   `/leave/approvals` (with an optional note back to the person).
 - Managers can record time off for someone directly (`/leave/approvals`) — approved
   straight away.
-- Team calendar at `/leave/calendar` — month grid of who is off (managers).
+- Company calendar at `/leave/calendar` (managers only — drivers can't reach it):
+  month grid of approved time off + free-text diary entries (`calendar_events`,
+  `supabase/calendar.sql`) such as "truck going for test", "auditor on site",
+  plus upcoming CVRT / tax / 13-week / tacho dates pulled from compliance.
+  Add / edit / delete entries at `/leave/calendar/new` and `/leave/calendar/[id]`.
 - Entitlement per person at `/leave/allowances`: company default (Settings →
   "Annual leave default"), editable per person; shows taken / left for the year.
 - Balance shown on every user's dashboard and at the top of `/leave`.
 - Leave year = calendar year (Jan–Dec).
+
+Privacy: drivers only ever see their own bookings (`/leave` shows own requests
+only; RLS `user_id = auth.uid() or is_manager()`). Calendar, approvals and
+allowances are `requireManager` (admin / transport_manager) — mechanics included
+out.
 
 Not yet done: half-days, unpaid/compassionate types, notification emails on
 request/decision, clash warning when too many drivers are off the same day,

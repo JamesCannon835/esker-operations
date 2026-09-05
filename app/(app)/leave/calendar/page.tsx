@@ -1,7 +1,14 @@
 import Link from "next/link";
 import { requireManager } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { fmtDate } from "@/lib/format";
+import { vehicleName } from "@/lib/asset-name";
 import { LEAVE_TYPE_LABELS } from "@/lib/leave";
+import { EVENT_CATEGORY_LABELS, type EventCategory } from "@/lib/calendar";
+import {
+  COMPLIANCE_TYPE_LABELS,
+  type ComplianceType,
+} from "@/lib/compliance";
 
 export const dynamic = "force-dynamic";
 
@@ -11,9 +18,22 @@ const MONTH_NAMES = [
 ];
 const WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
+// Compliance dates worth surfacing on the calendar.
+const CAL_COMPLIANCE: ComplianceType[] = [
+  "cvrt_test",
+  "tax",
+  "thirteen_week_inspection",
+  "tacho_calibration",
+];
+
 function pad(n: number) {
   return String(n).padStart(2, "0");
 }
+
+type Marker =
+  | { kind: "leave"; label: string; sick: boolean }
+  | { kind: "event"; label: string; category: EventCategory }
+  | { kind: "compliance"; label: string };
 
 export default async function LeaveCalendarPage({
   searchParams,
@@ -27,7 +47,7 @@ export default async function LeaveCalendarPage({
   const now = new Date();
   const match = /^(\d{4})-(\d{2})$/.exec(m ?? "");
   let year = match ? Number(match[1]) : now.getFullYear();
-  let month = match ? Number(match[2]) - 1 : now.getMonth(); // 0-based
+  let month = match ? Number(match[2]) - 1 : now.getMonth();
   if (month < 0 || month > 11) {
     year = now.getFullYear();
     month = now.getMonth();
@@ -37,36 +57,90 @@ export default async function LeaveCalendarPage({
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const monthEnd = `${year}-${pad(month + 1)}-${pad(daysInMonth)}`;
 
-  const { data: leave } = await supabase
-    .from("leave_requests")
-    .select("user_id, leave_type, start_date, end_date")
-    .eq("status", "approved")
-    .lte("start_date", monthEnd)
-    .gte("end_date", monthStart);
+  const [
+    { data: leave },
+    { data: people },
+    { data: events },
+    { data: compliance },
+    { data: vehicles },
+  ] = await Promise.all([
+    supabase
+      .from("leave_requests")
+      .select("user_id, leave_type, start_date, end_date")
+      .eq("status", "approved")
+      .lte("start_date", monthEnd)
+      .gte("end_date", monthStart),
+    supabase.from("users").select("id, full_name"),
+    supabase
+      .from("calendar_events")
+      .select("id, title, category, start_date, end_date, note")
+      .lte("start_date", monthEnd)
+      .gte("end_date", monthStart)
+      .order("start_date"),
+    supabase
+      .from("compliance_items")
+      .select("asset_type, asset_id, compliance_type, due_date")
+      .eq("voided", false)
+      .in("compliance_type", CAL_COMPLIANCE)
+      .gte("due_date", monthStart)
+      .lte("due_date", monthEnd),
+    supabase.from("vehicles").select("id, fleet_number, registration"),
+  ]);
 
-  const { data: people } = await supabase.from("users").select("id, full_name");
   const nameOf = new Map((people ?? []).map((p) => [p.id, p.full_name as string]));
+  const regOf = new Map(
+    (vehicles ?? []).map((v) => [
+      v.id,
+      vehicleName(v.fleet_number, v.registration),
+    ]),
+  );
 
-  // day-of-month (1..n) -> list of { name, type }
-  const byDay = new Map<number, { name: string; type: string }[]>();
-  for (const r of leave ?? []) {
-    const s = new Date(`${r.start_date}T00:00:00`);
-    const e = new Date(`${r.end_date}T00:00:00`);
+  const byDay = new Map<number, Marker[]>();
+  const push = (day: number, mk: Marker) => {
+    const list = byDay.get(day) ?? [];
+    list.push(mk);
+    byDay.set(day, list);
+  };
+  const spanDays = (startISO: string, endISO: string, fn: (day: number) => void) => {
+    const s = new Date(`${startISO}T00:00:00`);
+    const e = new Date(`${endISO}T00:00:00`);
     for (let day = 1; day <= daysInMonth; day++) {
       const d = new Date(year, month, day);
-      if (d >= s && d <= e) {
-        const list = byDay.get(day) ?? [];
-        list.push({
-          name: nameOf.get(r.user_id) ?? "—",
-          type: r.leave_type as string,
-        });
-        byDay.set(day, list);
-      }
+      if (d >= s && d <= e) fn(day);
     }
+  };
+
+  for (const r of leave ?? []) {
+    spanDays(r.start_date, r.end_date, (day) =>
+      push(day, {
+        kind: "leave",
+        label: nameOf.get(r.user_id) ?? "—",
+        sick: r.leave_type === "sick",
+      }),
+    );
+  }
+  for (const ev of events ?? []) {
+    spanDays(ev.start_date, ev.end_date, (day) =>
+      push(day, {
+        kind: "event",
+        label: ev.title,
+        category: ev.category as EventCategory,
+      }),
+    );
+  }
+  for (const c of compliance ?? []) {
+    const day = Number(c.due_date.slice(8, 10));
+    const who =
+      c.asset_type === "vehicle" ? regOf.get(c.asset_id) ?? "" : "";
+    push(day, {
+      kind: "compliance",
+      label: `${who ? who + " " : ""}${
+        COMPLIANCE_TYPE_LABELS[c.compliance_type as ComplianceType]
+      } due`,
+    });
   }
 
-  // Leading blanks so the 1st sits under the right weekday (week starts Monday).
-  const firstWeekday = (new Date(year, month, 1).getDay() + 6) % 7; // Mon=0
+  const firstWeekday = (new Date(year, month, 1).getDay() + 6) % 7;
   const cells: (number | null)[] = [];
   for (let i = 0; i < firstWeekday; i++) cells.push(null);
   for (let day = 1; day <= daysInMonth; day++) cells.push(day);
@@ -85,15 +159,18 @@ export default async function LeaveCalendarPage({
         <h1>
           {MONTH_NAMES[month]} {year}
         </h1>
-        <div style={{ display: "flex", gap: 8 }}>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          <Link className="btn small" href="/leave/calendar/new">
+            + New entry
+          </Link>
           <Link className="btn small ghost" href={`/leave/calendar?m=${prev}`}>
-            ← Prev
+            ←
           </Link>
           <Link className="btn small ghost" href="/leave/calendar">
             Today
           </Link>
           <Link className="btn small ghost" href={`/leave/calendar?m=${next}`}>
-            Next →
+            →
           </Link>
         </div>
       </div>
@@ -117,13 +194,25 @@ export default async function LeaveCalendarPage({
                 className={`cal-cell${iso === todayKey ? " today" : ""}`}
               >
                 <div className="cal-day-num">{day}</div>
-                {list.map((p, j) => (
+                {list.map((mk, j) => (
                   <div
                     key={j}
-                    className={`cal-name${p.type === "sick" ? " sick" : ""}`}
-                    title={LEAVE_TYPE_LABELS[p.type as "annual" | "sick"]}
+                    className={
+                      mk.kind === "leave"
+                        ? `cal-name${mk.sick ? " sick" : ""}`
+                        : mk.kind === "compliance"
+                          ? "cal-name compliance"
+                          : "cal-name event"
+                    }
+                    title={
+                      mk.kind === "event"
+                        ? EVENT_CATEGORY_LABELS[mk.category]
+                        : mk.kind === "leave"
+                          ? "Time off"
+                          : "Compliance due"
+                    }
                   >
-                    {p.name}
+                    {mk.label}
                   </div>
                 ))}
               </div>
@@ -131,9 +220,61 @@ export default async function LeaveCalendarPage({
           })}
         </div>
       </div>
+
+      <div className="card">
+        <h2>Entries this month</h2>
+        {!events || events.length === 0 ? (
+          <p className="empty">
+            No diary entries. <Link href="/leave/calendar/new">Add one</Link>.
+          </p>
+        ) : (
+          <table className="list-table">
+            <thead>
+              <tr>
+                <th>What</th>
+                <th>When</th>
+                <th>Type</th>
+                <th />
+              </tr>
+            </thead>
+            <tbody>
+              {events.map((ev) => (
+                <tr key={ev.id}>
+                  <td>
+                    {ev.title}
+                    {ev.note && (
+                      <div className="muted" style={{ fontSize: 12 }}>
+                        {ev.note}
+                      </div>
+                    )}
+                  </td>
+                  <td className="muted">
+                    {fmtDate(ev.start_date)}
+                    {ev.end_date !== ev.start_date
+                      ? ` – ${fmtDate(ev.end_date)}`
+                      : ""}
+                  </td>
+                  <td className="muted">
+                    {EVENT_CATEGORY_LABELS[ev.category as EventCategory]}
+                  </td>
+                  <td style={{ textAlign: "right" }}>
+                    <Link
+                      className="btn ghost small"
+                      href={`/leave/calendar/${ev.id}`}
+                    >
+                      Edit
+                    </Link>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+
       <p className="hint">
-        Shows approved time off. Sick leave is shown in a muted style. Weekends
-        are greyed but still listed if a booking spans them.
+        Approved time off, company diary entries and upcoming vehicle test / tax
+        dates. Management only — drivers never see this page.
       </p>
     </>
   );

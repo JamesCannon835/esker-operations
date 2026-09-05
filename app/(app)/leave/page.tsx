@@ -62,7 +62,7 @@ export default async function LeavePage() {
               {pendingCount ? ` (${pendingCount})` : ""}
             </Link>
             <Link className="btn small ghost" href="/leave/calendar">
-              Team calendar
+              Company calendar
             </Link>
             <Link className="btn small ghost" href="/leave/allowances">
               Allowances

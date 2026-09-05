@@ -69,7 +69,7 @@ export default async function LeaveApprovalsPage() {
       <div className="page-head">
         <h1>Leave approvals</h1>
         <Link className="btn small ghost" href="/leave/calendar">
-          Team calendar
+          Company calendar
         </Link>
       </div>
 
