@@ -17,7 +17,6 @@ export default async function ServiceDetailPage({
 }) {
   const { id } = await params;
   const { roles } = await requireUser();
-  const canEdit = isManager(roles) || hasRole(roles, "mechanic");
   const showCost = isManager(roles);
 
   const supabase = await createClient();
@@ -96,9 +95,9 @@ export default async function ServiceDetailPage({
         </div>
       )}
 
-      {canEdit && (
+      {showCost && (
         <div className="card">
-          <h2>Manage</h2>
+          <h2>Delete</h2>
           <ConfirmButton
             action={deleteService.bind(null, id)}
             label="Delete this service record"

@@ -357,3 +357,17 @@ export async function registerDefectPhoto(
 ) {
   return setResult(inspectionId, resultId, { photo_path: path });
 }
+
+/** Archive a vehicle inspection (admin / transport manager). */
+export async function voidVehicleInspection(id: string) {
+  const { roles } = await requireUser();
+  if (!isManager(roles)) redirect("/dashboard");
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("vehicle_inspections")
+    .update({ voided: true })
+    .eq("id", id);
+  if (error) throw new Error(error.message);
+  revalidatePath("/vehicle-inspections");
+  redirect("/vehicle-inspections");
+}

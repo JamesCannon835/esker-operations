@@ -1,9 +1,13 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { requireUser } from "@/lib/auth";
+import { isManager } from "@/lib/roles";
 import { ITEM_RESULT_LABELS, type ItemResult } from "@/lib/inspections";
 import { resolveAssetLabels, assetHref } from "@/lib/asset-labels";
 import { fmtDateTime } from "@/lib/format";
+import { ConfirmButton } from "@/components/confirm-button";
+import { voidInspection } from "../actions";
 
 export const dynamic = "force-dynamic";
 
@@ -13,6 +17,8 @@ export default async function InspectionDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+  const { roles } = await requireUser();
+  const manager = isManager(roles);
   const supabase = await createClient();
 
   const { data: inspection } = await supabase
@@ -172,6 +178,21 @@ export default async function InspectionDetailPage({
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {manager && (
+        <div className="card">
+          <h2>Delete</h2>
+          <p className="hint">
+            Removes this inspection from the lists. Any faults it raised stay.
+          </p>
+          <ConfirmButton
+            action={voidInspection.bind(null, id)}
+            label="Delete this inspection"
+            className="btn danger"
+            confirmText="Delete this inspection record?"
+          />
         </div>
       )}
     </>

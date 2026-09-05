@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { requireManager } from "@/lib/auth";
 import { friendlyDbError, orNull, numOrNull } from "@/lib/assets";
 import { INSPECTION_TYPE_LABELS, type ItemResult } from "@/lib/inspections";
 import { resolveAssetLabels } from "@/lib/asset-labels";
@@ -164,4 +165,17 @@ export async function submitInspection(
   revalidatePath("/inspections");
   revalidatePath("/faults");
   redirect(`/inspections/${inspection.id}`);
+}
+
+/** Archive an inspection record (admin / transport manager). */
+export async function voidInspection(id: string) {
+  await requireManager();
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("inspections")
+    .update({ voided: true })
+    .eq("id", id);
+  if (error) throw new Error(friendlyDbError(error.message));
+  revalidatePath("/inspections");
+  redirect("/inspections");
 }

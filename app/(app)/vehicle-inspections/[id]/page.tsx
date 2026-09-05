@@ -18,6 +18,7 @@ import {
   saveInspectionMeta,
   completeInspection,
   reopenInspection,
+  voidVehicleInspection,
 } from "../actions";
 
 export const dynamic = "force-dynamic";
@@ -191,6 +192,21 @@ export default async function VehicleInspectionPage({
         <div className="card">
           <h2>Reopen</h2>
           <ReopenInspectionForm action={reopenInspection.bind(null, id)} />
+        </div>
+      )}
+
+      {manager && (
+        <div className="card">
+          <h2>Delete</h2>
+          <p className="hint">
+            Removes this inspection from the lists. Defect faults it raised stay.
+          </p>
+          <ConfirmButton
+            action={voidVehicleInspection.bind(null, id)}
+            label="Delete this inspection"
+            className="btn danger"
+            confirmText="Delete this vehicle inspection record?"
+          />
         </div>
       )}
     </>

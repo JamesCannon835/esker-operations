@@ -25,6 +25,7 @@ import {
   logTime,
   deleteLabour,
   deletePart,
+  voidFault,
 } from "./actions";
 import { openReportForFault } from "@/app/(app)/maintenance/actions";
 
@@ -469,6 +470,22 @@ export default async function FaultDetailPage({
               </p>
             )}
           </div>
+
+          {manager && (
+            <div className="card">
+              <h2>Delete</h2>
+              <p className="hint">
+                Removes this fault from every list. Any linked maintenance
+                report and history stays.
+              </p>
+              <ConfirmButton
+                action={voidFault.bind(null, id)}
+                label="Delete this fault"
+                className="btn danger"
+                confirmText="Delete this fault? It will be removed from the lists."
+              />
+            </div>
+          )}
         </>
       )}
     </>

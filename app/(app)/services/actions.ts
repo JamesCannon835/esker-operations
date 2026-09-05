@@ -3,9 +3,11 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { requireManager } from "@/lib/auth";
 import { friendlyDbError } from "@/lib/assets";
 
 export async function deleteService(id: string) {
+  await requireManager();
   const supabase = await createClient();
   const { data: doc } = await supabase
     .from("services")

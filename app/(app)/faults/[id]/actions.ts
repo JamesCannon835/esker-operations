@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { requireManager } from "@/lib/auth";
 import { orNull, numOrNull, friendlyDbError } from "@/lib/assets";
 
 export type FormState = { error?: string };
@@ -167,4 +168,17 @@ export async function deletePart(id: string, partId: string) {
   const { error } = await supabase.from("parts_used").delete().eq("id", partId);
   if (error) throw new Error(friendlyDbError(error.message));
   refresh(id);
+}
+
+/** Archive a fault (admin / transport manager). It leaves every list; nothing linked is touched. */
+export async function voidFault(id: string) {
+  await requireManager();
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("faults")
+    .update({ voided: true })
+    .eq("id", id);
+  if (error) throw new Error(friendlyDbError(error.message));
+  revalidatePath("/faults");
+  redirect("/faults");
 }
