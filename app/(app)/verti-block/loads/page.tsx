@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth";
-import { isManager, hasRole } from "@/lib/roles";
+import { isManager, canProduction } from "@/lib/roles";
 import { createClient } from "@/lib/supabase/server";
 import { fmtDate } from "@/lib/format";
 import { fmtKg, LOAD_STATUS_LABELS } from "@/lib/verti-block";
@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 
 export default async function LoadsPage() {
   const { roles } = await requireUser();
-  if (!hasRole(roles, "plant_operator") && !isManager(roles)) {
+  if (!canProduction(roles)) {
     redirect("/dashboard");
   }
   const supabase = await createClient();

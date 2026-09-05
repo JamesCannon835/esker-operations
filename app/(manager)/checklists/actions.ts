@@ -3,10 +3,16 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { requireManager } from "@/lib/auth";
 import { orNull, friendlyDbError } from "@/lib/assets";
 import { ASSET_TYPES, type AssetTypeT } from "@/lib/inspections";
 
 export type FormState = { error?: string };
+
+// Checklists are managed by admin + transport managers only.
+async function guard() {
+  await requireManager();
+}
 
 function readTemplate(formData: FormData) {
   const asset_type = orNull(formData.get("asset_type"));
@@ -21,6 +27,7 @@ export async function createTemplate(
   _prev: FormState,
   formData: FormData,
 ): Promise<FormState> {
+  await guard();
   const values = readTemplate(formData);
   if (!values.name || !values.asset_type) {
     return { error: "Name and asset type are required." };
@@ -47,6 +54,7 @@ export async function updateTemplate(
   _prev: FormState,
   formData: FormData,
 ): Promise<FormState> {
+  await guard();
   const values = readTemplate(formData);
   if (!values.name || !values.asset_type) {
     return { error: "Name and asset type are required." };
@@ -66,6 +74,7 @@ export async function updateTemplate(
 }
 
 export async function addItem(templateId: string, formData: FormData) {
+  await guard();
   const item_name = orNull(formData.get("item_name"));
   if (!item_name) return;
 
@@ -88,6 +97,7 @@ export async function addItem(templateId: string, formData: FormData) {
 }
 
 export async function renameItem(templateId: string, formData: FormData) {
+  await guard();
   const id = orNull(formData.get("item_id"));
   const item_name = orNull(formData.get("item_name"));
   if (!id || !item_name) return;
@@ -102,6 +112,7 @@ export async function renameItem(templateId: string, formData: FormData) {
 }
 
 export async function deleteItem(templateId: string, itemId: string) {
+  await guard();
   const supabase = await createClient();
   await supabase.from("inspection_template_items").delete().eq("id", itemId);
   revalidatePath(`/checklists/${templateId}`);
@@ -112,6 +123,7 @@ export async function moveItem(
   itemId: string,
   direction: "up" | "down",
 ) {
+  await guard();
   const supabase = await createClient();
   const { data: items } = await supabase
     .from("inspection_template_items")
@@ -141,6 +153,7 @@ export async function moveItem(
 }
 
 export async function deleteTemplate(id: string) {
+  await guard();
   const supabase = await createClient();
   const { error } = await supabase
     .from("inspection_templates")

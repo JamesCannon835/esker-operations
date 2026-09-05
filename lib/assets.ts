@@ -62,6 +62,9 @@ export function friendlyDbError(message: string): string {
   if (/violates row-level security/i.test(message)) {
     return "You do not have permission to make this change.";
   }
+  if (/violates foreign key constraint/i.test(message)) {
+    return "This record is still linked to other records, so it can't be deleted. Edit it instead, or remove the linked records first.";
+  }
   if (/invalid input syntax for type date/i.test(message)) {
     return "One of the dates is not valid.";
   }

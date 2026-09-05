@@ -51,7 +51,9 @@ export type VbDay = {
   day_date: string;
   concrete_ordered_m3: number | null;
   counts: Record<string, number>;
-  blocks_broken: string | null;
+  broken: Record<string, number>;
+  waste_concrete_m3: number | null;
+  blocks_broken: string | null; // legacy free-text, no longer edited
   block_visual_ok: boolean | null;
   mould_visual_ok: boolean | null;
   weight_ok: boolean | null;

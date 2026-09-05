@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth";
-import { isManager, hasRole } from "@/lib/roles";
+import { isManager, canProduction } from "@/lib/roles";
 import { createClient } from "@/lib/supabase/server";
 import { orNull, numOrNull, friendlyDbError } from "@/lib/assets";
 
@@ -11,7 +11,7 @@ export type FormState = { error?: string };
 
 async function requireYard() {
   const s = await requireUser();
-  if (!hasRole(s.roles, "plant_operator") && !isManager(s.roles)) {
+  if (!canProduction(s.roles)) {
     redirect("/dashboard");
   }
   return s;

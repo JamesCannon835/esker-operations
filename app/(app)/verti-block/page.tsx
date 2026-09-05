@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { requireUser } from "@/lib/auth";
-import { isManager, hasRole } from "@/lib/roles";
+import { isManager, canProduction } from "@/lib/roles";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { fmtDate } from "@/lib/format";
@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 
 export default async function VertiBlockPage() {
   const { roles } = await requireUser();
-  if (!hasRole(roles, "plant_operator") && !isManager(roles)) {
+  if (!canProduction(roles)) {
     redirect("/dashboard");
   }
   const manager = isManager(roles);

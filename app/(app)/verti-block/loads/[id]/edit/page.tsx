@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth";
-import { isManager, hasRole } from "@/lib/roles";
+import { isManager, canProduction } from "@/lib/roles";
 import { createClient } from "@/lib/supabase/server";
 import { LoadForm } from "../../load-form";
 import { updateLoad } from "../../actions";
@@ -14,7 +14,7 @@ export default async function EditLoadPage({
   params: Promise<{ id: string }>;
 }) {
   const { roles } = await requireUser();
-  if (!hasRole(roles, "plant_operator") && !isManager(roles)) {
+  if (!canProduction(roles)) {
     redirect("/dashboard");
   }
   const { id } = await params;

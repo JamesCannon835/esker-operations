@@ -99,12 +99,15 @@ Slot onto the same asset / document / people / audit structure.
   results (7/28-day strengths, pass/fail vs spec), non-conformance reports, calibration
   records for the batching plant and test equipment.
 - **14 · Verti-Block** — weekly production record BUILT 2026-09-05 (`/verti-block`,
-  `supabase/verti_block.sql`). Digitises the paper weekly sheet: per week an
-  operator + Mon–Fri, each day concrete ordered (m³), a count for each of 14
-  editable block types (`verti_block_types`, `counts` jsonb on the day), blocks
-  broken, and three inspection ticks (block visual / mould visual / weight).
-  Yard staff (plant_operator) + management fill it in; managers get block-type
-  admin, delete, and CSV export.
+  `supabase/verti_block.sql` + `verti_sheet_v2.sql`). Digitises the paper weekly
+  sheet: per week an operator + Mon–Fri, each day concrete ordered (m³), a count
+  for each of 14 editable block types (`verti_block_types`, `counts` jsonb), a
+  broken count per type (`broken` jsonb), waste concrete m³ (internal — omitted
+  from the audit PDF), and three inspection ticks (block visual / mould visual /
+  weight). Per-week **PDF export** (`/verti-block/[id]/pdf`, pdf-lib, landscape)
+  for quality audits; managers also get block-type admin, delete, and CSV
+  (made + broken per type + waste). Filled in by the new **yard_staff** role,
+  plant operators, and management.
   **Load builder** (`/verti-block/loads`): block types carry a `weight_kg`; a load
   has a reference/customer/truck/max payload; add quantities per block type and the
   builder shows total blocks, total weight and a payload bar (over = flagged) so you
@@ -180,6 +183,18 @@ tax/CVRT, applied to the site.
 - Environmental compliance calendar + reminders, alongside the fleet one.
 
 ---
+
+## Roles
+`driver`, `plant_operator`, `mechanic`, `transport_manager`, `admin`, and (added
+2026-09-05) **`yard_staff`** — yard & quarry operatives. Same Verti-Block access as
+plant operators. Their own daily checklists to be built (user working on the content
+Sept 2026). Add the enum value with `supabase/yard_staff_role.sql` (run alone first),
+then `yard_staff_access.sql`.
+
+Checklists (`/checklists`, inspection templates) are edit/delete for admin +
+transport managers only — actions now guard with `requireManager`; run
+`supabase/checklists_deletable.sql` so a used template can still be deleted
+(old inspections keep their results, lose the template pointer).
 
 ## Foundation v2 — still recommended (see architecture-review.md)
 `actions` (#3) is done. Still worth doing before the next big module: broaden

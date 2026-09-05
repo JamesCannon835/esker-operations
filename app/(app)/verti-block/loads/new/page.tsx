@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth";
-import { isManager, hasRole } from "@/lib/roles";
+import { isManager, canProduction } from "@/lib/roles";
 import { LoadForm } from "../load-form";
 import { createLoad } from "../actions";
 
@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 
 export default async function NewLoadPage() {
   const { roles } = await requireUser();
-  if (!hasRole(roles, "plant_operator") && !isManager(roles)) {
+  if (!canProduction(roles)) {
     redirect("/dashboard");
   }
 

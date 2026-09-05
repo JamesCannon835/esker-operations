@@ -60,6 +60,29 @@ export async function RolePanels({
     );
   }
 
+  if (hasRole(roles, "plant_operator") || hasRole(roles, "yard_staff")) {
+    panels.push(
+      <div className="card" key="yard">
+        <h2>Verti-Block</h2>
+        <p className="hint">Weekly production sheet and load building.</p>
+        <div className="grid">
+          <Link className="tile" href="/verti-block">
+            <div className="label">Production sheet</div>
+            <div className="value">Open</div>
+          </Link>
+          <Link className="tile" href="/verti-block/loads">
+            <div className="label">Loads</div>
+            <div className="value">Build</div>
+          </Link>
+          <Link className="tile" href="/faults/new">
+            <div className="label">Report a fault</div>
+            <div className="value">Report</div>
+          </Link>
+        </div>
+      </div>,
+    );
+  }
+
   if (hasRole(roles, "mechanic")) {
     const [
       { count: myJobs },

@@ -117,11 +117,11 @@ export function AppNav({ roles }: { roles: Role[] }) {
       ? [...MECHANIC_LINKS]
       : [...BASIC_LINKS];
 
-  // Plant / yard operators also get the Verti-Block production sheet.
+  // Plant / yard / quarry staff also get the Verti-Block production sheet.
   if (
     !isManager(roles) &&
     !hasRole(roles, "mechanic") &&
-    hasRole(roles, "plant_operator")
+    (hasRole(roles, "plant_operator") || hasRole(roles, "yard_staff"))
   ) {
     links.splice(1, 0, VERTI_BLOCK);
   }

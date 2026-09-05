@@ -17,7 +17,7 @@ export async function GET() {
     supabase
       .from("verti_production_days")
       .select(
-        "week_id, weekday, day_date, concrete_ordered_m3, counts, blocks_broken, block_visual_ok, mould_visual_ok, weight_ok",
+        "week_id, weekday, day_date, concrete_ordered_m3, counts, broken, waste_concrete_m3, block_visual_ok, mould_visual_ok, weight_ok",
       ),
     supabase
       .from("verti_block_types")
@@ -42,6 +42,7 @@ export async function GET() {
   })) {
     const w = weekOf.get(d.week_id);
     const counts = (d.counts ?? {}) as Record<string, number>;
+    const broken = (d.broken ?? {}) as Record<string, number>;
     rows.push([
       w?.week_commencing ?? "",
       WEEKDAY_NAMES[d.weekday - 1] ?? d.weekday,
@@ -49,7 +50,8 @@ export async function GET() {
       w?.operator_name ?? "",
       d.concrete_ordered_m3 ?? "",
       ...orderedTypes.map((t) => counts[t.id] ?? 0),
-      d.blocks_broken ?? "",
+      ...orderedTypes.map((t) => broken[t.id] ?? 0),
+      d.waste_concrete_m3 ?? "",
       tick(d.block_visual_ok),
       tick(d.mould_visual_ok),
       tick(d.weight_ok),
@@ -63,8 +65,9 @@ export async function GET() {
       "Date",
       "Operator",
       "Concrete ordered (m³)",
-      ...orderedTypes.map((t) => t.name),
-      "Blocks broken",
+      ...orderedTypes.map((t) => `Made: ${t.name}`),
+      ...orderedTypes.map((t) => `Broken: ${t.name}`),
+      "Waste concrete (m³)",
       "Block visual",
       "Mould visual",
       "Weight",

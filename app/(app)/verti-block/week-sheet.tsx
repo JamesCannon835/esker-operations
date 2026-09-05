@@ -49,9 +49,24 @@ export function WeekSheet({
       return init;
     },
   );
+  const [broken, setBroken] = useState<Record<number, Record<string, string>>>(
+    () => {
+      const init: Record<number, Record<string, string>> = {};
+      for (const d of days) {
+        init[d.weekday] = {};
+        for (const t of types) {
+          const v = d.broken?.[t.id];
+          init[d.weekday][t.id] = v ? String(v) : "";
+        }
+      }
+      return init;
+    },
+  );
 
   const dayTotal = (wd: number) =>
     Object.values(counts[wd] ?? {}).reduce((s, v) => s + (Number(v) || 0), 0);
+  const dayBroken = (wd: number) =>
+    Object.values(broken[wd] ?? {}).reduce((s, v) => s + (Number(v) || 0), 0);
   const weekTotal = [1, 2, 3, 4, 5].reduce((s, wd) => s + dayTotal(wd), 0);
 
   const byDay = new Map(days.map((d) => [d.weekday, d]));
@@ -85,7 +100,8 @@ export function WeekSheet({
                   day: "numeric",
                   month: "short",
                 })}{" "}
-                · {dayTotal(wd)} blocks
+                · {dayTotal(wd)} made
+                {dayBroken(wd) > 0 ? ` · ${dayBroken(wd)} broken` : ""}
               </span>
             </summary>
 
@@ -127,15 +143,41 @@ export function WeekSheet({
                 ))}
               </div>
 
-              <div className="field" style={{ marginTop: 12 }}>
-                <label htmlFor={`d${wd}_broken`}>
-                  Blocks broken — which types
+              <p className="hint" style={{ margin: "16px 0 6px" }}>
+                Blocks broken — enter a number per type
+              </p>
+              <div className="vb-counts">
+                {types.map((t) => (
+                  <label key={t.id}>
+                    <span>{t.name}</span>
+                    <input
+                      type="number"
+                      inputMode="numeric"
+                      min={0}
+                      name={`d${wd}_b_${t.id}`}
+                      value={broken[wd]?.[t.id] ?? ""}
+                      onChange={(e) =>
+                        setBroken((b) => ({
+                          ...b,
+                          [wd]: { ...b[wd], [t.id]: e.target.value },
+                        }))
+                      }
+                    />
+                  </label>
+                ))}
+              </div>
+
+              <div className="del-grid" style={{ marginTop: 12 }}>
+                <label>
+                  Waste concrete used (m³)
+                  <input
+                    name={`d${wd}_waste`}
+                    type="number"
+                    step="0.1"
+                    inputMode="decimal"
+                    defaultValue={d.waste_concrete_m3 ?? ""}
+                  />
                 </label>
-                <input
-                  id={`d${wd}_broken`}
-                  name={`d${wd}_broken`}
-                  defaultValue={d.blocks_broken ?? ""}
-                />
               </div>
 
               <div className="vb-checks">
