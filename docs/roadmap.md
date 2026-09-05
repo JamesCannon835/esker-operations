@@ -39,8 +39,14 @@ dashboard (green/amber/red) · document storage · asset history & cost reportin
   `documents` bucket, management only. Three sections: Health & Safety (mirrors the
   Dropbox layout), Quality, Environmental. Training register links people to their
   Training Records subfolder (`hs_person_folders`).
-  Next: **toolbox talks** — push a weekly talk to all staff, read-and-sign
-  acknowledgement, tracked completion (replaces the in-person sign sheet).
+- **Toolbox talks** (`/toolbox`, `supabase/toolbox_talks.sql`) — a manager writes a
+  weekly talk (typed text and/or a PDF picked from the H&S Toolbox folder), chooses
+  recipients, sends it. Each person reads it and signs on-screen with a finger; the
+  drawn signature (small PNG data URL, no storage cost) is stored against their row.
+  Dashboard shows outstanding talks. Manager sees a live signed/unsigned board and
+  can download a **combined sign-off PDF** (`/toolbox/[id]/signoff`, built with
+  pdf-lib) — talk details + every signature + the attached PDF appended. Replaces
+  the in-person paper sign sheet. Email push to non-signers waits on the Resend fix.
 - **Vehicle Inspection & Rectification Report** (`supabase/vehicle_inspection.sql`) — an
   iPad checklist engine (`inspection_checklists` master, 65-item vehicle checklist).
   Big OK/DEFECT/N-A buttons, per-section progress, defect panel (photo/severity/safe),

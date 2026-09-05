@@ -299,6 +299,32 @@ export async function RolePanels({
     );
   }
 
+  // Everyone: outstanding toolbox talks to read & sign.
+  const { data: tbRows } = await supabase
+    .from("toolbox_talk_recipients")
+    .select("signed_at, talk:toolbox_talks(id, title, status)")
+    .eq("user_id", userId)
+    .is("signed_at", null);
+  type TbTalk = { id: string; title: string; status: string };
+  const outstanding = ((tbRows ?? []) as { talk: unknown }[])
+    .map((r) => (Array.isArray(r.talk) ? r.talk[0] : r.talk) as TbTalk | null)
+    .filter((t): t is TbTalk => !!t && t.status === "sent");
+  if (outstanding.length > 0) {
+    panels.push(
+      <div className="card" key="toolbox-todo">
+        <h2>Toolbox talks to sign</h2>
+        <div className="grid">
+          {outstanding.map((t) => (
+            <Link className="tile" key={t.id} href={`/toolbox/${t.id}`}>
+              <div className="label">{t.title}</div>
+              <div className="value">Read &amp; sign</div>
+            </Link>
+          ))}
+        </div>
+      </div>,
+    );
+  }
+
   // Everyone sees their own time-off balance.
   const leave = await getLeaveBalance(userId);
   panels.push(

@@ -41,13 +41,22 @@ const LIBRARY: NavGroup = {
 };
 
 const TIME_OFF: NavLink = { href: "/leave", label: "Time Off" };
+const TOOLBOX: NavLink = { href: "/toolbox", label: "Toolbox Talks" };
+
+const SAFETY: NavGroup = {
+  label: "Safety",
+  links: [
+    { href: "/training", label: "Training" },
+    TOOLBOX,
+  ],
+};
 
 const MANAGER_LINKS: NavEntry[] = [
   DASHBOARD,
   FLEET,
   { href: "/compliance", label: "Compliance" },
   WORKSHOP,
-  { href: "/training", label: "Training" },
+  SAFETY,
   LIBRARY,
   TIME_OFF,
   { href: "/reports", label: "Reports" },
@@ -59,6 +68,7 @@ const MECHANIC_LINKS: NavEntry[] = [
   WORKSHOP,
   { href: "/compliance", label: "Compliance" },
   LIBRARY,
+  TOOLBOX,
   TIME_OFF,
 ];
 
@@ -67,6 +77,7 @@ const BASIC_LINKS: NavEntry[] = [
   DASHBOARD,
   { href: "/check", label: "Daily Check" },
   { href: "/faults", label: "My Faults" },
+  TOOLBOX,
   TIME_OFF,
 ];
 
