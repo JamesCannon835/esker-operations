@@ -32,6 +32,13 @@ dashboard (green/amber/red) · document storage · asset history & cost reportin
   field → add jobs/parts/labour/photos → vehicle status → sign-off → `VMR-YYYY-NNNN`,
   read-only, fault closes (or stays open), follow-up becomes an Action, "not safe" =
   OUT OF SERVICE. Vehicle "Maintenance history" tab; Transport-Manager search/filter.
+- **Precast orders** (`/precast`, `supabase/precast.sql`) — phone orders for
+  made-to-order precast (sills, lintels…). Management raise the order typing lengths
+  in feet ("6ft6", "10ft", "8" — `lib/precast.ts` `parseFeet`); the yard sees it in
+  feet and hits "Mark done"; management get a **customer docket PDF in metres**
+  (`/precast/[id]/docket`, pdf-lib). Sold per linear metre — the order form shows
+  the running metre total live. `precast_products` list is editable
+  (`/precast/products`). Management create/edit; yard/plant/management see + close.
 - **Tasks** (`/actions`, was "Actions") — the `actions` table + `/actions` screen.
   Feeds off maintenance follow-ups, and now anyone workshop/management can raise a
   manual task (`entity_type='task'`): short description (with browser speech-to-text

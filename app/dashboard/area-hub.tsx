@@ -22,6 +22,7 @@ const AREAS: Area[] = [
   { href: "/toolbox", label: "Toolbox Talks", sub: "Send & sign", emoji: "🦺", color: "#1f5a5a" },
   { href: "/deliveries", label: "Goods In", sub: "Cement, sand, stone", emoji: "🧾", color: "#7a5c3a" },
   { href: "/verti-block", label: "Verti-Block", sub: "Production & load builder", emoji: "🧱", color: "#8a5a3a" },
+  { href: "/precast", label: "Precast Orders", sub: "Sills, lintels — ft to metres", emoji: "🏗️", color: "#6a5a4a" },
   { href: "/blasting", label: "Blasting", sub: "Notify neighbours", emoji: "💥", color: "#7a4a2f" },
   { href: "/leave", label: "Time Off", sub: "Book & approve", emoji: "🌴", color: "#2f6e4a" },
   { href: "/reports", label: "Reports", sub: "Export data", emoji: "📊", color: "#8a6a3a" },

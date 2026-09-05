@@ -75,6 +75,10 @@ export async function RolePanels({
             <div className="label">Load builder</div>
             <div className="value">Build</div>
           </Link>
+          <Link className="tile" href="/precast">
+            <div className="label">Precast orders</div>
+            <div className="value">View</div>
+          </Link>
           <Link className="tile" href="/faults/new">
             <div className="label">Report a fault</div>
             <div className="value">Report</div>

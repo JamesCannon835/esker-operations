@@ -43,6 +43,7 @@ const LIBRARY: NavGroup = {
 const TIME_OFF: NavLink = { href: "/leave", label: "Time Off" };
 const TOOLBOX: NavLink = { href: "/toolbox", label: "Toolbox Talks" };
 const VERTI_BLOCK: NavLink = { href: "/verti-block", label: "Verti-Block" };
+const PRECAST: NavLink = { href: "/precast", label: "Precast" };
 
 const SAFETY: NavGroup = {
   label: "Safety",
@@ -50,6 +51,11 @@ const SAFETY: NavGroup = {
     { href: "/training", label: "Training" },
     TOOLBOX,
   ],
+};
+
+const PRODUCTS: NavGroup = {
+  label: "Products",
+  links: [VERTI_BLOCK, PRECAST],
 };
 
 const MANAGER_LINKS: NavEntry[] = [
@@ -61,7 +67,7 @@ const MANAGER_LINKS: NavEntry[] = [
   LIBRARY,
   { href: "/deliveries", label: "Goods In" },
   { href: "/blasting", label: "Blasting" },
-  VERTI_BLOCK,
+  PRODUCTS,
   TIME_OFF,
   { href: "/reports", label: "Reports" },
 ];
@@ -123,7 +129,10 @@ export function AppNav({ roles }: { roles: Role[] }) {
     !hasRole(roles, "mechanic") &&
     (hasRole(roles, "plant_operator") || hasRole(roles, "yard_staff"))
   ) {
-    links.splice(1, 0, VERTI_BLOCK, { href: "/actions", label: "My Tasks" });
+    links.splice(1, 0, VERTI_BLOCK, PRECAST, {
+      href: "/actions",
+      label: "My Tasks",
+    });
   }
 
   if (roles.includes("admin")) {
