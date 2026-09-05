@@ -62,25 +62,48 @@ export async function RolePanels({
   }
 
   if (hasRole(roles, "plant_operator") || hasRole(roles, "yard_staff")) {
-    const { count: precastOpen } = await supabase
-      .from("precast_orders")
-      .select("*", { count: "exact", head: true })
-      .in("status", ["new", "in_progress"]);
+    const [{ count: mineOpen }, { count: unassignedOpen }] = await Promise.all([
+      supabase
+        .from("precast_orders")
+        .select("*", { count: "exact", head: true })
+        .eq("assigned_to", userId)
+        .in("status", ["new", "in_progress"]),
+      supabase
+        .from("precast_orders")
+        .select("*", { count: "exact", head: true })
+        .is("assigned_to", null)
+        .in("status", ["new", "in_progress"]),
+    ]);
+    const precastOpen = (mineOpen ?? 0) + (unassignedOpen ?? 0);
 
     panels.push(
       <div className="card" key="yard">
         <h2>Yard</h2>
-        {(precastOpen ?? 0) > 0 && (
+        {(mineOpen ?? 0) > 0 ? (
           <Link
             className="tile tile-alert"
             href="/precast"
             style={{ display: "block" }}
           >
             <div className="value">
-              {precastOpen} precast order{precastOpen === 1 ? "" : "s"} to make
+              {mineOpen} precast order{mineOpen === 1 ? "" : "s"} for you
             </div>
-            <div className="label">Tap to open</div>
+            <div className="label">Assigned to you — tap to open</div>
           </Link>
+        ) : (
+          (unassignedOpen ?? 0) > 0 && (
+            <Link
+              className="tile tile-alert"
+              href="/precast"
+              style={{ display: "block" }}
+            >
+              <div className="value">
+                {unassignedOpen} precast order
+                {unassignedOpen === 1 ? "" : "s"} to make
+              </div>
+              <div className="label">Tap to open</div>
+            </Link>
+          )
         )}
         <div className="grid">
           <Link className="tile" href="/verti-block/sheets">

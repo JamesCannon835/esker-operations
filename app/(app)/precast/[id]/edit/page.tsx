@@ -44,15 +44,18 @@ export default async function EditPrecastOrderPage({
 
   if (!order) notFound();
 
-  const rows = ((lines ?? []) as PrecastLine[]).map((l) => ({
-    key: k++,
-    productId: l.product_id ?? "",
-    name: l.product_name,
-    length: l.length_text ?? (l.length_ft != null ? String(l.length_ft) : ""),
-    other: false,
-    qty: String(l.quantity),
-    notes: l.notes ?? "",
-  }));
+  const rows = ((lines ?? []) as PrecastLine[]).map((l) => {
+    const totalIn = l.length_ft != null ? Math.round(l.length_ft * 12) : null;
+    return {
+      key: k++,
+      productId: l.product_id ?? "",
+      name: l.product_name,
+      feet: totalIn != null ? String(Math.floor(totalIn / 12)) : "",
+      inches: totalIn != null ? String(totalIn % 12) : "0",
+      qty: String(l.quantity),
+      notes: l.notes ?? "",
+    };
+  });
 
   return (
     <>

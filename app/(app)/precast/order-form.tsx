@@ -2,13 +2,7 @@
 
 import { useActionState, useState } from "react";
 import Link from "next/link";
-import {
-  parseFeet,
-  feetLabel,
-  fmtM,
-  FT_TO_M,
-  PRECAST_LENGTHS,
-} from "@/lib/precast";
+import { feetLabel, fmtM, FT_TO_M } from "@/lib/precast";
 import type { FormState } from "./actions";
 
 type Product = { id: string; name: string };
@@ -17,22 +11,31 @@ type Row = {
   key: number;
   productId: string;
   name: string;
-  length: string;
-  other: boolean;
+  feet: string;
+  inches: string;
   qty: string;
   notes: string;
 };
+
+const FEET = Array.from({ length: 11 }, (_, i) => i + 2); // 2..12
+const INCHES = Array.from({ length: 12 }, (_, i) => i); // 0..11
 
 let seq = 1;
 const blankRow = (): Row => ({
   key: seq++,
   productId: "",
   name: "",
-  length: "",
-  other: false,
+  feet: "",
+  inches: "0",
   qty: "1",
   notes: "",
 });
+
+function rowFeet(r: Row): number | null {
+  const f = Number(r.feet);
+  if (!Number.isFinite(f) || f <= 0) return null;
+  return f + (Number(r.inches) || 0) / 12;
+}
 
 export function OrderForm({
   action,
@@ -67,7 +70,7 @@ export function OrderForm({
 
   let totalM = 0;
   for (const r of rows) {
-    const ft = parseFeet(r.length);
+    const ft = rowFeet(r);
     const q = Number(r.qty) || 0;
     if (ft != null) totalM += ft * FT_TO_M * q;
   }
@@ -115,15 +118,13 @@ export function OrderForm({
       </div>
 
       <p className="hint" style={{ margin: "14px 0 6px" }}>
-        Order lines — pick the product and length as the customer gives them (in
-        feet); the docket total comes out in metres.
+        Order lines — pick the product, then the length in feet and inches. The
+        docket total is worked out in metres.
       </p>
 
       <div className="del-rows">
         {rows.map((r, i) => {
-          const other =
-            r.other || (r.length !== "" && !PRECAST_LENGTHS.includes(r.length));
-          const ft = parseFeet(r.length);
+          const ft = rowFeet(r);
           const q = Number(r.qty) || 0;
           const lineM = ft != null ? ft * FT_TO_M * q : null;
           const productName =
@@ -156,6 +157,11 @@ export function OrderForm({
                 </div>
               </div>
               <input type="hidden" name="product_name" value={productName} />
+              <input
+                type="hidden"
+                name="length_text"
+                value={ft != null ? feetLabel(ft) : ""}
+              />
               <div className="del-grid">
                 <label>
                   Product
@@ -175,33 +181,33 @@ export function OrderForm({
                   </select>
                 </label>
                 <label>
-                  Length
+                  Feet
                   <select
-                    name="length_text"
-                    value={other ? "__other" : r.length}
-                    onChange={(e) =>
-                      patch(r.key, {
-                        length: e.target.value === "__other" ? "" : e.target.value,
-                        other: e.target.value === "__other",
-                      })
-                    }
+                    name="length_ft_whole"
+                    value={r.feet}
+                    onChange={(e) => patch(r.key, { feet: e.target.value })}
                   >
-                    <option value="">— length —</option>
-                    {PRECAST_LENGTHS.map((l) => (
-                      <option key={l} value={l}>
-                        {l}
+                    <option value="">—</option>
+                    {FEET.map((f) => (
+                      <option key={f} value={f}>
+                        {f} ft
                       </option>
                     ))}
-                    <option value="__other">Other…</option>
                   </select>
-                  <input
-                    name="length_custom"
-                    value={other ? r.length : ""}
-                    onChange={(e) => patch(r.key, { length: e.target.value })}
-                    placeholder="e.g. 13ft6"
-                    hidden={!other}
-                    style={{ marginTop: 4 }}
-                  />
+                </label>
+                <label>
+                  Inches
+                  <select
+                    name="length_in"
+                    value={r.inches}
+                    onChange={(e) => patch(r.key, { inches: e.target.value })}
+                  >
+                    {INCHES.map((n) => (
+                      <option key={n} value={n}>
+                        {n} in
+                      </option>
+                    ))}
+                  </select>
                 </label>
                 <label>
                   Quantity
@@ -225,10 +231,8 @@ export function OrderForm({
               </div>
               <div className="muted" style={{ fontSize: 13, marginTop: 4 }}>
                 {ft != null
-                  ? `${feetLabel(ft)} each = ${fmtM(ft * FT_TO_M)}`
-                  : r.length
-                    ? "can't read that length"
-                    : ""}
+                  ? `${feetLabel(ft)} = ${fmtM(ft * FT_TO_M)} each`
+                  : "pick a length"}
                 {lineM != null ? ` · line total ${fmtM(lineM)}` : ""}
               </div>
             </div>
@@ -252,7 +256,7 @@ export function OrderForm({
       </div>
 
       <p className="hint">
-        Total to go on the docket: <strong>{fmtM(totalM)}</strong>
+        Total for the docket: <strong>{fmtM(totalM)}</strong>
       </p>
 
       <div className="btn-row">

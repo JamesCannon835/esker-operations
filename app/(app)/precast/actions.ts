@@ -6,8 +6,7 @@ import { requireUser } from "@/lib/auth";
 import { isManager, canProduction } from "@/lib/roles";
 import { createClient } from "@/lib/supabase/server";
 import { orNull, numOrNull, friendlyDbError } from "@/lib/assets";
-import { parseFeet, feetLabel } from "@/lib/precast";
-import { notifyRoles, SITE_URL } from "@/lib/notify";
+import { feetLabel } from "@/lib/precast";
 
 export type FormState = { error?: string };
 
@@ -53,8 +52,8 @@ type LineInput = {
 function readLines(formData: FormData): LineInput[] {
   const pids = formData.getAll("product_id").map(String);
   const names = formData.getAll("product_name").map(String);
-  const lens = formData.getAll("length_text").map(String);
-  const customs = formData.getAll("length_custom").map(String);
+  const feets = formData.getAll("length_ft_whole").map(String);
+  const inchs = formData.getAll("length_in").map(String);
   const qtys = formData.getAll("quantity").map(String);
   const notes = formData.getAll("line_notes").map(String);
 
@@ -65,14 +64,17 @@ function readLines(formData: FormData): LineInput[] {
     const q = Math.max(0, Math.round(Number(qtys[i]) || 0));
     if (!name && !pid) continue;
     if (q <= 0) continue;
-    const sel = lens[i]?.trim() || "";
-    const lenText =
-      sel === "__other" ? customs[i]?.trim() || null : sel || null;
+
+    const feet = Number(feets[i]);
+    const inch = Number(inchs[i]) || 0;
+    const length_ft =
+      Number.isFinite(feet) && feet > 0 ? feet + inch / 12 : null;
+
     out.push({
       product_id: pid,
       product_name: name,
-      length_ft: lenText ? parseFeet(lenText) : null,
-      length_text: lenText,
+      length_ft,
+      length_text: length_ft != null ? feetLabel(length_ft) : null,
       quantity: q,
       notes: notes[i]?.trim() || null,
     });
@@ -136,30 +138,6 @@ export async function createOrder(
   if (error) return { error: friendlyDbError(error.message) };
 
   await saveLines(supabase, order.id, lines);
-
-  // Tell the yard (best-effort; delivers once the email sender is set up).
-  const summary = lines
-    .map(
-      (l) =>
-        `• ${l.product_name} — ${l.length_text ?? feetLabel(l.length_ft)} × ${l.quantity}`,
-    )
-    .join("\n");
-  await notifyRoles(
-    ["yard_staff", "plant_operator", "transport_manager", "admin"],
-    `New precast order${orNull(formData.get("customer")) ? ` — ${orNull(formData.get("customer"))}` : ""}`,
-    `A new precast order has been raised.\n\n${summary}\n\n` +
-      (orNull(formData.get("required_date")) ||
-      orNull(formData.get("required_time"))
-        ? `Needed: ${[
-            orNull(formData.get("required_date")),
-            orNull(formData.get("required_time")),
-          ]
-            .filter(Boolean)
-            .join(" ")}\n\n`
-        : "") +
-      `Open it: ${SITE_URL}/precast/${order.id}\n`,
-  );
-
   refresh(order.id);
   redirect(`/precast/${order.id}`);
 }
