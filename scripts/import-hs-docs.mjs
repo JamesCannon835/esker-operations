@@ -156,8 +156,9 @@ async function fileAlreadyImported(folderId, name) {
 async function importFile(absPath, name, folderId) {
   const info = await stat(absPath);
   const allocated = (info.blocks ?? 0) * 512;
-  // Dropbox online-only placeholder: large logical size, ~nothing on disk.
-  const cloudOnly = info.size > 1_048_576 && allocated < info.size * 0.5;
+  // Dropbox online-only placeholder: logical size but ~nothing on disk.
+  // (files under 4 KB can legitimately be NTFS-resident with 0 blocks)
+  const cloudOnly = info.size >= 4096 && allocated < info.size * 0.5;
   if (cloudOnly || info.size > MAX_BYTES) {
     stats.cloudOnly.push(
       `${absPath}  (${(info.size / 1048576).toFixed(1)} MB${cloudOnly ? ", not downloaded" : ""})`,
