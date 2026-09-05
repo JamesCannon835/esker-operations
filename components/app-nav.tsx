@@ -58,6 +58,7 @@ const MANAGER_LINKS: NavEntry[] = [
   WORKSHOP,
   SAFETY,
   LIBRARY,
+  { href: "/blasting", label: "Blasting" },
   TIME_OFF,
   { href: "/reports", label: "Reports" },
 ];

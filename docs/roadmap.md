@@ -39,6 +39,13 @@ dashboard (green/amber/red) · document storage · asset history & cost reportin
   `documents` bucket, management only. Three sections: Health & Safety (mirrors the
   Dropbox layout), Quality, Environmental. Training register links people to their
   Training Records subfolder (`hs_person_folders`).
+- **Blast notifications** (`/blasting`, `supabase/blast_notifications.sql`) — the
+  neighbour contact list, reusable SMS templates (`{date}`/`{time}` tokens), and a
+  per-blast notification with a full per-neighbour send log for the blast record.
+  Management only. The actual SMS send goes through `lib/sms.ts` — **no provider
+  wired yet**: set `SMS_PROVIDER` + keys and fill the branch (Twilio / ClickSend /
+  Text Marketer) to switch sending on; until then drafting + logging work and Send
+  is blocked. One-way only.
 - **Toolbox talks** (`/toolbox`, `supabase/toolbox_talks.sql`) — a manager writes a
   weekly talk (typed text and/or a PDF picked from the H&S Toolbox folder), chooses
   recipients, sends it. Each person reads it and signs on-screen with a finger; the
