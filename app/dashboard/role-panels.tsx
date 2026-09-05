@@ -5,6 +5,7 @@ import { fmtDate } from "@/lib/format";
 import { trainingStatus } from "@/lib/training";
 import { COMPLIANCE_STATUS_LABELS } from "@/lib/compliance";
 import { getLeaveBalance } from "@/lib/leave-server";
+import { canSeeTasks } from "@/lib/tasks";
 import { AreaHub } from "./area-hub";
 import { DashboardCalendar } from "./dashboard-calendar";
 
@@ -66,12 +67,12 @@ export async function RolePanels({
         <h2>Verti-Block</h2>
         <p className="hint">Weekly production sheet and load building.</p>
         <div className="grid">
-          <Link className="tile" href="/verti-block">
+          <Link className="tile" href="/verti-block/sheets">
             <div className="label">Production sheet</div>
             <div className="value">Open</div>
           </Link>
           <Link className="tile" href="/verti-block/loads">
-            <div className="label">Loads</div>
+            <div className="label">Load builder</div>
             <div className="value">Build</div>
           </Link>
           <Link className="tile" href="/faults/new">
@@ -312,14 +313,16 @@ export async function RolePanels({
     );
   }
 
-  // Everyone: tasks assigned to me.
-  const { data: myTasks } = await supabase
-    .from("actions")
-    .select("id, title, due_date, priority")
-    .eq("assigned_to", userId)
-    .in("status", ["open", "in_progress"])
-    .order("due_date", { nullsFirst: false })
-    .limit(8);
+  // Tasks assigned to me (not drivers).
+  const { data: myTasks } = canSeeTasks(roles)
+    ? await supabase
+        .from("actions")
+        .select("id, title, due_date, priority")
+        .eq("assigned_to", userId)
+        .in("status", ["open", "in_progress"])
+        .order("due_date", { nullsFirst: false })
+        .limit(8)
+    : { data: null };
   if (myTasks && myTasks.length > 0) {
     const today = new Date().toISOString().slice(0, 10);
     panels.push(

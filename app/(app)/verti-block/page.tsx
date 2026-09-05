@@ -1,92 +1,36 @@
 import Link from "next/link";
-import { requireUser } from "@/lib/auth";
-import { isManager, canProduction } from "@/lib/roles";
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
-import { fmtDate } from "@/lib/format";
-import { NewWeekForm } from "./new-week-form";
+import { requireUser } from "@/lib/auth";
+import { canProduction } from "@/lib/roles";
 
 export const dynamic = "force-dynamic";
 
-export default async function VertiBlockPage() {
+export default async function VertiBlockHomePage() {
   const { roles } = await requireUser();
-  if (!canProduction(roles)) {
-    redirect("/dashboard");
-  }
-  const manager = isManager(roles);
-  const supabase = await createClient();
-
-  const [{ data: weeks }, { data: days }] = await Promise.all([
-    supabase
-      .from("verti_production_weeks")
-      .select("id, week_commencing, operator_name")
-      .order("week_commencing", { ascending: false }),
-    supabase.from("verti_production_days").select("week_id, counts"),
-  ]);
-
-  const total = new Map<string, number>();
-  for (const d of days ?? []) {
-    let n = 0;
-    for (const v of Object.values((d.counts ?? {}) as Record<string, number>)) {
-      n += Number(v) || 0;
-    }
-    total.set(d.week_id, (total.get(d.week_id) ?? 0) + n);
-  }
+  if (!canProduction(roles)) redirect("/dashboard");
 
   return (
     <>
       <div className="page-head">
-        <h1>Verti-Block production</h1>
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-          <Link className="btn small" href="/verti-block/loads">
-            Loads
-          </Link>
-          {manager && (
-            <>
-              <Link className="btn small ghost" href="/verti-block/types">
-                Block types
-              </Link>
-              <a className="btn small ghost" href="/verti-block/export">
-                Download CSV
-              </a>
-            </>
-          )}
-        </div>
+        <h1>Verti-Block</h1>
       </div>
-
-      <div className="card">
-        <h2>Start a week</h2>
-        <NewWeekForm />
-      </div>
-
-      <div className="card">
-        <h2>Weekly records</h2>
-        {!weeks || weeks.length === 0 ? (
-          <p className="empty">No sheets yet.</p>
-        ) : (
-          <table className="list-table">
-            <thead>
-              <tr>
-                <th>Week commencing</th>
-                <th>Operator</th>
-                <th>Blocks made</th>
-              </tr>
-            </thead>
-            <tbody>
-              {weeks.map((w) => (
-                <tr key={w.id}>
-                  <td>
-                    <Link href={`/verti-block/${w.id}`}>
-                      {fmtDate(w.week_commencing)}
-                    </Link>
-                  </td>
-                  <td className="muted">{w.operator_name ?? "—"}</td>
-                  <td className="muted">{total.get(w.id) ?? 0}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
+      <div className="grid">
+        <Link className="tile" href="/verti-block/sheets" style={{ padding: "20px 16px" }}>
+          <div className="value" style={{ fontSize: 18 }}>
+            🧱 Production sheets
+          </div>
+          <div className="label" style={{ marginTop: 4 }}>
+            Weekly record — blocks made, broken, inspections
+          </div>
+        </Link>
+        <Link className="tile" href="/verti-block/loads" style={{ padding: "20px 16px" }}>
+          <div className="value" style={{ fontSize: 18 }}>
+            🚚 Load builder
+          </div>
+          <div className="label" style={{ marginTop: 4 }}>
+            Build an order — weight and value against the truck
+          </div>
+        </Link>
       </div>
     </>
   );

@@ -22,8 +22,8 @@ export default async function VbTypesPage() {
 
   return (
     <>
-      <Link className="link-back" href="/verti-block">
-        ← Verti-Block production
+      <Link className="link-back" href="/verti-block/sheets">
+        ← Production sheets
       </Link>
       <div className="page-head">
         <h1>Block types</h1>

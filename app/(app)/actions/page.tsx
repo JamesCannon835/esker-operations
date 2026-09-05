@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { fmtDate } from "@/lib/format";
@@ -9,7 +10,7 @@ import {
   type ActionPriority,
   type ActionStatus,
 } from "@/lib/maintenance";
-import { canSeeAllTasks, canAssignTasks } from "@/lib/tasks";
+import { canSeeTasks, canSeeAllTasks, canAssignTasks } from "@/lib/tasks";
 import { ConfirmButton } from "@/components/confirm-button";
 import { markActionDone } from "./actions";
 
@@ -40,6 +41,7 @@ export default async function ActionsPage({
   searchParams: Promise<{ show?: string }>;
 }) {
   const { user, roles } = await requireUser();
+  if (!canSeeTasks(roles)) redirect("/dashboard");
   const workshop = canSeeAllTasks(roles);
 
   const { show } = await searchParams;

@@ -207,7 +207,7 @@ export function WeekSheet({
         <button className="btn" type="submit">
           Save week
         </button>
-        <Link className="btn ghost" href="/verti-block">
+        <Link className="btn ghost" href="/verti-block/sheets">
           Back
         </Link>
       </div>

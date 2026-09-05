@@ -11,7 +11,7 @@ import {
   type ActionPriority,
   type ActionStatus,
 } from "@/lib/maintenance";
-import { canSeeAllTasks, type TaskAttachment } from "@/lib/tasks";
+import { canSeeTasks, canSeeAllTasks, type TaskAttachment } from "@/lib/tasks";
 import { ConfirmButton } from "@/components/confirm-button";
 import {
   completeAction,
@@ -42,6 +42,7 @@ export default async function ActionDetailPage({
     .maybeSingle();
   if (!a) notFound();
 
+  if (!canSeeTasks(roles)) redirect("/dashboard");
   const workshop = canSeeAllTasks(roles);
   const mine = a.assigned_to === user.id || a.raised_by === user.id;
   if (!workshop && !mine) redirect("/dashboard");

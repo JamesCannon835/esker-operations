@@ -38,7 +38,7 @@ export default async function LoadsPage() {
   return (
     <>
       <Link className="link-back" href="/verti-block">
-        ← Verti-Block production
+        ← Verti-Block
       </Link>
       <div className="page-head">
         <h1>Loads</h1>

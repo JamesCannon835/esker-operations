@@ -48,8 +48,8 @@ export default async function WeekPage({
 
   return (
     <>
-      <Link className="link-back" href="/verti-block">
-        ← Verti-Block production
+      <Link className="link-back" href="/verti-block/sheets">
+        ← Production sheets
       </Link>
       <div className="page-head">
         <h1>Week of {fmtDate(week.week_commencing)}</h1>
