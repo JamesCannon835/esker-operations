@@ -37,6 +37,7 @@ const MANAGER_LINKS: NavEntry[] = [
   { href: "/compliance", label: "Compliance" },
   WORKSHOP,
   { href: "/training", label: "Training" },
+  { href: "/health-safety", label: "H&S" },
   { href: "/reports", label: "Reports" },
 ];
 
@@ -45,6 +46,7 @@ const MECHANIC_LINKS: NavEntry[] = [
   FLEET,
   WORKSHOP,
   { href: "/compliance", label: "Compliance" },
+  { href: "/health-safety", label: "H&S" },
 ];
 
 // Drivers and plant operators — kept deliberately minimal.

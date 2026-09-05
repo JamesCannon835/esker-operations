@@ -1052,3 +1052,91 @@ th {
   font-size: 22px;
   display: block;
 }
+
+/* ---- Health & Safety document library ---- */
+.hs-crumbs {
+  font-size: 14px;
+  margin-bottom: 12px;
+  color: var(--muted);
+}
+.hs-crumbs a {
+  text-decoration: none;
+}
+.hs-icon {
+  margin-right: 4px;
+}
+.hs-date {
+  color: var(--muted);
+}
+.list-table .hs-date {
+  display: none;
+}
+@media (min-width: 640px) {
+  .list-table .hs-date {
+    display: inline;
+  }
+}
+
+.hs-menu {
+  display: inline-block;
+  position: relative;
+}
+.hs-menu > summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-weight: 700;
+  color: var(--muted);
+  user-select: none;
+}
+.hs-menu > summary::-webkit-details-marker {
+  display: none;
+}
+.hs-menu > summary:hover {
+  background: var(--bg);
+}
+.hs-menu-panel {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  z-index: 30;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14);
+  padding: 8px;
+  min-width: 220px;
+}
+.hs-menu-actions {
+  display: flex;
+  flex-direction: column;
+}
+.hs-menu-actions button {
+  text-align: left;
+  padding: 9px 10px;
+  border: none;
+  background: none;
+  font-size: 14px;
+  cursor: pointer;
+  border-radius: 6px;
+}
+.hs-menu-actions button:hover {
+  background: var(--bg);
+}
+.hs-menu-actions button.danger {
+  color: var(--danger);
+}
+.hs-menu-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.hs-menu-form input,
+.hs-menu-form select {
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 14px;
+  max-width: 260px;
+}
