@@ -125,7 +125,7 @@ export default async function TrainingRegisterPage() {
                       </Link>
                       {folderByUser.has(p.id) && (
                         <Link
-                          href={`/health-safety/f/${folderByUser.get(p.id)}`}
+                          href={`/library/health-safety/f/${folderByUser.get(p.id)}`}
                           title="Open records folder"
                           style={{ marginLeft: 6, textDecoration: "none" }}
                         >

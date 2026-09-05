@@ -1,20 +1,50 @@
-// Health & Safety document library — shared constants + helpers.
+// Document library — one folder/document engine, several sections
+// (Health & Safety, Quality, Environmental). All live in the `documents`
+// storage bucket and the hs_folders / hs_documents tables, kept apart by
+// a `section` tag. Access is management only (public.is_workshop()).
 
-export const HS_BUCKET = "documents";
-export const HS_PREFIX = "hs";
-export const HS_MAX_BYTES = 40 * 1024 * 1024; // 40 MB per file
+export const DOC_BUCKET = "documents";
+export const DOC_MAX_BYTES = 40 * 1024 * 1024; // 40 MB per file
 
-export const HS_ACCEPT =
+export const DOC_ACCEPT =
   ".pdf,.jpg,.jpeg,.png,.webp,.heic,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv";
 
-export type HsFolder = {
+export const DOC_SECTIONS = [
+  "health_safety",
+  "quality",
+  "environmental",
+] as const;
+export type DocSection = (typeof DOC_SECTIONS)[number];
+
+export const DOC_SECTION_META: Record<
+  DocSection,
+  { slug: string; title: string; prefix: string }
+> = {
+  health_safety: { slug: "health-safety", title: "Health & Safety", prefix: "hs" },
+  quality: { slug: "quality", title: "Quality", prefix: "quality" },
+  environmental: {
+    slug: "environmental",
+    title: "Environmental",
+    prefix: "environmental",
+  },
+};
+
+export function sectionFromSlug(slug: string): DocSection | null {
+  return (
+    (DOC_SECTIONS as readonly DocSection[]).find(
+      (s) => DOC_SECTION_META[s].slug === slug,
+    ) ?? null
+  );
+}
+
+export type LibFolder = {
   id: string;
   name: string;
   parent_id: string | null;
   sort_order: number;
 };
 
-export type HsDocument = {
+export type LibDocument = {
   id: string;
   folder_id: string | null;
   name: string;
@@ -43,9 +73,9 @@ export function sortOrderFromName(name: string): number {
 
 /** Flatten a folder list into indented path options for a move picker. */
 export function folderPaths(
-  folders: HsFolder[],
+  folders: LibFolder[],
 ): { id: string; label: string; depth: number }[] {
-  const byParent = new Map<string | null, HsFolder[]>();
+  const byParent = new Map<string | null, LibFolder[]>();
   for (const f of folders) {
     const arr = byParent.get(f.parent_id) ?? [];
     arr.push(f);

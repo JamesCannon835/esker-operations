@@ -34,6 +34,13 @@ dashboard (green/amber/red) · document storage · asset history & cost reportin
   OUT OF SERVICE. Vehicle "Maintenance history" tab; Transport-Manager search/filter.
 - **Central Actions table** (foundation change #3, done early) — `actions` table +
   `/actions` screen. Feeds off maintenance follow-ups now; later Safety/Quality/Environmental.
+- **Document library** (`/library/[section]`, `supabase/health_safety_docs.sql` +
+  `doc_library_sections.sql`) — folder tree + upload/scan/rename/move/delete, in the
+  `documents` bucket, management only. Three sections: Health & Safety (mirrors the
+  Dropbox layout), Quality, Environmental. Training register links people to their
+  Training Records subfolder (`hs_person_folders`).
+  Next: **toolbox talks** — push a weekly talk to all staff, read-and-sign
+  acknowledgement, tracked completion (replaces the in-person sign sheet).
 - **Vehicle Inspection & Rectification Report** (`supabase/vehicle_inspection.sql`) — an
   iPad checklist engine (`inspection_checklists` master, 65-item vehicle checklist).
   Big OK/DEFECT/N-A buttons, per-section progress, defect panel (photo/severity/safe),

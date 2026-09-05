@@ -1,13 +1,15 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { hasRole, isManager, type Role } from "@/lib/roles";
-import { HS_BUCKET } from "@/lib/health-safety";
+import { DOC_BUCKET, sectionFromSlug } from "@/lib/doc-library";
 
 export async function GET(
   request: Request,
-  { params }: { params: Promise<{ id: string }> },
+  { params }: { params: Promise<{ section: string; id: string }> },
 ) {
-  const { id } = await params;
+  const { section: slug, id } = await params;
+  const section = sectionFromSlug(slug);
+  const home = new URL(section ? `/library/${slug}` : "/dashboard", request.url);
   const supabase = await createClient();
 
   const {
@@ -23,21 +25,20 @@ export async function GET(
   if (!hasRole(roles, "mechanic") && !isManager(roles)) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
+  if (!section) return NextResponse.redirect(home);
 
   const { data: doc } = await supabase
     .from("hs_documents")
-    .select("file_path")
+    .select("file_path, section")
     .eq("id", id)
     .maybeSingle();
-  if (!doc?.file_path) {
-    return NextResponse.redirect(new URL("/health-safety", request.url));
+  if (!doc?.file_path || doc.section !== section) {
+    return NextResponse.redirect(home);
   }
 
   const { data, error } = await supabase.storage
-    .from(HS_BUCKET)
+    .from(DOC_BUCKET)
     .createSignedUrl(doc.file_path, 180);
-  if (error || !data) {
-    return NextResponse.redirect(new URL("/health-safety", request.url));
-  }
+  if (error || !data) return NextResponse.redirect(home);
   return NextResponse.redirect(data.signedUrl);
 }

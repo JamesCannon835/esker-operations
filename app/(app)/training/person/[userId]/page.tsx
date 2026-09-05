@@ -54,6 +54,7 @@ export default async function PersonTrainingPage({
   const { data: trFolder } = await supabase
     .from("hs_folders")
     .select("id")
+    .eq("section", "health_safety")
     .ilike("name", "%training records%")
     .order("name")
     .limit(1)
@@ -77,7 +78,10 @@ export default async function PersonTrainingPage({
         <h1>{person.full_name}</h1>
         <div style={{ display: "flex", gap: 8 }}>
           {linkedId && (
-            <Link className="btn small ghost" href={`/health-safety/f/${linkedId}`}>
+            <Link
+              className="btn small ghost"
+              href={`/library/health-safety/f/${linkedId}`}
+            >
               📁 Records folder
             </Link>
           )}

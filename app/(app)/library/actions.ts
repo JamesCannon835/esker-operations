@@ -6,7 +6,11 @@ import { createClient } from "@/lib/supabase/server";
 import { requireUser } from "@/lib/auth";
 import { hasRole, isManager } from "@/lib/roles";
 import { orNull, friendlyDbError } from "@/lib/assets";
-import { HS_BUCKET } from "@/lib/health-safety";
+import {
+  DOC_BUCKET,
+  DOC_SECTION_META,
+  type DocSection,
+} from "@/lib/doc-library";
 
 export type FormState = { error?: string; ok?: boolean };
 
@@ -17,11 +21,16 @@ async function requireWorkshop() {
 }
 
 function touch() {
-  revalidatePath("/health-safety", "layout");
+  revalidatePath("/library", "layout");
+}
+
+function base(section: DocSection) {
+  return `/library/${DOC_SECTION_META[section].slug}`;
 }
 
 // ---- folders ----
 export async function createFolder(
+  section: DocSection,
   parentId: string | null,
   _prev: FormState,
   formData: FormData,
@@ -33,6 +42,7 @@ export async function createFolder(
   const { error } = await supabase.from("hs_folders").insert({
     name,
     parent_id: parentId,
+    section,
     created_by: user.id,
   });
   if (error) return { error: friendlyDbError(error.message) };
@@ -106,7 +116,7 @@ export async function moveFolder(
   return { ok: true };
 }
 
-export async function deleteFolder(id: string) {
+export async function deleteFolder(section: DocSection, id: string) {
   await requireWorkshop();
   const supabase = await createClient();
 
@@ -118,7 +128,7 @@ export async function deleteFolder(id: string) {
     .in("folder_id", ids);
   const paths = (docs ?? []).map((d) => d.file_path).filter(Boolean);
   for (let i = 0; i < paths.length; i += 100) {
-    await supabase.storage.from(HS_BUCKET).remove(paths.slice(i, i + 100));
+    await supabase.storage.from(DOC_BUCKET).remove(paths.slice(i, i + 100));
   }
 
   const { data: folder } = await supabase
@@ -129,11 +139,12 @@ export async function deleteFolder(id: string) {
   await supabase.from("hs_folders").delete().eq("id", id); // cascades rows
 
   touch();
-  redirect(folder?.parent_id ? `/health-safety/f/${folder.parent_id}` : "/health-safety");
+  redirect(folder?.parent_id ? `${base(section)}/f/${folder.parent_id}` : base(section));
 }
 
 // ---- documents ----
 export async function registerUpload(
+  section: DocSection,
   folderId: string | null,
   file: { path: string; name: string; size: number; type: string | null },
 ) {
@@ -141,6 +152,7 @@ export async function registerUpload(
   const supabase = await createClient();
   await supabase.from("hs_documents").insert({
     folder_id: folderId,
+    section,
     name: file.name,
     file_path: file.path,
     file_size: file.size,
@@ -195,7 +207,7 @@ export async function deleteDocument(id: string) {
     .maybeSingle();
   await supabase.from("hs_documents").delete().eq("id", id);
   if (doc?.file_path) {
-    await supabase.storage.from(HS_BUCKET).remove([doc.file_path]);
+    await supabase.storage.from(DOC_BUCKET).remove([doc.file_path]);
   }
   touch();
 }

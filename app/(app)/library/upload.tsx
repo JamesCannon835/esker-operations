@@ -2,16 +2,18 @@
 
 import { useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { HS_BUCKET, HS_PREFIX, HS_MAX_BYTES, HS_ACCEPT } from "@/lib/health-safety";
+import { DOC_BUCKET, DOC_MAX_BYTES, DOC_ACCEPT } from "@/lib/doc-library";
 
 function sanitise(name: string) {
   return name.replace(/[^A-Za-z0-9._-]+/g, "_").slice(0, 120) || "file";
 }
 
-export function HsUpload({
+export function Upload({
+  prefix,
   folderId,
   register,
 }: {
+  prefix: string;
   folderId: string | null;
   register: (file: {
     path: string;
@@ -33,15 +35,15 @@ export function HsUpload({
     for (const file of files) {
       done++;
       setBusy(`${done}/${files.length}`);
-      if (file.size > HS_MAX_BYTES) {
+      if (file.size > DOC_MAX_BYTES) {
         setErr(`${file.name} is over 40 MB — skipped`);
         continue;
       }
-      const key = `${HS_PREFIX}/${folderId ?? "root"}/${crypto.randomUUID()}-${sanitise(
+      const key = `${prefix}/${folderId ?? "root"}/${crypto.randomUUID()}-${sanitise(
         file.name,
       )}`;
       const { error } = await supabase.storage
-        .from(HS_BUCKET)
+        .from(DOC_BUCKET)
         .upload(key, file, { contentType: file.type || undefined });
       if (error) {
         setErr(`${file.name}: ${error.message}`);
@@ -74,7 +76,7 @@ export function HsUpload({
         ref={inputRef}
         type="file"
         multiple
-        accept={HS_ACCEPT}
+        accept={DOC_ACCEPT}
         hidden
         onChange={onChange}
       />

@@ -31,6 +31,15 @@ const WORKSHOP: NavGroup = {
   ],
 };
 
+const LIBRARY: NavGroup = {
+  label: "Documents",
+  links: [
+    { href: "/library/health-safety", label: "Health & Safety" },
+    { href: "/library/quality", label: "Quality" },
+    { href: "/library/environmental", label: "Environmental" },
+  ],
+};
+
 const TIME_OFF: NavLink = { href: "/leave", label: "Time Off" };
 
 const MANAGER_LINKS: NavEntry[] = [
@@ -39,7 +48,7 @@ const MANAGER_LINKS: NavEntry[] = [
   { href: "/compliance", label: "Compliance" },
   WORKSHOP,
   { href: "/training", label: "Training" },
-  { href: "/health-safety", label: "H&S" },
+  LIBRARY,
   TIME_OFF,
   { href: "/reports", label: "Reports" },
 ];
@@ -49,7 +58,7 @@ const MECHANIC_LINKS: NavEntry[] = [
   FLEET,
   WORKSHOP,
   { href: "/compliance", label: "Compliance" },
-  { href: "/health-safety", label: "H&S" },
+  LIBRARY,
   TIME_OFF,
 ];
 

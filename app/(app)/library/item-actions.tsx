@@ -5,7 +5,7 @@ import type { FormState } from "./actions";
 
 type Target = { id: string; label: string };
 
-export function HsItemActions({
+export function ItemActions({
   kind,
   name,
   moveTargets,
@@ -49,7 +49,7 @@ export function HsItemActions({
         ) : open === "move" ? (
           <form action={moveAction} className="hs-menu-form">
             <select name="target" defaultValue={currentTarget ?? ""}>
-              <option value="">All documents (top level)</option>
+              <option value="">Top level</option>
               {moveTargets.map((t) => (
                 <option key={t.id} value={t.id}>
                   {t.label}
