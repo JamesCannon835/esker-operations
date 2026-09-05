@@ -208,6 +208,12 @@ transport managers only — actions now guard with `requireManager`; run
 logins (#4), `org_units`/`sites` (#5), lookup-tables convention (#6).
 
 ## Parked / cross-cutting
+- **System-wide edit/delete pass** (asked 2026-09-05, then shelved) — make every
+  record editable + removable for admins + transport managers. Decision: **archive**
+  (leave lists, keep linked history) when anything references the record; hard-delete
+  only when nothing is linked. Known gaps: completed inspections, daily checks,
+  `services` (needs a `voided` column — currently none), individual faults
+  (`faults.voided` exists), and a few list screens missing an Edit link.
 - **Email notifications** — needs `updates.eskerreadymix.ie` verified in Resend
   (one DNS record) or a Gmail sender; then flip `NOTIFY_FROM` and redeploy.
 - **Goods In — docket scan** — "scan a docket" button on the new-ticket form:
