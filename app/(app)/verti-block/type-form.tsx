@@ -9,7 +9,12 @@ export function TypeForm({
   submitLabel,
 }: {
   id: string | null;
-  defaults?: { name?: string; sort_order?: number; active?: boolean };
+  defaults?: {
+    name?: string;
+    sort_order?: number;
+    active?: boolean;
+    weight_kg?: number | null;
+  };
   submitLabel: string;
 }) {
   const [state, formAction] = useActionState<FormState, FormData>(
@@ -28,6 +33,16 @@ export function TypeForm({
       <label>
         Name
         <input name="name" required defaultValue={d.name ?? ""} />
+      </label>
+      <label>
+        Weight each (kg)
+        <input
+          name="weight_kg"
+          type="number"
+          step="1"
+          inputMode="decimal"
+          defaultValue={d.weight_kg ?? ""}
+        />
       </label>
       <label>
         Order

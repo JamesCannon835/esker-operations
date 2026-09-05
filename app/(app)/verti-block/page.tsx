@@ -37,16 +37,21 @@ export default async function VertiBlockPage() {
     <>
       <div className="page-head">
         <h1>Verti-Block production</h1>
-        {manager && (
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-            <Link className="btn small ghost" href="/verti-block/types">
-              Block types
-            </Link>
-            <a className="btn small ghost" href="/verti-block/export">
-              Download CSV
-            </a>
-          </div>
-        )}
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          <Link className="btn small" href="/verti-block/loads">
+            Loads
+          </Link>
+          {manager && (
+            <>
+              <Link className="btn small ghost" href="/verti-block/types">
+                Block types
+              </Link>
+              <a className="btn small ghost" href="/verti-block/export">
+                Download CSV
+              </a>
+            </>
+          )}
+        </div>
       </div>
 
       <div className="card">

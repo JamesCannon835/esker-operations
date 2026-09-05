@@ -1479,3 +1479,54 @@ th {
   font-weight: 400;
   background: #fff;
 }
+
+/* ---- Verti-Block load builder ----------------------------------- */
+.vb-cap {
+  margin-top: 12px;
+}
+.vb-cap-track {
+  height: 14px;
+  border-radius: 8px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+.vb-cap-fill {
+  height: 100%;
+  background: var(--green);
+  transition: width 0.15s ease;
+}
+.vb-cap-fill.over {
+  background: var(--alarm-bg);
+}
+.vb-load-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.vb-load-line {
+  display: grid;
+  grid-template-columns: 1fr 90px 90px;
+  gap: 10px;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+.vb-load-line:last-child {
+  border-bottom: none;
+}
+.vb-load-name {
+  font-size: 14px;
+  font-weight: 600;
+}
+.vb-load-line input {
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 15px;
+  text-align: right;
+}
+.vb-load-linekg {
+  text-align: right;
+  font-size: 13px;
+}

@@ -104,7 +104,12 @@ Slot onto the same asset / document / people / audit structure.
   editable block types (`verti_block_types`, `counts` jsonb on the day), blocks
   broken, and three inspection ticks (block visual / mould visual / weight).
   Yard staff (plant_operator) + management fill it in; managers get block-type
-  admin, delete, and CSV export. Still to come: stock levels, QC test results.
+  admin, delete, and CSV export.
+  **Load builder** (`/verti-block/loads`): block types carry a `weight_kg`; a load
+  has a reference/customer/truck/max payload; add quantities per block type and the
+  builder shows total blocks, total weight and a payload bar (over = flagged) so you
+  can see exactly how many to put on the truck. Status building → loaded → dispatched.
+  Still to come: stock levels, QC test results.
 
 ---
 

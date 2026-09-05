@@ -16,7 +16,7 @@ export default async function VbTypesPage() {
 
   const { data: types } = await supabase
     .from("verti_block_types")
-    .select("id, name, sort_order, active")
+    .select("id, name, sort_order, active, weight_kg")
     .order("sort_order")
     .order("name");
 
@@ -40,6 +40,7 @@ export default async function VbTypesPage() {
               <summary>
                 <strong>{t.name}</strong>{" "}
                 <span className="muted">
+                  {t.weight_kg != null ? `${t.weight_kg} kg · ` : "no weight · "}
                   order {t.sort_order}
                   {t.active ? "" : " · off"}
                 </span>

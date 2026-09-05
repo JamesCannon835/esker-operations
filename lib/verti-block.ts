@@ -3,7 +3,39 @@ export type VbType = {
   name: string;
   sort_order: number;
   active: boolean;
+  weight_kg?: number | null;
 };
+
+export type VbLoad = {
+  id: string;
+  reference: string | null;
+  customer: string | null;
+  load_date: string;
+  truck_reg: string | null;
+  max_payload_kg: number | null;
+  status: "building" | "loaded" | "dispatched";
+  notes: string | null;
+};
+
+export type VbLoadLine = {
+  id: string;
+  load_id: string;
+  block_type_id: string;
+  quantity: number;
+  weight_kg: number | null;
+};
+
+export const LOAD_STATUS_LABELS: Record<string, string> = {
+  building: "Building",
+  loaded: "Loaded",
+  dispatched: "Dispatched",
+};
+
+export function fmtKg(kg: number | null | undefined): string {
+  if (kg == null) return "—";
+  if (Math.abs(kg) >= 1000) return `${(kg / 1000).toFixed(2)} t`;
+  return `${Math.round(kg)} kg`;
+}
 
 export type VbWeek = {
   id: string;
