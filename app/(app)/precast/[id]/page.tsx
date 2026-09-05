@@ -40,6 +40,17 @@ export default async function PrecastOrderPage({
 
   const rows = (lines ?? []) as PrecastLine[];
   const totalM = rows.reduce((s, l) => s + (lineMetres(l) ?? 0), 0);
+
+  const productAgg = new Map<string, { qty: number; metres: number }>();
+  for (const l of rows) {
+    const a = productAgg.get(l.product_name) ?? { qty: 0, metres: 0 };
+    a.qty += l.quantity || 0;
+    a.metres += lineMetres(l) ?? 0;
+    productAgg.set(l.product_name, a);
+  }
+  const byProduct = [...productAgg.entries()]
+    .map(([name, v]) => ({ name, ...v }))
+    .sort((a, b) => b.metres - a.metres);
   const done = order.status === "done";
   const cancelled = order.status === "cancelled";
 
@@ -143,6 +154,34 @@ export default async function PrecastOrderPage({
           </p>
         )}
       </div>
+
+      {manager && byProduct.length > 0 && (
+        <div className="card">
+          <h2>Metres by product</h2>
+          <table className="list-table">
+            <tbody>
+              {byProduct.map((p) => (
+                <tr key={p.name}>
+                  <td>{p.name}</td>
+                  <td className="muted">{p.qty} off</td>
+                  <td style={{ textAlign: "right" }}>
+                    <strong>{fmtM(p.metres)}</strong>
+                  </td>
+                </tr>
+              ))}
+              <tr>
+                <td>
+                  <strong>Total</strong>
+                </td>
+                <td />
+                <td style={{ textAlign: "right" }}>
+                  <strong>{fmtM(totalM)}</strong>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      )}
 
       <div className="card">
         {done ? (

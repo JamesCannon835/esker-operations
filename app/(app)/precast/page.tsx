@@ -49,6 +49,9 @@ export default async function PrecastPage() {
             <Link className="btn small" href="/precast/new">
               + New order
             </Link>
+            <Link className="btn small ghost" href="/precast/summary">
+              Metres by product
+            </Link>
             <Link className="btn small ghost" href="/precast/products">
               Products
             </Link>
