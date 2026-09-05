@@ -184,6 +184,12 @@ logins (#4), `org_units`/`sites` (#5), lookup-tables convention (#6).
 ## Parked / cross-cutting
 - **Email notifications** — needs `updates.eskerreadymix.ie` verified in Resend
   (one DNS record) or a Gmail sender; then flip `NOTIFY_FROM` and redeploy.
+- **Goods In — docket scan** — "scan a docket" button on the new-ticket form:
+  photograph the delivery/weighbridge docket, AI-extract supplier / product /
+  tonnage / docket no. / date (Anthropic vision, `ANTHROPIC_API_KEY`, gate like
+  Twilio), pre-fill for the user to confirm. Also save the scanned image on the
+  ticket (`docket_path`, `deliveries/` prefix). User said "not yet" — waiting on
+  the API key.
 - **Inspection checklist rework** — pending a sit-down with the mechanic.
 - **Plant & trailer bulk import** — same pattern as vehicles, not yet built.
   Trailers were entered manually.
