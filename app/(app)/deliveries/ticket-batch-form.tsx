@@ -21,18 +21,22 @@ type Row = {
   unit: string;
   qty: string;
   price: string;
+  date: string;
   docket: string;
   reg: string;
 };
 
+const TODAY = new Date().toISOString().slice(0, 10);
+
 let seq = 1;
-const blankRow = (): Row => ({
+const blankRow = (date: string): Row => ({
   key: seq++,
   productId: "",
   name: "",
   unit: "tonne",
   qty: "",
   price: "",
+  date,
   docket: "",
   reg: "",
 });
@@ -46,7 +50,6 @@ export function TicketBatchForm({
   products: Product[];
   defaults?: {
     supplier_id?: string;
-    delivered_on?: string;
     row?: Partial<Row>;
   };
 }) {
@@ -56,11 +59,8 @@ export function TicketBatchForm({
   );
 
   const [supplierId, setSupplierId] = useState(defaults?.supplier_id ?? "");
-  const [deliveredOn, setDeliveredOn] = useState(
-    defaults?.delivered_on ?? new Date().toISOString().slice(0, 10),
-  );
   const [rows, setRows] = useState<Row[]>([
-    { ...blankRow(), ...defaults?.row },
+    { ...blankRow(TODAY), ...defaults?.row },
   ]);
 
   const supplierProducts = products.filter((p) => p.supplier_id === supplierId);
@@ -77,6 +77,12 @@ export function TicketBatchForm({
       price: p?.unit_price != null ? String(p.unit_price) : "",
     });
   }
+  function addLine() {
+    setRows((rs) => [
+      ...rs,
+      blankRow(rs[rs.length - 1]?.date || TODAY),
+    ]);
+  }
 
   const grand = rows.reduce(
     (sum, r) => sum + (lineTotal(Number(r.qty) || null, Number(r.price) || null) ?? 0),
@@ -87,7 +93,6 @@ export function TicketBatchForm({
     <form action={formAction}>
       {state.error && <div className="error">{state.error}</div>}
       <input type="hidden" name="supplier_id" value={supplierId} />
-      <input type="hidden" name="delivered_on" value={deliveredOn} />
 
       <div className="field">
         <label htmlFor="supplier">
@@ -117,19 +122,6 @@ export function TicketBatchForm({
             <Link href="/deliveries/suppliers">add one first</Link>.
           </div>
         )}
-      </div>
-
-      <div className="field">
-        <label htmlFor="delivered_on">
-          Delivery date <span className="req">*</span>
-        </label>
-        <input
-          id="delivered_on"
-          type="date"
-          value={deliveredOn}
-          onChange={(e) => setDeliveredOn(e.target.value)}
-          required
-        />
       </div>
 
       <div className="del-rows">
@@ -170,6 +162,16 @@ export function TicketBatchForm({
               </div>
 
               <div className="del-grid">
+                <label>
+                  Delivery date <span className="req">*</span>
+                  <input
+                    name="delivered_on"
+                    type="date"
+                    value={r.date}
+                    onChange={(e) => patch(r.key, { date: e.target.value })}
+                  />
+                </label>
+
                 <label>
                   Product
                   {supplierProducts.length > 0 ? (
@@ -264,18 +266,15 @@ export function TicketBatchForm({
       </div>
 
       <div style={{ margin: "10px 0" }}>
-        <button
-          type="button"
-          className="btn ghost small"
-          onClick={() => setRows((rs) => [...rs, blankRow()])}
-        >
+        <button type="button" className="btn ghost small" onClick={addLine}>
           + Add line
         </button>
       </div>
 
       <p className="hint">
         {rows.length} {rows.length === 1 ? "ticket" : "tickets"} · estimated total{" "}
-        <strong>{fmtMoney(grand)}</strong>
+        <strong>{fmtMoney(grand)}</strong> · one ticket saved per line, each with
+        its own date
       </p>
 
       <div className="btn-row">

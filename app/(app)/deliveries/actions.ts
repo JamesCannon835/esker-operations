@@ -122,16 +122,19 @@ type TicketInput = {
   unit: string;
   quantity: number;
   unit_price: number | null;
+  delivered_on: string;
   docket_number: string | null;
   vehicle_reg: string | null;
 };
 
 function readRows(formData: FormData): TicketInput[] {
+  const today = new Date().toISOString().slice(0, 10);
   const productIds = formData.getAll("product_id").map(String);
   const names = formData.getAll("product_name").map(String);
   const units = formData.getAll("unit").map(String);
   const qtys = formData.getAll("quantity").map(String);
   const prices = formData.getAll("unit_price").map(String);
+  const dates = formData.getAll("delivered_on").map(String);
   const dockets = formData.getAll("docket_number").map(String);
   const regs = formData.getAll("vehicle_reg").map(String);
 
@@ -150,6 +153,7 @@ function readRows(formData: FormData): TicketInput[] {
       quantity: q,
       unit_price:
         priceRaw && Number.isFinite(Number(priceRaw)) ? Number(priceRaw) : null,
+      delivered_on: dates[i]?.trim() || today,
       docket_number: dockets[i]?.trim() || null,
       vehicle_reg: regs[i]?.trim() || null,
     });
@@ -165,9 +169,7 @@ export async function createTickets(
   const supabase = await createClient();
 
   const supplier_id = orNull(formData.get("supplier_id"));
-  const delivered_on = orNull(formData.get("delivered_on"));
   if (!supplier_id) return { error: "Choose the supplier." };
-  if (!delivered_on) return { error: "Enter the delivery date." };
 
   const rows = readRows(formData);
   if (rows.length === 0)
@@ -196,7 +198,7 @@ export async function createTickets(
       unit_price: r.unit_price ?? p?.unit_price ?? null,
       docket_number: r.docket_number,
       vehicle_reg: r.vehicle_reg,
-      delivered_on,
+      delivered_on: r.delivered_on,
       created_by: user.id,
     };
   });
